@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Context Protocol - AI와 데이터의 연결 혁명</title>
+    
+    <!-- SEO 및 소셜 미디어 최적화 -->
+    <meta name="description" content="Anthropic의 Model Context Protocol(MCP) - LLM과 실제 데이터를 연결하는 혁신적인 프로토콜의 모든 것">
+    <meta property="og:title" content="Model Context Protocol - 인포그래픽 가이드">
+    <meta property="og:description" content="AI 도구와 데이터 소스를 연결하는 표준 프로토콜 MCP의 심층 분석">
+    
+    <!-- 외부 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --accent-color: #06b6d4;
+            --text-color: #1e293b;
+            --bg-color: #ffffff;
+            --section-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --gradient-3: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --secondary-color: #a78bfa;
+            --accent-color: #22d3ee;
+            --text-color: #e2e8f0;
+            --bg-color: #0f172a;
+            --section-bg: #1e293b;
+            --card-bg: #334155;
+            --border-color: #475569;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .scroll-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide-section {
+            min-height: 100vh;
+            padding: 80px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .slide-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page-indicator {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.6;
+            font-weight: 500;
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            margin: 60px 0;
+        }
+
+        /* Theme Toggle - 첫 페이지에만 표시 */
+        .theme-toggle {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: none;
+            z-index: 1000;
+        }
+
+        #title .theme-toggle {
+            display: block;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 30px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+        }
+
+        h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        h4 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        /* Grid Layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        /* Feature Box */
+        .feature-box {
+            background: linear-gradient(135deg, var(--card-bg) 0%, var(--section-bg) 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+
+        .feature-box:hover {
+            transform: translateX(10px);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient-2);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 40px 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s;
+        }
+
+        .timeline-item.animate-in {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(even) {
+            text-align: right;
+            transform: translateX(50px);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 40px 0;
+            position: relative;
+        }
+
+        .arch-component {
+            background: var(--card-bg);
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s;
+        }
+
+        .arch-component:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .arch-arrow {
+            position: absolute;
+            top: 50%;
+            width: 100px;
+            height: 2px;
+            background: var(--gradient-2);
+            z-index: 1;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        [data-theme="dark"] .code-block {
+            background: #0f172a;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(167,139,250,0.1) 100%);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        /* Stats */
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 40px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 900;
+            background: var(--gradient-2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 36px; }
+            h2 { font-size: 28px; }
+            h3 { font-size: 24px; }
+            .slide-section { padding: 60px 20px; }
+            .timeline::before { left: 20px; }
+            .timeline-content { width: calc(100% - 60px); margin-left: 60px !important; }
+            .timeline-item:nth-child(even) { text-align: left; }
+            .architecture-diagram { flex-direction: column; gap: 30px; }
+            .arch-arrow { display: none; }
+        }
+
+        /* Section Backgrounds */
+        #title {
+            background: linear-gradient(135deg, var(--section-bg) 0%, var(--bg-color) 100%);
+        }
+
+        #overview {
+            background: linear-gradient(180deg, var(--bg-color) 0%, var(--section-bg) 100%);
+        }
+
+        .analysis-section {
+            background: linear-gradient(135deg, rgba(59,130,246,0.05) 0%, rgba(167,139,250,0.05) 100%);
+        }
+
+        /* Loading Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 30px 0;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Icon styles */
+        .icon {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            margin-bottom: 15px;
+            background: var(--gradient-2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        /* Progress indicators */
+        .progress-bar {
+            height: 4px;
+            background: var(--gradient-1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 9999;
+        }
+
+        /* Visual break */
+        .visual-break {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 60px 0;
+        }
+
+        .visual-break::before,
+        .visual-break::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .visual-break-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 30px;
+            background: var(--gradient-2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        /* Table styles */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--section-bg);
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress Bar -->
+    <div class="progress-bar"></div>
+    
+    <!-- Main Content -->
+    <main class="scroll-container">
+        
+        <!-- Section 1: Title -->
+        <section class="slide-section fade-in-section" id="title">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="테마 전환">
+                <span id="theme-icon">🌙</span> 테마 전환
+            </button>
+            <div class="page-indicator">1 / 19</div>
+            
+            <div style="text-align: center;">
+                <h1>Model Context Protocol</h1>
+                <p style="font-size: 28px; font-weight: 300; color: var(--secondary-color); margin-bottom: 40px;">
+                    AI와 데이터의 연결 혁명
+                </p>
+                <div style="background: var(--gradient-2); height: 4px; width: 100px; margin: 40px auto;"></div>
+                <p style="font-size: 20px; opacity: 0.8;">
+                    Anthropic이 제시하는 LLM 통합의 새로운 표준
+                </p>
+                <div style="margin-top: 60px;">
+                    <p style="font-size: 16px; opacity: 0.6;">
+                        📺 원본: Microsoft Developer YouTube<br>
+                        📅 2024년 11월 25일 공개<br>
+                        ⏱️ 45분 분량
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Overview -->
+        <section class="slide-section fade-in-section" id="overview">
+            <div class="page-indicator">2 / 19</div>
+            
+            <h2>학습 개요</h2>
+            <p style="font-size: 20px; margin-bottom: 40px;">
+                이 가이드에서 다룰 Model Context Protocol(MCP)의 핵심 내용
+            </p>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🎯</div>
+                    <h4>문제 인식</h4>
+                    <p>기존 AI 도구들의 '섬' 문제와 데이터 연결의 한계를 이해합니다.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🏗️</div>
+                    <h4>아키텍처</h4>
+                    <p>MCP의 3계층 구조와 JSON RPC 기반 통신 방식을 학습합니다.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔧</div>
+                    <h4>실무 적용</h4>
+                    <p>6가지 Primitives와 보안 구현 방법을 익힙니다.</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>학습 목표</h4>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li>MCP가 해결하는 근본적인 문제 이해</li>
+                    <li>프로토콜의 기술적 구조와 작동 원리 파악</li>
+                    <li>실제 프로젝트에 MCP 적용 방법 습득</li>
+                    <li>보안 및 성능 최적화 전략 수립</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Background -->
+        <section class="slide-section fade-in-section" id="background">
+            <div class="page-indicator">3 / 19</div>
+            
+            <h2>영상 배경 정보</h2>
+            
+            <div class="grid-2">
+                <div>
+                    <h3>발표 맥락</h3>
+                    <p>2024년 11월, Anthropic이 MCP를 공식 발표한 직후 Microsoft Developer 채널에서 진행된 기술 세션입니다.</p>
+                    <p>Microsoft, Google, OpenAI 등 주요 기업들이 이미 채택을 결정한 상황에서, 개발자들을 위한 상세한 기술 설명을 제공합니다.</p>
+                </div>
+                <div>
+                    <h3>핵심 메시지</h3>
+                    <div class="feature-box">
+                        <h4>🌉 "데이터를 LLM으로 보내는 파이프"</h4>
+                        <p>MCP는 USB-C처럼 모든 것을 연결하는 표준 프로토콜입니다.</p>
+                    </div>
+                    <div class="feature-box" style="margin-top: 20px;">
+                        <h4>🔓 "오픈 소스와 표준화"</h4>
+                        <p>vendor lock-in 없는 자유로운 AI 생태계 구축이 목표입니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number">1년</div>
+                    <div class="stat-label">미만의 신생 프로토콜</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">6개</div>
+                    <div class="stat-label">핵심 Primitives</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">지원 언어 SDK</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Problem Recognition -->
+        <section class="slide-section fade-in-section" id="problem">
+            <div class="page-indicator">4 / 19</div>
+            
+            <h2>기존 AI 도구의 한계</h2>
+            <p style="font-size: 22px; color: var(--secondary-color); margin-bottom: 40px;">
+                왜 MCP가 필요한가? - 현재 AI 생태계의 근본적 문제
+            </p>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>🏝️ 고립된 섬들</h4>
+                        <p>Copilot, Claude, GPT 등 각 AI 도구가 독립적으로 작동하며, 조직의 실제 데이터와 분리되어 있습니다.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>💰 비용 문제</h4>
+                        <p>자체 데이터로 모델을 학습시키는 것은 비용이 많이 들고 아무도 원하지 않습니다.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>🔧 OpenAPI의 한계</h4>
+                        <p>API만 연결 가능하고, 실제 애플리케이션과의 연동은 불가능합니다.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visual-break">
+                <div class="visual-break-icon">💡</div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>MCP의 해결책</h3>
+                <p style="font-size: 20px; line-height: 1.8;">
+                    "애플리케이션과 API가 LLM에 연결되는 USB-C" - 표준화된 프로토콜로 모든 연결 문제를 해결
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 5: Core Architecture -->
+        <section class="slide-section fade-in-section" id="architecture">
+            <div class="page-indicator">5 / 19</div>
+            
+            <h2>MCP 아키텍처 상세 분석</h2>
+            <p style="font-size: 20px; margin-bottom: 40px;">분산 시스템 설계 원칙을 적용한 3계층 확장 가능 프로토콜</p>
+            
+            <div class="architecture-diagram">
+                <div class="arch-component">
+                    <h4>MCP Host</h4>
+                    <p><strong>Orchestrator</strong><br>
+                    생명주기 관리<br>
+                    다중 클라이언트 조정</p>
+                </div>
+                <div class="arch-arrow" style="left: 25%;"></div>
+                <div class="arch-component">
+                    <h4>MCP Client</h4>
+                    <p><strong>Interface Layer</strong><br>
+                    요청 라우팅<br>
+                    응답 집계</p>
+                </div>
+                <div class="arch-arrow" style="left: 58%;"></div>
+                <div class="arch-component">
+                    <h4>MCP Server</h4>
+                    <p><strong>Resource Provider</strong><br>
+                    상태 관리<br>
+                    비즈니스 로직</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h3>계층별 상세 스펙</h3>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 30px;">
+                <div class="card">
+                    <h4>🔄 전송 계층 (Transport Layer)</h4>
+                    <div class="code-block">
+// stdio 로컬 프로세스 통신
+{
+  "transport": "stdio",
+  "process": {
+    "command": "node",
+    "args": ["server.js"],
+    "env": {"NODE_ENV": "production"}
+  }
+}
+
+// HTTP/SSE 원격 통신
+{
+  "transport": "http+sse",
+  "endpoint": "https://api.mcp.com",
+  "auth": "oauth2",
+  "timeout": 30000
+}</div>
+                    <ul style="margin-top: 15px; line-height: 1.8;">
+                        <li><strong>stdio:</strong> 자식 프로세스 spawn, IPC 채널 활용</li>
+                        <li><strong>HTTP+SSE:</strong> Server-Sent Events로 실시간 스트리밍</li>
+                        <li><strong>WebSocket:</strong> 양방향 실시간 통신 (개발중)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📊 데이터 계층 (Data Layer)</h4>
+                    <div class="code-block">
+// JSON-RPC 2.0 메시지 구조
+{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "0.1.0",
+    "capabilities": {
+      "tools": true,
+      "resources": true,
+      "prompts": true,
+      "sampling": true
+    },
+    "clientInfo": {
+      "name": "claude-desktop",
+      "version": "1.0.0"
+    }
+  },
+  "id": "init-001"
+}</div>
+                    <ul style="margin-top: 15px; line-height: 1.8;">
+                        <li><strong>버전 협상:</strong> Semantic Versioning 기반 호환성 체크</li>
+                        <li><strong>기능 탐지:</strong> Capabilities 협상으로 동적 기능 활성화</li>
+                        <li><strong>에러 처리:</strong> 표준화된 에러 코드 체계 (-32700 ~ -32000)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 30px;">
+                <h4>🎯 애플리케이션 계층 (Application Layer)</h4>
+                <div class="grid-3" style="margin-top: 20px;">
+                    <div class="feature-box">
+                        <h5>Connection Manager</h5>
+                        <ul style="font-size: 14px;">
+                            <li>연결 풀링</li>
+                            <li>재연결 로직</li>
+                            <li>Health Check</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box">
+                        <h5>Request Router</h5>
+                        <ul style="font-size: 14px;">
+                            <li>요청 분산</li>
+                            <li>로드 밸런싱</li>
+                            <li>Rate Limiting</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box">
+                        <h5>State Manager</h5>
+                        <ul style="font-size: 14px;">
+                            <li>세션 상태</li>
+                            <li>컨텍스트 유지</li>
+                            <li>캐시 관리</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 30px; background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%); border-left-color: #ef4444;">
+                <h4>⚠️ 아키텍처 설계 고려사항</h4>
+                <ul style="line-height: 1.8;">
+                    <li><strong>스케일링:</strong> 수평 확장을 위한 Stateless 서버 설계 필수</li>
+                    <li><strong>장애 격리:</strong> Circuit Breaker 패턴으로 연쇄 장애 방지</li>
+                    <li><strong>백프레셔:</strong> 클라이언트 과부하 방지를 위한 흐름 제어</li>
+                    <li><strong>멀티테넌시:</strong> 리소스 격리와 공정한 자원 할당</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 6: Primitives Overview -->
+        <section class="slide-section fade-in-section" id="primitives">
+            <div class="page-indicator">6 / 19</div>
+            
+            <h2>MCP Primitives 심화 분석</h2>
+            <p style="font-size: 20px; margin-bottom: 40px;">LLM 상호작용을 위한 6가지 핵심 빌딩 블록의 기술적 구현</p>
+            
+            <div class="card" style="background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(167,139,250,0.1) 100%);">
+                <h3>Primitives 설계 철학</h3>
+                <p>각 Primitive는 독립적으로 작동하면서도 조합 가능한 컴포저블 아키텍처를 따릅니다. 
+                이는 UNIX 철학의 "Do one thing well"을 AI 컨텍스트에 적용한 것입니다.</p>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>🔧 Tools (도구)</h3>
+                    <div class="code-block">
+{
+  "name": "database_query",
+  "description": "Execute SQL query",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {"type": "string"},
+      "params": {"type": "array"}
+    },
+    "required": ["query"]
+  },
+  "handler": async (params) => {
+    // 트랜잭션 관리
+    // 쿼리 최적화
+    // 결과 스트리밍
+  }
+}</div>
+                    <p style="margin-top: 15px;"><strong>구현 패턴:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>Idempotent 설계로 재시도 안전성 보장</li>
+                        <li>JSON Schema 검증으로 타입 안정성 확보</li>
+                        <li>Timeout과 취소 토큰 지원</li>
+                        <li>부분 결과 스트리밍 옵션</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>📁 Resources (리소스)</h3>
+                    <div class="code-block">
+{
+  "uri": "file:///workspace/docs/*.md",
+  "mimeType": "text/markdown",
+  "metadata": {
+    "size": 1024000,
+    "modified": "2024-11-25T10:00:00Z",
+    "permissions": "r--"
+  },
+  "capabilities": {
+    "watch": true,
+    "stream": true,
+    "paginate": true
+  }
+}</div>
+                    <p style="margin-top: 15px;"><strong>URI 스키마 지원:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li><code>file://</code> - 로컬 파일시스템</li>
+                        <li><code>db://</code> - 데이터베이스 리소스</li>
+                        <li><code>api://</code> - 외부 API 엔드포인트</li>
+                        <li><code>memory://</code> - 인메모리 데이터</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>💬 Prompts (프롬프트)</h3>
+                    <div class="code-block">
+{
+  "name": "/analyze_codebase",
+  "description": "Analyze project structure",
+  "arguments": [
+    {
+      "name": "path",
+      "description": "Project root path",
+      "required": true
+    },
+    {
+      "name": "depth",
+      "description": "Analysis depth",
+      "default": 3
+    }
+  ],
+  "template": "Analyzing {{path}} with depth {{depth}}..."
+}</div>
+                    <p style="margin-top: 15px;"><strong>고급 기능:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>템플릿 변수 바인딩</li>
+                        <li>조건부 프롬프트 렌더링</li>
+                        <li>다국어 지원</li>
+                        <li>컨텍스트 인젝션</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>🌲 Roots (루트)</h3>
+                    <div class="code-block">
+{
+  "roots": [
+    {
+      "path": "/app/data",
+      "permissions": "rw-",
+      "sandbox": true
+    },
+    {
+      "path": "/app/config",
+      "permissions": "r--",
+      "readonly": true
+    }
+  ],
+  "policy": "strict",
+  "escape": false
+}</div>
+                    <p style="margin-top: 15px;"><strong>보안 경계 설정:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>Chroot 스타일 격리</li>
+                        <li>권한 상속 제어</li>
+                        <li>심볼릭 링크 추적 정책</li>
+                        <li>경로 이스케이프 방지</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 30px;">
+                <div class="card">
+                    <h3>🎨 Sampling (샘플링)</h3>
+                    <div class="code-block">
+{
+  "method": "sampling/request",
+  "params": {
+    "messages": [
+      {"role": "user", "content": "..."},
+      {"role": "assistant", "content": "..."}
+    ],
+    "modelPreferences": {
+      "temperature": 0.7,
+      "maxTokens": 2000,
+      "stopSequences": ["\\n\\n"]
+    }
+  }
+}</div>
+                    <p style="margin-top: 15px;"><strong>활용 시나리오:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>코드 자동 완성</li>
+                        <li>문서 템플릿 채우기</li>
+                        <li>형식 변환 (MD → HTML)</li>
+                        <li>컨텍스트 기반 제안</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3>❓ Elicitations (유도)</h3>
+                    <div class="code-block">
+{
+  "type": "form",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "apiKey": {
+        "type": "string",
+        "format": "password",
+        "description": "API Key"
+      },
+      "endpoint": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https://"
+      }
+    }
+  },
+  "ui": {
+    "submitLabel": "Connect",
+    "cancelable": true
+  }
+}</div>
+                    <p style="margin-top: 15px;"><strong>보안 주의사항:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>민감 정보는 환경변수 사용</li>
+                        <li>입력 마스킹 처리</li>
+                        <li>세션 종료 시 자동 정리</li>
+                        <li>감사 로그 기록</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🔄 Primitives 조합 패턴</h4>
+                <div class="code-block">
+// 복합 워크플로우 예시
+async function complexWorkflow(client) {
+  // 1. Root 설정으로 작업 공간 제한
+  await client.setRoots(['/workspace']);
+  
+  // 2. Resource로 데이터 탐색
+  const files = await client.listResources('file:///workspace/*.json');
+  
+  // 3. Tool로 데이터 처리
+  const results = await client.executeTool('process_json', {files});
+  
+  // 4. Sampling으로 결과 요약
+  const summary = await client.requestSampling({
+    prompt: `Summarize: ${results}`,
+    maxTokens: 500
+  });
+  
+  return summary;
+}</div>
+            </div>
+        </section>
+
+        <!-- Section 7: Core Insights -->
+        <section class="slide-section fade-in-section" id="insights">
+            <div class="page-indicator">7 / 19</div>
+            
+            <h2>핵심 인사이트</h2>
+            
+            <div class="card" style="background: linear-gradient(135deg, rgba(59,130,246,0.1) 0%, rgba(167,139,250,0.1) 100%);">
+                <h3>🎯 패러다임 전환</h3>
+                <p style="font-size: 20px; line-height: 1.8;">
+                    MCP는 AI 도구를 독립적 섬에서 통합 생태계로 변화시키는 핵심 기술입니다.
+                    단일 프로토콜로 모든 LLM과 데이터 소스를 연결할 수 있습니다.
+                </p>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 40px;">
+                <div class="card">
+                    <h4>💡 표준화의 힘</h4>
+                    <p>하나의 MCP 서버 구현으로 모든 LLM에서 사용 가능. Write once, use everywhere 실현</p>
+                </div>
+                <div class="card">
+                    <h4>🚀 실용적 접근</h4>
+                    <p>API뿐 아니라 Blender, Figma 같은 실제 애플리케이션까지 연동 지원</p>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="adoptionChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Section 8: Security Model -->
+        <section class="slide-section fade-in-section" id="security">
+            <div class="page-indicator">8 / 19</div>
+            
+            <h2>MCP 수명주기 및 보안 아키텍처</h2>
+            
+            <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%);">
+                <h3>🔄 MCP 수명주기 관리</h3>
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div>
+                        <h4>1. 초기화 단계 (Initialization)</h4>
+                        <div class="code-block">
+// 서버 초기화 시퀀스
+{
+  "phase": "initialize",
+  "steps": [
+    "프로세스 생성/연결",
+    "버전 협상 (0.1.0)",
+    "Capabilities 교환",
+    "인증 핸드셰이크",
+    "세션 상태 초기화"
+  ],
+  "timeout": 30000,
+  "retries": 3
+}</div>
+                    </div>
+                    <div>
+                        <h4>2. 협상 단계 (Negotiation)</h4>
+                        <div class="code-block">
+// 기능 협상 프로토콜
+{
+  "client_capabilities": {
+    "tools": true,
+    "resources": true,
+    "experimental": ["streaming"]
+  },
+  "server_capabilities": {
+    "tools": true,
+    "resources": true,
+    "maxConcurrency": 10
+  }
+}</div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top: 20px;">
+                    <div>
+                        <h4>3. 운영 단계 (Operation)</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>요청 처리:</strong> 병렬/순차 실행 모드</li>
+                            <li><strong>상태 관리:</strong> 세션 컨텍스트 유지</li>
+                            <li><strong>에러 복구:</strong> 자동 재시도 메커니즘</li>
+                            <li><strong>Health Check:</strong> 주기적 상태 확인</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>4. 종료 단계 (Shutdown)</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>Graceful Shutdown:</strong> 진행중 작업 완료</li>
+                            <li><strong>리소스 정리:</strong> 메모리/파일 핸들 해제</li>
+                            <li><strong>상태 저장:</strong> 세션 데이터 영속화</li>
+                            <li><strong>연결 종료:</strong> 클린 디스커넥트</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <table class="comparison-table" style="margin-top: 40px;">
+                <thead>
+                    <tr>
+                        <th>보안 계층</th>
+                        <th>로컬 MCP 서버</th>
+                        <th>원격 MCP 서버</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>인증 (Authentication)</strong></td>
+                        <td>
+                            • 프로세스 소유권 기반<br>
+                            • OS 사용자 권한 상속<br>
+                            • 암시적 신뢰 모델
+                        </td>
+                        <td>
+                            • OAuth 2.1 + PKCE<br>
+                            • JWT 토큰 검증<br>
+                            • mTLS 옵션 지원
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>권한부여 (Authorization)</strong></td>
+                        <td>
+                            • 파일시스템 ACL<br>
+                            • 프로세스 격리<br>
+                            • AppArmor/SELinux 정책
+                        </td>
+                        <td>
+                            • RBAC/ABAC 정책<br>
+                            • Scope 기반 접근 제어<br>
+                            • API Rate Limiting
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>데이터 보호</strong></td>
+                        <td>
+                            • 로컬 IPC 암호화<br>
+                            • 메모리 보호<br>
+                            • 코어 덤프 방지
+                        </td>
+                        <td>
+                            • TLS 1.3 전송 암호화<br>
+                            • E2E 암호화 옵션<br>
+                            • PII 마스킹/토큰화
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>감사 (Auditing)</strong></td>
+                        <td>
+                            • 로컬 로그 파일<br>
+                            • 시스템 이벤트 로그<br>
+                            • 디버그 트레이스
+                        </td>
+                        <td>
+                            • 중앙화된 로그 수집<br>
+                            • SIEM 통합<br>
+                            • Compliance 리포팅
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="grid-2" style="margin-top: 40px;">
+                <div class="highlight-box">
+                    <h4>🔐 보안 구현 패턴</h4>
+                    <div class="code-block">
+// Zero Trust 보안 모델 구현
+class MCPSecurityManager {
+  async authenticate(request) {
+    // 1. 신원 확인
+    const identity = await this.verifyIdentity(
+      request.token,
+      request.clientCert
+    );
+    
+    // 2. 장치 신뢰도 평가
+    const deviceTrust = await this.assessDevice(
+      request.deviceId,
+      request.attestation
+    );
+    
+    // 3. 컨텍스트 기반 위험 평가
+    const riskScore = await this.calculateRisk({
+      location: request.ip,
+      time: request.timestamp,
+      behavior: request.pattern
+    });
+    
+    // 4. 적응형 인증
+    if (riskScore > 0.7) {
+      return this.requireMFA(identity);
+    }
+    
+    return this.grantAccess(identity, deviceTrust);
+  }
+}</div>
+                </div>
+                <div class="highlight-box" style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%); border-left-color: #ef4444;">
+                    <h4>⚠️ 보안 위협 벡터</h4>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Prompt Injection:</strong> 악의적 프롬프트 필터링</li>
+                        <li><strong>Data Exfiltration:</strong> 출력 검증 및 DLP</li>
+                        <li><strong>Privilege Escalation:</strong> 최소 권한 원칙</li>
+                        <li><strong>Supply Chain:</strong> 서버 코드 서명 검증</li>
+                        <li><strong>Side Channel:</strong> 타이밍 공격 방어</li>
+                        <li><strong>Resource Exhaustion:</strong> Rate Limiting</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 40px;">
+                <h3>🛡️ Defense in Depth 전략</h3>
+                <div class="grid-3">
+                    <div class="feature-box">
+                        <h5>네트워크 계층</h5>
+                        <ul style="font-size: 14px;">
+                            <li>WAF/DDoS 방어</li>
+                            <li>네트워크 세분화</li>
+                            <li>VPN/Private Link</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box">
+                        <h5>애플리케이션 계층</h5>
+                        <ul style="font-size: 14px;">
+                            <li>입력 검증</li>
+                            <li>출력 인코딩</li>
+                            <li>세션 관리</li>
+                        </ul>
+                    </div>
+                    <div class="feature-box">
+                        <h5>데이터 계층</h5>
+                        <ul style="font-size: 14px;">
+                            <li>암호화 저장</li>
+                            <li>키 관리 (KMS)</li>
+                            <li>백업 암호화</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>📋 보안 체크리스트</h4>
+                <ul style="line-height: 2;">
+                    <li>☑️ 모든 통신 채널 TLS 1.3 암호화</li>
+                    <li>☑️ 정적 시크릿을 환경 변수나 Secret Manager로 관리</li>
+                    <li>☑️ 토큰 수명 최소화 (15분) 및 자동 갱신</li>
+                    <li>☑️ 민감 데이터 로깅 방지 (PII 필터링)</li>
+                    <li>☑️ 정기적 보안 감사 및 펜테스팅</li>
+                    <li>☑️ Incident Response Plan 수립</li>
+                    <li>☑️ SBOM(Software Bill of Materials) 관리</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 9: Analysis 1 - Technical Depth -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis1">
+            <div class="page-indicator">9 / 19</div>
+            
+            <h2>심층분석 1: 기술적 깊이</h2>
+            
+            <div class="card">
+                <h3>JSON RPC 2.0 기반 설계의 의미</h3>
+                <p>MCP가 RESTful API나 GraphQL 대신 JSON RPC를 선택한 것은 전략적 결정입니다.</p>
+                
+                <div class="code-block">
+{
+  "jsonrpc": "2.0",
+  "method": "tools/execute",
+  "params": {
+    "tool": "create_mockup",
+    "arguments": {...}
+  },
+  "id": 1
+}
+                </div>
+                
+                <p style="margin-top: 20px;">
+                    <strong>장점:</strong> 양방향 통신, 실시간 상태 동기화, 비동기 작업 처리가 자연스럽게 가능합니다.
+                    버전 협상과 기능 탐지가 내장되어 하위 호환성을 보장하면서도 점진적 발전이 가능합니다.
+                </p>
+            </div>
+            
+            <div class="feature-box" style="margin-top: 30px;">
+                <h4>3계층 구조의 설계 철학</h4>
+                <p>전송 계층의 유연성(stdio/HTTP), 데이터 계층의 표준화(JSON RPC), 애플리케이션 계층의 추상화가 
+                완벽한 균형을 이루어 다양한 배포 시나리오에 대응합니다.</p>
+            </div>
+        </section>
+
+        <!-- Section 10: Analysis 2 - Industry Trends -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis2">
+            <div class="page-indicator">10 / 19</div>
+            
+            <h2>심층분석 2: 업계 트렌드</h2>
+            
+            <div class="stats-container">
+                <div class="stat-item">
+                    <div class="stat-number">5+</div>
+                    <div class="stat-label">Major Vendors</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2025</div>
+                    <div class="stat-label">예상 표준화</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">80%</div>
+                    <div class="stat-label">예상 채택률</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>시장 채택 동향</h3>
+                <p>Microsoft의 core maintainer 참여는 Azure AI 서비스와의 긴밀한 통합을 시사합니다. 
+                GitHub Copilot의 MCP 통합은 개발자 생태계에서의 빠른 확산을 예고합니다.</p>
+                
+                <div class="grid-2" style="margin-top: 30px;">
+                    <div class="feature-box">
+                        <h4>경쟁 구도</h4>
+                        <p>LangChain, LlamaIndex와 달리 프로토콜 레벨 표준화로 근본적 문제 해결</p>
+                    </div>
+                    <div class="feature-box">
+                        <h4>선점 효과</h4>
+                        <p>Anthropic의 선제적 움직임과 주요 벤더 지지로 사실상의 표준 지위 확보</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: Analysis 3 - Practical Application -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis3">
+            <div class="page-indicator">11 / 19</div>
+            
+            <h2>심층분석 3: 실무 적용 가능성</h2>
+            
+            <div class="highlight-box">
+                <h3>✅ 긍정적 측면</h3>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li>기존 인프라의 대규모 변경 없이 점진적 도입 가능</li>
+                    <li>얇은 래퍼 계층으로 구현하여 초기 투자 비용 최소화</li>
+                    <li>표준 OAuth 2.1 지원으로 기존 보안 정책과의 통합 용이</li>
+                    <li>다양한 언어 SDK 제공으로 신속한 프로토타이핑 가능</li>
+                </ul>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 30px; background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%); border-left-color: #ef4444;">
+                <h3>⚠️ 한계점</h3>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li>1년 미만의 초기 단계로 production-ready 구현체 부족</li>
+                    <li>로컬 LLM과의 통합 아직 미성숙</li>
+                    <li>대용량 데이터 처리나 실시간 스트리밍 성능 검증 부족</li>
+                    <li>복잡한 트랜잭션이나 에러 복구 시나리오 사양 미완성</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 12: Analysis 4 - Comparison -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis4">
+            <div class="page-indicator">12 / 19</div>
+            
+            <h2>심층분석 4: 기술 비교 분석</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>특성</th>
+                        <th>MCP</th>
+                        <th>LangChain</th>
+                        <th>OpenAPI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>접근 방식</strong></td>
+                        <td>프로토콜 표준화</td>
+                        <td>애플리케이션 프레임워크</td>
+                        <td>API 명세</td>
+                    </tr>
+                    <tr>
+                        <td><strong>언어 독립성</strong></td>
+                        <td>✅ 완전 독립</td>
+                        <td>❌ Python 중심</td>
+                        <td>✅ 독립적</td>
+                    </tr>
+                    <tr>
+                        <td><strong>실시간 통신</strong></td>
+                        <td>✅ 양방향 지원</td>
+                        <td>⚠️ 제한적</td>
+                        <td>❌ 단방향</td>
+                    </tr>
+                    <tr>
+                        <td><strong>앱 연동</strong></td>
+                        <td>✅ 네이티브 지원</td>
+                        <td>⚠️ 플러그인 필요</td>
+                        <td>❌ API만 가능</td>
+                    </tr>
+                    <tr>
+                        <td><strong>학습 곡선</strong></td>
+                        <td>중간</td>
+                        <td>가파름</td>
+                        <td>완만</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="grid-2" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>LlamaIndex와의 차이점</h3>
+                    <p><strong>데이터 처리 방식:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>LlamaIndex: RAG 패턴에 최적화된 인덱싱/검색</li>
+                        <li>MCP: 실시간 데이터 접근과 함수 호출 중심</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>사용 시나리오:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>LlamaIndex: 정적 문서 기반 작업</li>
+                        <li>MCP: 동적 데이터베이스/API 연동</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>GraphQL과의 비교</h3>
+                    <p><strong>쿼리 유연성:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>GraphQL: 클라이언트 중심 데이터 페칭</li>
+                        <li>MCP: AI 에이전트의 자율적 동작 지원</li>
+                    </ul>
+                    <p style="margin-top: 15px;"><strong>설계 철학:</strong></p>
+                    <ul style="line-height: 1.8;">
+                        <li>GraphQL: 데이터 그래프 탐색</li>
+                        <li>MCP: LLM의 인지적 특성 고려한 추상화</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 30px;">
+                <h4>🎯 핵심 차별점</h4>
+                <p style="font-size: 18px; line-height: 1.8;">
+                    MCP는 단순한 데이터 교환을 넘어서 <strong>의미론적 상호작용</strong>을 가능하게 합니다.
+                    세션 기반 상태 유지, 양방향 통신, 실시간 협업이 가능하여 LLM의 대화형 특성에 최적화되어 있습니다.
+                    이는 기존 기술들이 데이터 전송에 중점을 둔 것과 달리, AI와 시스템 간의 '대화'를 설계의 중심에 둔 접근입니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 13: Analysis 5 - Learning Roadmap -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis5">
+            <div class="page-indicator">13 / 19</div>
+            
+            <h2>심층분석 5: 학습 로드맵</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>🌱 초급 단계 (2-3주)</h4>
+                        <ul>
+                            <li>JSON RPC 기초 이해</li>
+                            <li>MCP Inspector로 기존 서버 테스트</li>
+                            <li>VS Code에서 기본 기능 체험</li>
+                            <li>Primitives 개념 파악</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>🌿 중급 단계 (1-2개월)</h4>
+                        <ul>
+                            <li>Python/TypeScript SDK로 서버 구현</li>
+                            <li>OAuth 2.1 인증 시스템 구축</li>
+                            <li>기존 API를 MCP로 래핑</li>
+                            <li>에러 처리 및 성능 최적화</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>🌳 고급 단계 (3개월+)</h4>
+                        <ul>
+                            <li>멀티테넌트 환경 설계</li>
+                            <li>대용량 트래픽 처리 아키텍처</li>
+                            <li>커스텀 Primitives 개발</li>
+                            <li>MCP 사양 기여 (SEP 작성)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 14: Analysis 6 - Beginner Insights -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis6">
+            <div class="page-indicator">14 / 19</div>
+            
+            <h2>심층분석 6: 초보자 가이드</h2>
+            
+            <div class="card" style="background: linear-gradient(135deg, rgba(34,211,238,0.1) 0%, rgba(59,130,246,0.1) 100%);">
+                <h3>🎯 핵심 개념 이해</h3>
+                <p style="font-size: 20px; line-height: 1.8;">
+                    MCP를 '번역기'로 생각하세요. 서로 다른 언어를 사용하는 사람들이 번역기를 통해 소통하듯, 
+                    MCP는 LLM과 다양한 시스템들이 공통된 '언어'로 대화할 수 있게 해주는 도구입니다.
+                </p>
+            </div>
+            
+            <div class="grid-2" style="margin-top: 40px;">
+                <div class="feature-box">
+                    <h4>⚠️ 흔한 실수</h4>
+                    <ul>
+                        <li>MCP를 단순 API 래퍼로 오해</li>
+                        <li>로컬 서버의 보안 위험 간과</li>
+                        <li>과도한 추상화 시도</li>
+                    </ul>
+                </div>
+                <div class="feature-box">
+                    <h4>💡 첫 프로젝트 추천</h4>
+                    <p>간단한 파일 관리 MCP 서버 구축:</p>
+                    <ul>
+                        <li>Tools: 파일 읽기/쓰기</li>
+                        <li>Resources: 파일 목록</li>
+                        <li>Prompts: 사용자 명령어</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 15: Analysis 7 - Expert Insights -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis7">
+            <div class="page-indicator">15 / 19</div>
+            
+            <h2>심층분석 7: 전문가 관점</h2>
+            
+            <div class="card">
+                <h3>아키텍처 진화의 맥락</h3>
+                <p>MCP는 마이크로서비스 아키텍처의 Service Mesh와 유사한 역할을 AI 생태계에서 수행합니다. 
+                gRPC나 메시지 큐 시스템과 같은 맥락에서, AI-first 환경에 최적화된 통신 프로토콜로 이해할 수 있습니다.</p>
+                
+                <div class="code-block" style="margin-top: 20px;">
+// MCP 서버 성능 최적화 패턴
+class MCPConnectionPool {
+    constructor(config) {
+        this.pool = new Map();
+        this.maxConnections = config.maxConnections || 100;
+        this.idleTimeout = config.idleTimeout || 30000;
+    }
+    
+    async getConnection(serverId) {
+        // Connection pooling logic
+        // Circuit breaker pattern implementation
+        // Health check integration
+    }
+}
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 30px;">
+                <h4>🔬 고급 최적화 전략</h4>
+                <ul>
+                    <li>연결 풀링과 캐싱 전략</li>
+                    <li>N+1 쿼리 문제 방지를 위한 배치 처리</li>
+                    <li>Circuit Breaker 패턴 적용</li>
+                    <li>분산 추적(Distributed Tracing) 구현</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 16: Analysis 8 - Pitfalls -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis8">
+            <div class="page-indicator">16 / 19</div>
+            
+            <h2>심층분석 8: 잠재적 함정</h2>
+            
+            <div class="grid-2">
+                <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%);">
+                    <h3>🚫 과도한 추상화</h3>
+                    <p>모든 시스템을 MCP로 통합하려는 시도는 오히려 복잡성을 증가시킵니다. 
+                    AI 상호작용이 필요 없는 영역까지 MCP로 래핑하는 것은 불필요한 오버헤드입니다.</p>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, rgba(239,68,68,0.1) 0%, rgba(249,115,22,0.1) 100%);">
+                    <h3>⚠️ 보안 위험</h3>
+                    <p>로컬 MCP 서버는 사용자의 전체 시스템 권한으로 실행됩니다. 
+                    악의적이거나 취약한 서버는 시스템 전체를 위험에 빠뜨릴 수 있습니다.</p>
+                </div>
+            </div>
+            
+            <div class="feature-box" style="margin-top: 30px;">
+                <h4>데이터 거버넌스 고려사항</h4>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li>LLM의 학습 데이터나 캐시를 통한 민감 정보 유출 위험</li>
+                    <li>GDPR, CCPA 등 개인정보 보호 규정 준수 필요</li>
+                    <li>금융, 의료 등 규제 산업의 컴플라이언스 요구사항</li>
+                    <li>데이터 분류 및 접근 권한 관리 체계 수립</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 17: Analysis 9 - Open Source -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis9">
+            <div class="page-indicator">17 / 19</div>
+            
+            <h2>심층분석 9: 오픈소스 생태계</h2>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🛠️ 개발 도구</h4>
+                    <ul>
+                        <li>MCP Inspector</li>
+                        <li>VS Code Extension</li>
+                        <li>다양한 언어 SDK</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📦 배포 도구</h4>
+                    <ul>
+                        <li>Docker Templates</li>
+                        <li>Helm Charts (개발중)</li>
+                        <li>Serverless Templates</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>📊 모니터링</h4>
+                    <ul>
+                        <li>OpenTelemetry 통합</li>
+                        <li>Prometheus/Grafana</li>
+                        <li>Custom Dashboards</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>🌟 커뮤니티 기여 방법</h4>
+                <ol style="font-size: 18px; line-height: 2;">
+                    <li>GitHub에서 예제 프로젝트 공유</li>
+                    <li>Discord에서 질문 답변 및 지원</li>
+                    <li>SEP(Spec Enhancement Proposal) 제출</li>
+                    <li>새로운 언어 SDK 개발</li>
+                    <li>문서화 및 튜토리얼 작성</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 18: Analysis 10 - Future Learning -->
+        <section class="slide-section fade-in-section analysis-section" id="analysis10">
+            <div class="page-indicator">18 / 19</div>
+            
+            <h2>심층분석 10: 후속 학습 자료</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>자료명</th>
+                        <th>난이도</th>
+                        <th>예상 시간</th>
+                        <th>핵심 내용</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MCP Specification</strong></td>
+                        <td>중급</td>
+                        <td>4-6시간</td>
+                        <td>프로토콜 공식 사양서</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Getting Started Guide</strong></td>
+                        <td>초급</td>
+                        <td>2-3시간</td>
+                        <td>첫 번째 서버 구축</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SDK Documentation</strong></td>
+                        <td>초급-중급</td>
+                        <td>3-4시간</td>
+                        <td>언어별 API 레퍼런스</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security Patterns</strong></td>
+                        <td>고급</td>
+                        <td>4-6시간</td>
+                        <td>엔터프라이즈 보안 구현</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance Guide</strong></td>
+                        <td>고급</td>
+                        <td>5-7시간</td>
+                        <td>고성능 서버 최적화</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="grid-2" style="margin-top: 40px;">
+                <div class="card">
+                    <h3>📚 체계적 학습 경로</h3>
+                    <p>이론적 기반부터 실무 적용까지 단계적 접근이 중요합니다. 
+                    공식 문서와 커뮤니티 자료를 병행하며, 실제 프로젝트를 통해 경험을 축적하세요.</p>
+                    <div class="feature-box" style="margin-top: 20px;">
+                        <h4>추천 학습 순서</h4>
+                        <ol style="line-height: 1.8;">
+                            <li>공식 Getting Started Guide 완독</li>
+                            <li>MCP Inspector로 예제 서버 테스트</li>
+                            <li>선호 언어 SDK로 간단한 서버 구현</li>
+                            <li>기존 시스템과의 통합 프로젝트</li>
+                            <li>성능 최적화 및 보안 강화</li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🌐 커뮤니티 리소스</h3>
+                    <p>활발한 오픈소스 커뮤니티가 MCP 생태계를 지원합니다.</p>
+                    <div class="feature-box" style="margin-top: 20px;">
+                        <h4>주요 리소스</h4>
+                        <ul style="line-height: 1.8;">
+                            <li><strong>공식 사이트:</strong> modelcontextprotocol.io</li>
+                            <li><strong>GitHub:</strong> github.com/modelcontextprotocol</li>
+                            <li><strong>Discord:</strong> 실시간 질의응답 커뮤니티</li>
+                            <li><strong>MCP Hub:</strong> 서드파티 서버 레지스트리</li>
+                            <li><strong>Weekly Office Hours:</strong> 개발팀과의 정기 미팅</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="highlight-box" style="margin-top: 40px;">
+                <h4>💡 학습 팁</h4>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li><strong>실습 중심:</strong> 이론보다 실제 구현을 통한 학습이 효과적입니다</li>
+                    <li><strong>점진적 확장:</strong> 간단한 기능부터 시작하여 복잡도를 높여가세요</li>
+                    <li><strong>커뮤니티 활용:</strong> Discord와 GitHub Issues에서 적극적으로 질문하세요</li>
+                    <li><strong>보안 우선:</strong> 처음부터 보안을 고려한 설계를 습관화하세요</li>
+                    <li><strong>문서화:</strong> 구현 과정을 문서화하여 다른 개발자와 공유하세요</li>
+                </ul>
+            </div>
+            
+            <div class="stats-container" style="margin-top: 40px;">
+                <div class="stat-item">
+                    <div class="stat-number">30+</div>
+                    <div class="stat-label">학습 시간 투자</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">필수 학습 단계</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">10+</div>
+                    <div class="stat-label">실습 프로젝트</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 19: Conclusion -->
+        <section class="slide-section fade-in-section" id="conclusion">
+            <div class="page-indicator">19 / 19</div>
+            
+            <h2>종합 정리 및 시사점</h2>
+            
+            <div class="card" style="background: var(--gradient-1); color: white; padding: 40px;">
+                <h3 style="color: white;">🎯 핵심 메시지</h3>
+                <p style="font-size: 22px; line-height: 1.8; color: white;">
+                    Model Context Protocol은 AI 생태계의 게임 체인저입니다.<br>
+                    표준화된 프로토콜을 통해 LLM과 실제 데이터/애플리케이션의 연결 문제를 해결하며,
+                    개방형 표준으로 vendor lock-in 없는 자유로운 AI 생태계를 구축합니다.
+                </p>
+            </div>
+            
+            <div class="grid-3" style="margin-top: 40px;">
+                <div class="feature-box">
+                    <h4>✅ 즉시 시작 가능</h4>
+                    <p>MCP Inspector 설치<br>VS Code 통합 테스트<br>간단한 서버 구축</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🎯 중기 목표</h4>
+                    <p>팀 내 파일럿 프로젝트<br>기존 API 통합<br>보안 체계 수립</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🚀 장기 비전</h4>
+                    <p>전사 AI 인프라 구축<br>커스텀 Primitives 개발<br>생태계 기여</p>
+                </div>
+            </div>
+            
+            <div class="visual-break">
+                <div class="visual-break-icon">🎓</div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>💡 실무 적용 체크리스트</h3>
+                <ul style="font-size: 18px; line-height: 2;">
+                    <li>✓ 현재 AI 도구와 데이터 소스 간의 연결 문제 진단</li>
+                    <li>✓ MCP 도입을 위한 기술 스택 호환성 검토</li>
+                    <li>✓ 파일럿 프로젝트 범위 설정 및 ROI 분석</li>
+                    <li>✓ 보안 정책 및 데이터 거버넌스 체계 수립</li>
+                    <li>✓ 팀 교육 계획 및 지식 공유 체계 구축</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 60px;">
+                <p style="font-size: 24px; color: var(--secondary-color); font-weight: 600;">
+                    "프로토콜은 매우 젊습니다. 1년도 안 됐습니다."
+                </p>
+                <p style="font-size: 18px; margin-top: 20px;">
+                    - 지금이 MCP 생태계에 참여할 최적의 시기입니다 -
+                </p>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- JavaScript -->
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            document.getElementById('theme-icon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', newTheme);
+        }
+        
+        // Load saved theme
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            document.getElementById('theme-icon').textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+        
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                    
+                    // Animate timeline items
+                    const timelineItems = entry.target.querySelectorAll('.timeline-item');
+                    timelineItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('animate-in');
+                        }, index * 200);
+                    });
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all sections
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.slide-section');
+            sections.forEach(section => observer.observe(section));
+        });
+        
+        // Scroll Progress Bar
+        function updateScrollProgress() {
+            const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        }
+        
+        window.addEventListener('scroll', () => {
+            requestAnimationFrame(updateScrollProgress);
+        });
+        
+        // Chart.js implementation
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartElement = document.getElementById('adoptionChart');
+            if (chartElement) {
+                const ctx = chartElement.getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['2024 Q4', '2025 Q1', '2025 Q2', '2025 Q3', '2025 Q4', '2026 Q1'],
+                        datasets: [{
+                            label: 'MCP 채택률 예상',
+                            data: [5, 15, 35, 55, 70, 80],
+                            borderColor: 'rgb(59, 130, 246)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: '기업 도입률',
+                            data: [2, 8, 20, 35, 50, 65],
+                            borderColor: 'rgb(167, 139, 250)',
+                            backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                    font: {
+                                        size: 14,
+                                        family: 'Noto Sans KR'
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'MCP 시장 채택 전망',
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-color'),
+                                font: {
+                                    size: 18,
+                                    family: 'Noto Sans KR',
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    },
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                                },
+                                grid: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--border-color')
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--text-color')
+                                },
+                                grid: {
+                                    color: getComputedStyle(document.documentElement).getPropertyValue('--border-color')
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+        
+        // Smooth scroll behavior for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Auto-animate numbers
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 16);
+        }
+        
+        // Animate statistics when they come into view
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !entry.target.animated) {
+                    const statNumbers = entry.target.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const text = stat.textContent;
+                        const match = text.match(/\d+/);
+                        if (match) {
+                            const value = parseInt(match[0]);
+                            stat.textContent = '0' + text.replace(/\d+/, '');
+                            animateValue(stat, 0, value, 1000);
+                        }
+                    });
+                    entry.target.animated = true;
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        document.querySelectorAll('.stats-container').forEach(container => {
+            statsObserver.observe(container);
+        });
+        
+        // Add keyboard navigation
+        let currentSection = 0;
+        const sections = document.querySelectorAll('.slide-section');
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                if (currentSection < sections.length - 1) {
+                    currentSection++;
+                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                if (currentSection > 0) {
+                    currentSection--;
+                    sections[currentSection].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+        
+        // Update current section based on scroll position
+        window.addEventListener('scroll', () => {
+            const scrollPosition = window.scrollY + window.innerHeight / 2;
+            sections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+                    currentSection = index;
+                }
+            });
+        });
+        
+        // Initialize everything when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial animations
+            setTimeout(() => {
+                document.querySelector('#title').classList.add('animate-in');
+            }, 100);
+            
+            // Update theme-aware chart colors when theme changes
+            const themeToggleBtn = document.querySelector('.theme-toggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    setTimeout(() => {
+                        // Refresh charts with new theme colors if needed
+                        const charts = Chart.instances;
+                        if (charts) {
+                            Object.values(charts).forEach(chart => {
+                                chart.options.plugins.legend.labels.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                                chart.options.plugins.title.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                                chart.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                                chart.options.scales.y.ticks.color = getComputedStyle(document.documentElement).getPropertyValue('--text-color');
+                                chart.options.scales.x.grid.color = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
+                                chart.options.scales.y.grid.color = getComputedStyle(document.documentElement).getPropertyValue('--border-color');
+                                chart.update();
+                            });
+                        }
+                    }, 100);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
