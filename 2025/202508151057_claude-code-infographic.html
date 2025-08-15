@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code를 활용한 개발 효율성 극대화 - 인포그래픽 가이드</title>
+    
+    <meta name="description" content="Claude Code의 핵심 활용법과 개발 효율성을 극대화하는 전략을 시각적으로 설명하는 완전 가이드">
+    <meta property="og:title" content="Claude Code 개발 효율성 극대화 가이드">
+    <meta property="og:description" content="AI 코딩 도구를 활용한 5-20배 생산성 향상 전략">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --secondary-color: #8b5cf6;
+            --accent-color: #fbbf24;
+            --success-color: #34d399;
+            --warning-color: #f87171;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-tertiary: #374151;
+            --border-color: #4b5563;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: all 0.3s ease;
+            scroll-behavior: smooth;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .scroll-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+        }
+
+        .slide-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 4rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .slide-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page-header {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .section-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section-description {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            text-align: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .video-info {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .video-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .meta-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .meta-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .four-pillars {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .pillar-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pillar-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .pillar-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .pillar-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .pillar-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .strategy-item {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .strategy-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .strategy-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px 8px 0 0;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .highlight {
+            background: var(--accent-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .insight-box {
+            background: linear-gradient(135deg, var(--primary-color)10, var(--secondary-color)10);
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .insight-box::before {
+            content: "💡";
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            background: var(--bg-primary);
+            padding: 0 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .insight-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .insight-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: #fef2f2;
+            border: 2px solid var(--warning-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        [data-theme="dark"] .warning-box {
+            background: #1f1315;
+        }
+
+        .warning-box::before {
+            content: "⚠️";
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            background: var(--bg-primary);
+            padding: 0 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .step-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .step-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-color);
+        }
+
+        .step-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            margin-left: 1rem;
+        }
+
+        .step-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .resource-item {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .resource-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .resource-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .resource-type {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .resource-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .resource-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .difficulty {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .slide-section {
+                padding: 3rem 1rem;
+            }
+            
+            .section-title {
+                font-size: 2.5rem;
+            }
+            
+            .section-subtitle {
+                font-size: 2rem;
+            }
+            
+            .four-pillars {
+                grid-template-columns: 1fr;
+            }
+            
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        .fade-in-section {
+            transition: all 0.6s ease-in-out;
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--bg-tertiary);
+            z-index: 999;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+    <div class="progress-indicator">
+        <div class="progress-bar"></div>
+    </div>
+
+    <button class="theme-toggle" aria-label="테마 전환" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <main class="scroll-container">
+        <!-- 페이지 1: 타이틀 -->
+        <section class="slide-section fade-in-section" id="section-1">
+            <div class="page-header">1/15</div>
+            <div class="section-title">Claude Code로<br>개발 효율성 극대화</div>
+            <div class="section-description">
+                AI 코딩 도구를 활용한 5-20배 생산성 향상 전략<br>
+                <strong>완전 마스터 가이드</strong>
+            </div>
+            <div class="video-info">
+                <div style="text-align: center;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                        <i class="fab fa-youtube" style="color: #ff0000;"></i> 
+                        원본 영상 정보
+                    </h3>
+                </div>
+                <div class="video-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">채널</div>
+                        <div class="meta-value">David Andre</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">영상 길이</div>
+                        <div class="meta-value">60분</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">카테고리</div>
+                        <div class="meta-value">개발 도구</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">게시일</div>
+                        <div class="meta-value">2025.08.01</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 페이지 2: 개요 및 학습 목표 -->
+        <section class="slide-section fade-in-section" id="section-2">
+            <div class="page-header">2/15</div>
+            <div class="section-subtitle">📚 학습 목표 & 전체 구조</div>
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-target" style="color: var(--primary-color);"></i>
+                        핵심 학습 목표
+                    </div>
+                    <div class="strategy-content">
+                        • Claude Code 4가지 성공 기둥 이해<br>
+                        • 실무 워크플로우 최적화 전략<br>
+                        • 고급 커스터마이징 기법 습득<br>
+                        • 생태계 도구 통합 활용법
+                    </div>
+                </div>
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-chart-line" style="color: var(--success-color);"></i>
+                        예상 효과
+                    </div>
+                    <div class="strategy-content">
+                        • <span class="highlight">5-20배</span> 개발 속도 향상<br>
+                        • 반복 작업 <span class="highlight">80%</span> 자동화<br>
+                        • 프로토타입-배포 사이클 <span class="highlight">90%</span> 단축<br>
+                        • 기술 학습 속도 극대화
+                    </div>
+                </div>
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-users" style="color: var(--secondary-color);"></i>
+                        대상 청중
+                    </div>
+                    <div class="strategy-content">
+                        • 중고급 개발자 (2년+ 경험)<br>
+                        • AI 도구 도입 검토 중인 팀<br>
+                        • 개발 효율성 개선이 필요한 조직<br>
+                        • 최신 개발 트렌드에 관심 있는 개발자
+                    </div>
+                </div>
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-map" style="color: var(--accent-color);"></i>
+                        가이드 구조
+                    </div>
+                    <div class="strategy-content">
+                        • 기본 개념과 4가지 핵심 기둥<br>
+                        • 실무 중심 활용 전략<br>
+                        • 10가지 심층 분석<br>
+                        • 단계별 실행 로드맵
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 페이지 3: Claude Code 소개 -->
+        <section class="slide-section fade-in-section" id="section-3">
+            <div class="page-header">3/15</div>
+            <div class="section-subtitle">🤖 Claude Code란?</div>
+            <div class="section-description">
+                Anthropic에서 개발한 혁신적인 터미널 기반 AI 코딩 에이전트
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">5-20x</div>
+                    <div class="stat-label">개발 속도 향상</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">200K</div>
+                    <div class="stat-label">토큰 컨텍스트</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3+</div>
+                    <div class="stat-label">작업 모드</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">MCP 확장성</div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">핵심 차별화 포인트</div>
+                <div class="insight-content">
+                    <strong>• 전체 프로젝트 라이프사이클 관리:</strong> 설계부터 배포까지 완전 지원<br>
+                    <strong>• 상황별 모델 최적화:</strong> Plan Mode(Opus 4.1) ↔ Auto Accept(Sonnet 4)<br>
+                    <strong>• MCP 생태계:</strong> Playwright, Perplexity 등 무제한 도구 연동<br>
+                    <strong>• 터미널 네이티브:</strong> 기존 개발 워크플로우와 완벽 통합
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">🚀 설치 및 시작</div>
+                <pre># 전역 설치
+npm install -g @anthropic/claude-code
+
+# 실행 (Command + Escape)
+claude
+
+# 모드 전환 (Shift + Tab)
+Plan Mode ↔ Auto Accept Mode ↔ Default Mode</pre>
+            </div>
+        </section>
+
+        <!-- 페이지 4: 4가지 핵심 기둥 -->
+        <section class="slide-section fade-in-section" id="section-4">
+            <div class="page-header">4/15</div>
+            <div class="section-subtitle">🏛️ 성공을 위한 4가지 핵심 기둥</div>
+            
+            <div class="four-pillars">
+                <div class="pillar-card">
+                    <div class="pillar-icon">
+                        <i class="fas fa-cogs"></i>
+                    </div>
+                    <div class="pillar-title">1. 커스텀 설정</div>
+                    <div class="pillar-description">
+                        훅, 명령어, 서브 에이전트 등을 통한 워크플로우 자동화. 반복 작업 최적화와 AI 추론 효율 극대화.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="pillar-title">2. 명확한 아이디어</div>
+                    <div class="pillar-description">
+                        project description.md를 통한 체계적 문서화. 프로젝트 비전이 명확할수록 더 나은 결과 보장.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="pillar-title">3. 기술적 숙련도</div>
+                    <div class="pillar-description">
+                        소프트웨어 개발 능력과 CS 기초 지식. 기술 이해도가 높을수록 AI와의 시너지 극대화.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <div class="pillar-title">4. 프롬프팅 엔지니어링</div>
+                    <div class="pillar-description">
+                        AI를 원하는 대로 이끌어가는 능력. 효과적인 컨텍스트 엔지니어링으로 AI 성능 극대화.
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="pillarsChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 페이지 5: 핵심 활용 전략 -->
+        <section class="slide-section fade-in-section" id="section-5">
+            <div class="page-header">5/15</div>
+            <div class="section-subtitle">⚡ 핵심 활용 전략</div>
+            
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-file-alt" style="color: var(--primary-color);"></i>
+                        프로젝트 문서화
+                    </div>
+                    <div class="strategy-content">
+                        <strong>project description.md 활용:</strong><br>
+                        • 프로젝트 목표와 핵심 기능 명시<br>
+                        • 기술 스택과 아키텍처 정의<br>
+                        • 타겟 사용자와 요구사항 정리<br>
+                        • AI가 일관된 방향으로 개발 진행
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-clipboard-list" style="color: var(--success-color);"></i>
+                        Plan Mode 우선 활용
+                    </div>
+                    <div class="strategy-content">
+                        <strong>초기 설계 최적화:</strong><br>
+                        • Shift + Tab으로 Plan Mode 전환<br>
+                        • Opus 4.1 모델의 최대 추론력 활용<br>
+                        • 아키텍처와 구조 사전 검토<br>
+                        • 구현 전 명확성 확보 필수
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-layer-group" style="color: var(--secondary-color);"></i>
+                        최적 기술 스택
+                    </div>
+                    <div class="strategy-content">
+                        <strong>빠른 프로토타이핑용:</strong><br>
+                        • Next.js + TypeScript<br>
+                        • Tailwind CSS<br>
+                        • Supabase (BaaS)<br>
+                        • Vercel (배포)
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-database" style="color: var(--accent-color);"></i>
+                        컨텍스트 관리
+                    </div>
+                    <div class="strategy-content">
+                        <strong>효율적인 메모리 관리:</strong><br>
+                        • /clear: 전체 컨텍스트 초기화<br>
+                        • /compact: 핵심 정보만 압축<br>
+                        • 주제 변경시 적절한 리셋<br>
+                        • 장시간 작업시 성능 유지
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>모드</th>
+                            <th>사용 모델</th>
+                            <th>최적 사용 시나리오</th>
+                            <th>비용 효율성</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Plan Mode</strong></td>
+                            <td>Opus 4.1</td>
+                            <td>프로젝트 초기 설계, 아키텍처 결정</td>
+                            <td>높은 비용, 고품질</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Auto Accept</strong></td>
+                            <td>Sonnet 4</td>
+                            <td>반복적 코딩, 구현 단계</td>
+                            <td>중간 비용, 고효율</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Default Mode</strong></td>
+                            <td>사용자 선택</td>
+                            <td>코드 리뷰, 학습 목적</td>
+                            <td>유연한 비용</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 페이지 6: 고급 기능과 생태계 -->
+        <section class="slide-section fade-in-section" id="section-6">
+            <div class="page-header">6/15</div>
+            <div class="section-subtitle">🔧 고급 기능 & 생태계 통합</div>
+            
+            <div class="code-block">
+                <div class="code-header">💡 커스텀 훅 시스템</div>
+                <pre>// 효율적인 훅 활용 예시
+const claudeHooks = {
+  "-d": "think hard, answer in short, keep it simple",
+  "-u": "ultra think - maximum reasoning effort",  
+  "-e": "explain error step by step, suggest fix",
+  "-r": "review code for security & performance",
+  "-doc": "create comprehensive documentation"
+};
+
+// 사용법: 프롬프트 끝에 훅 추가
+// 예: "Create a login component -d"
+// 예: "Debug this React error -e"</pre>
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-search" style="color: var(--primary-color);"></i>
+                        Perplexity 연동
+                    </div>
+                    <div class="strategy-content">
+                        <strong>지식 컷오프 해결:</strong><br>
+                        • Pro 구독 ($20/월) + API 키<br>
+                        • 실시간 최신 문서 검색<br>
+                        • 새로운 프레임워크 정보<br>
+                        • 보안 가이드라인 업데이트
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-robot" style="color: var(--success-color);"></i>
+                        Playwright MCP
+                    </div>
+                    <div class="strategy-content">
+                        <strong>자동 디버깅:</strong><br>
+                        • 웹 브라우저와 직접 상호작용<br>
+                        • UI 테스트 자동화<br>
+                        • 네트워크 요청 분석<br>
+                        • 사용자 시나리오 검증
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-users-cog" style="color: var(--secondary-color);"></i>
+                        서브 에이전트
+                    </div>
+                    <div class="strategy-content">
+                        <strong>전문 AI 위임:</strong><br>
+                        • 웹 리서치 전담 에이전트<br>
+                        • 코드 리뷰 전담 에이전트<br>
+                        • 보안 감사 전담 에이전트<br>
+                        • 병렬 작업 최적화
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-terminal" style="color: var(--accent-color);"></i>
+                        다중 인스턴스
+                    </div>
+                    <div class="strategy-content">
+                        <strong>병렬 개발:</strong><br>
+                        • 백엔드 API 개발<br>
+                        • 프론트엔드 컴포넌트<br>
+                        • 테스트 코드 작성<br>
+                        • 문서화 동시 진행
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div style="font-weight: 600; color: var(--warning-color); margin-bottom: 1rem;">⚠️ 중요한 주의사항</div>
+                AI 도구에 의존할 때는 기술적 판단력을 AI에 완전히 위임하지 말고, 핵심 의사결정은 인간이 주도해야 합니다. 
+                특히 보안, 아키텍처, 비즈니스 로직 등 중요한 영역에서는 AI 결과에 대한 비판적 검토가 필수입니다.
+            </div>
+        </section>
+
+        <!-- 페이지 7: 심층분석 파트 1 -->
+        <section class="slide-section fade-in-section" id="section-7">
+            <div class="page-header">7/15</div>
+            <div class="section-subtitle">🔬 심층분석 Part 1: 기술과 트렌드</div>
+            
+            <div class="insight-box">
+                <div class="insight-title">기술적 혁신성</div>
+                <div class="insight-content">
+                    <strong>MCP 기반 확장 아키텍처:</strong> Claude Code는 Model Context Protocol을 통해 
+                    Playwright(웹 자동화), Desktop Commander(파일 시스템), Perplexity(실시간 검색) 등과 
+                    seamless 통합. 이는 단일 모델 기반 AI 도구들과의 근본적 차별점.
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">340%</div>
+                    <div class="stat-label">2025년 시장 성장률</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">89%</div>
+                    <div class="stat-label">개발자 AI 도구 사용률</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">73%</div>
+                    <div class="stat-label">평균 속도 향상</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">12x</div>
+                    <div class="stat-label">프로토타입 개발 속도</div>
+                </div>
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-microchip" style="color: var(--primary-color);"></i>
+                        기술적 우위
+                    </div>
+                    <div class="strategy-content">
+                        • 상황별 모델 전환 시스템<br>
+                        • 200,000 토큰 컨텍스트 관리<br>
+                        • GPU 최적화 transform 애니메이션<br>
+                        • 실시간 성능 모니터링
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-chart-bar" style="color: var(--success-color);"></i>
+                        시장 포지셔닝
+                    </div>
+                    <div class="strategy-content">
+                        • GitHub Copilot: IDE 내 자동완성<br>
+                        • Cursor: 코드 편집 특화<br>
+                        • Claude Code: 전체 라이프사이클<br>
+                        • 스타트업/소규모 팀 폭발적 성장
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 페이지 8: 심층분석 Part 2 -->
+        <section class="slide-section fade-in-section" id="section-8">
+            <div class="page-header">8/15</div>
+            <div class="section-subtitle">🎯 심층분석 Part 2: 실무 적용과 비교</div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>도구</th>
+                            <th>주요 강점</th>
+                            <th>최적 사용 사례</th>
+                            <th>월 비용</th>
+                            <th>학습 곡선</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>GitHub Copilot</strong></td>
+                            <td>IDE 네이티브, 빠른 자동완성</td>
+                            <td>개별 함수/클래스 생성</td>
+                            <td>$10-20</td>
+                            <td>⭐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cursor</strong></td>
+                            <td>직관적 UI, VS Code 기반</td>
+                            <td>코드 편집 및 리팩토링</td>
+                            <td>$20-40</td>
+                            <td>⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Claude Code</strong></td>
+                            <td>전체 프로젝트 관리</td>
+                            <td>MVP/프로토타입 개발</td>
+                            <td>$200-300</td>
+                            <td>⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Replit Agent</strong></td>
+                            <td>브라우저 기반, 협업</td>
+                            <td>교육/초보자 프로젝트</td>
+                            <td>$25-50</td>
+                            <td>⭐⭐</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">실무 적용 가능성</div>
+                <div class="insight-content">
+                    <strong>MVP 개발에서 탁월:</strong> React/Next.js 웹 기술 스택에서 최적화. 
+                    90분 내 사용자 인증, CRUD, AI 통합이 포함된 풀스택 애플리케이션 완성 가능.
+                    전통적인 개발 방식 대비 2-3주 → 90분으로 단축.
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div style="font-weight: 600; margin-bottom: 1rem;">⚠️ 주요 한계점</div>
+                <strong>지식 컷오프 문제:</strong> 2024년 후반 출시 라이브러리 정보 부족<br>
+                <strong>복잡한 아키텍처:</strong> 마이크로서비스, 분산 시스템 설계는 인간 전문가 개입 필수<br>
+                <strong>비기능적 요구사항:</strong> 보안, 성능, 접근성 등은 별도 검토 필요<br>
+                <strong>규제 환경:</strong> 금융, 의료, 항공 등에서는 추가 검증 프로세스 필수
+            </div>
+        </section>
+
+        <!-- 페이지 9: 심층분석 Part 3 -->
+        <section class="slide-section fade-in-section" id="section-9">
+            <div class="page-header">9/15</div>
+            <div class="section-subtitle">👥 심층분석 Part 3: 사용자별 인사이트</div>
+            
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-seedling" style="color: var(--success-color);"></i>
+                        초보자 핵심 전략
+                    </div>
+                    <div class="strategy-content">
+                        <strong>마인드셋 전환:</strong><br>
+                        • "코드 생성기" → "개발 파트너"<br>
+                        • 작은 기능부터 점진적 구축<br>
+                        • Plan Mode 충분히 활용<br>
+                        • 에러를 학습 기회로 활용
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-rocket" style="color: var(--primary-color);"></i>
+                        숙련자 고급 기법
+                    </div>
+                    <div class="strategy-content">
+                        <strong>차원이 다른 활용:</strong><br>
+                        • 다중 인스턴스 병렬 개발<br>
+                        • 서브 에이전트 전략적 위임<br>
+                        • 아키텍처 설계 파트너<br>
+                        • 복잡한 트레이드오프 분석
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-timeline">
+                <div class="step-item">
+                    <div class="step-title">초급 단계 (1-3주)</div>
+                    <div class="step-description">
+                        • 기본 설치 및 단축키 숙지<br>
+                        • project description.md 템플릿 작성<br>
+                        • Todo 앱, 계산기 등 기초 프로젝트<br>
+                        • Plan Mode와 Auto Accept 차이점 체감
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-title">중급 단계 (2-4개월)</div>
+                    <div class="step-description">
+                        • 커스텀 명령어 및 서브 에이전트 활용<br>
+                        • Perplexity Pro API 연동<br>
+                        • Playwright MCP 자동 테스트<br>
+                        • 사이드 프로젝트 완전 개발
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-title">고급 단계 (6개월+)</div>
+                    <div class="step-description">
+                        • 팀 단위 표준화 구축<br>
+                        • 커스텀 MCP 서버 개발<br>
+                        • 복잡한 마이크로서비스 관리<br>
+                        • 조직 차원 도입 리더십
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="learningChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 페이지 10: 심층분석 Part 4 -->
+        <section class="slide-section fade-in-section" id="section-10">
+            <div class="page-header">10/15</div>
+            <div class="section-subtitle">⚠️ 심층분석 Part 4: 주의사항과 도구</div>
+            
+            <div class="warning-box">
+                <div style="font-weight: 600; margin-bottom: 1rem;">🚨 잠재적 함정</div>
+                <strong>컨텍스트 관리 실패:</strong> 200,000 토큰 한계 도달시 응답 품질 급격히 저하<br>
+                <strong>과도한 AI 의존:</strong> 기술적 판단력을 AI에 완전 위임하면 안됨<br>
+                <strong>버전 불일치:</strong> 최신 라이브러리 정보 부족으로 호환성 문제<br>
+                <strong>프로덕션 준비도:</strong> 보안, 성능, 접근성 등 비기능 요구사항 누락
+            </div>
+
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-tools" style="color: var(--primary-color);"></i>
+                        필수 MCP 서버
+                    </div>
+                    <div class="strategy-content">
+                        <strong>Playwright MCP:</strong> 웹 자동화<br>
+                        <strong>Desktop Commander:</strong> 파일 시스템<br>
+                        <strong>Perplexity MCP:</strong> 실시간 검색<br>
+                        <strong>커스텀 서버:</strong> 특화 기능
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-link" style="color: var(--success-color);"></i>
+                        연관 도구 생태계
+                    </div>
+                    <div class="strategy-content">
+                        <strong>Cursor IDE:</strong> 하이브리드 활용<br>
+                        <strong>Obsidian:</strong> 문서화 자동화<br>
+                        <strong>Tavily AI:</strong> 기술 문서 검색<br>
+                        <strong>Vercel AI SDK:</strong> AI 기능 통합
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-shield-alt" style="color: var(--warning-color);"></i>
+                        보안 고려사항
+                    </div>
+                    <div class="strategy-content">
+                        <strong>프로덕션 체크리스트:</strong><br>
+                        • OWASP Top 10 보안 검토<br>
+                        • API 키 안전한 관리<br>
+                        • 입력값 검증 및 sanitization<br>
+                        • 정기적인 보안 감사
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-chart-line" style="color: var(--accent-color);"></i>
+                        성능 최적화
+                    </div>
+                    <div class="strategy-content">
+                        <strong>모니터링 필수:</strong><br>
+                        • Core Web Vitals 측정<br>
+                        • 번들 크기 최적화<br>
+                        • 이미지 lazy loading<br>
+                        • CDN 활용 전략
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">💡 Pro Tip</div>
+                <div class="insight-content">
+                    매일 아침 <code>claude update</code> 명령으로 최신 버전을 유지하고, 
+                    프로젝트별로 별도의 claude.md 파일을 생성하여 컨텍스트를 체계적으로 관리하세요.
+                </div>
+            </div>
+        </section>
+
+        <!-- 페이지 11: 심층분석 Part 5 -->
+        <section class="slide-section fade-in-section" id="section-11">
+            <div class="page-header">11/15</div>
+            <div class="section-subtitle">📚 심층분석 Part 5: 학습 자료 큐레이션</div>
+            
+            <div class="resource-grid">
+                <div class="resource-item">
+                    <div class="resource-type">공식 문서</div>
+                    <div class="resource-title">Claude Code 시작 가이드</div>
+                    <div class="resource-description">
+                        설치부터 첫 프로젝트까지 완전 가이드. 기본 개념과 핵심 기능 습득.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐ 초급</span>
+                        <span>3시간</span>
+                    </div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-type">심화 이론</div>
+                    <div class="resource-title">MCP 서버 개발 마스터</div>
+                    <div class="resource-description">
+                        TypeScript/Python으로 커스텀 MCP 서버 개발. 보안, 성능, 테스트 전략 포함.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐⭐⭐ 고급</span>
+                        <span>2주</span>
+                    </div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-type">실습 가이드</div>
+                    <div class="resource-title">Playwright MCP 마스터 클래스</div>
+                    <div class="resource-description">
+                        자동 테스트 및 디버깅 시스템 구축. E2E 테스트 자동화의 완전한 이해.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐⭐ 중급</span>
+                        <span>1주</span>
+                    </div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-type">커뮤니티</div>
+                    <div class="resource-title">Claude Code Discord</div>
+                    <div class="resource-description">
+                        실시간 문제 해결 및 팁 공유. 새로운 MCP 서버 출시와 베스트 프랙티스 논의.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐ 모든 레벨</span>
+                        <span>지속적</span>
+                    </div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-type">영상 강의</div>
+                    <div class="resource-title">David Andre 채널</div>
+                    <div class="resource-description">
+                        실무 중심 활용 사례와 고급 팁. 실제 프로젝트 개발 과정 상세 해설.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐⭐ 중급</span>
+                        <span>주 2시간</span>
+                    </div>
+                </div>
+                
+                <div class="resource-item">
+                    <div class="resource-type">관리론</div>
+                    <div class="resource-title">AI 기반 개발팀 리더십</div>
+                    <div class="resource-description">
+                        팀 단위 Claude Code 도입 전략. 변화 관리 및 성과 측정 방법론.
+                    </div>
+                    <div class="resource-meta">
+                        <span class="difficulty">⭐⭐⭐⭐ 전문가</span>
+                        <span>6주</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 페이지 12: 실무 적용 로드맵 -->
+        <section class="slide-section fade-in-section" id="section-12">
+            <div class="page-header">12/15</div>
+            <div class="section-subtitle">🚀 실무 적용 로드맵</div>
+            
+            <div class="step-timeline">
+                <div class="step-item">
+                    <div class="step-title">0-2주: 기초 환경 구축</div>
+                    <div class="step-description">
+                        <strong>필수 리소스:</strong> 개발 환경 1대, Anthropic API 크레딧 $50, 학습 시간 주 5시간<br>
+                        <strong>주요 작업:</strong> Claude Code 설치, 기본 단축키 숙지, 첫 번째 project description.md 템플릿<br>
+                        <strong>위험 요소:</strong> API 사용량 모니터링, 초기 학습 곡선으로 인한 일시적 생산성 저하
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-title">2-8주: 워크플로우 자동화</div>
+                    <div class="step-description">
+                        <strong>예상 리소스:</strong> Perplexity Pro $20/월, 개발 시간 주 10시간, 실험용 프로젝트 3-5개<br>
+                        <strong>성공 지표:</strong> 기존 대비 개발 속도 3-5배 향상, 반복 작업 80% 자동화<br>
+                        <strong>핵심 활동:</strong> 개인 맞춤형 훅 시스템, Perplexity 연동, Playwright MCP 구축
+                    </div>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-title">2-6개월: 팀 단위 확산</div>
+                    <div class="step-description">
+                        <strong>예상 리소스:</strong> 팀 교육 비용 월 $500, 전담 DevOps 엔지니어 0.5 FTE<br>
+                        <strong>장기 목표:</strong> 팀 전체 생산성 10배 향상, 프로토타입-배포 사이클 90% 단축<br>
+                        <strong>핵심 작업:</strong> 팀 공용 표준화, 코드 품질 관리 프로세스, 지식 공유 프로그램
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">$50</div>
+                    <div class="stat-label">초기 투자 비용</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3-5x</div>
+                    <div class="stat-label">단기 효율성 향상</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">10x</div>
+                    <div class="stat-label">장기 생산성 목표</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">90%</div>
+                    <div class="stat-label">프로세스 단축율</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 페이지 13: 단계별 학습 가이드 -->
+        <section class="slide-section fade-in-section" id="section-13">
+            <div class="page-header">13/15</div>
+            <div class="section-subtitle">🎓 단계별 학습 가이드</div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>레벨</th>
+                            <th>기간</th>
+                            <th>핵심 학습 목표</th>
+                            <th>주요 프로젝트</th>
+                            <th>성공 지표</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Level 1<br>초급</strong></td>
+                            <td>1-3주<br>(주 5시간)</td>
+                            <td>• 기본 설치 및 설정<br>• 핵심 개념 이해<br>• Plan vs Auto Accept 차이</td>
+                            <td>• Todo 앱<br>• 간단한 계산기<br>• 포트폴리오 사이트</td>
+                            <td>5개 기본 프로젝트 완성<br>10개 커스텀 훅 개발</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Level 2<br>중급</strong></td>
+                            <td>1-3개월<br>(주 10시간)</td>
+                            <td>• MCP 서버 활용<br>• 외부 도구 연동<br>• 워크플로우 자동화</td>
+                            <td>• AI 파워드 CRM<br>• 실시간 채팅 앱<br>• E-commerce MVP</td>
+                            <td>팀 프로젝트 주도<br>3개 MCP 서버 통합</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Level 3<br>고급</strong></td>
+                            <td>3-6개월<br>(지속적)</td>
+                            <td>• 커스텀 MCP 개발<br>• 팀 표준화 리드<br>• 복잡한 시스템 설계</td>
+                            <td>• 마이크로서비스 아키텍처<br>• 커스텀 MCP 서버<br>• 조직 도입 전략</td>
+                            <td>조직 표준화 가이드 작성<br>복잡한 엔터프라이즈 프로젝트</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">측정 가능한 학습 목표</div>
+                <div class="insight-content">
+                    <strong>정량적 지표:</strong><br>
+                    • 개발 속도: 기존 대비 3-20배 향상 측정<br>
+                    • 자동화율: 반복 작업 80% 이상 자동화<br>
+                    • 품질 지표: 버그 감소율 60% 이상<br>
+                    • 학습 속도: 새로운 기술 습득 시간 50% 단축<br><br>
+                    
+                    <strong>정성적 지표:</strong><br>
+                    • Stack Overflow/GitHub에서 Claude Code 관련 질문 답변 능력<br>
+                    • 팀 내 Claude Code 도입 리더십 발휘<br>
+                    • 복잡한 기술적 의사결정에서 AI와의 효과적 협업
+                </div>
+            </div>
+        </section>
+
+        <!-- 페이지 14: 핵심 인사이트 정리 -->
+        <section class="slide-section fade-in-section" id="section-14">
+            <div class="page-header">14/15</div>
+            <div class="section-subtitle">💡 핵심 인사이트 정리</div>
+            
+            <div class="four-pillars">
+                <div class="pillar-card">
+                    <div class="pillar-icon">🧠</div>
+                    <div class="pillar-title">패러다임 전환</div>
+                    <div class="pillar-description">
+                        AI를 단순한 코드 생성기가 아닌 개발 파트너로 인식. 
+                        사고를 아웃소싱하지 말고 AI로 기술 역량을 빠르게 개발하는 기회로 활용.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">⚙️</div>
+                    <div class="pillar-title">체계적 자동화</div>
+                    <div class="pillar-description">
+                        커스텀 훅, 명령어, 서브 에이전트를 통한 반복 작업 최적화가 
+                        장기적 경쟁 우위의 핵심. 초기 설정 투자가 기하급수적 효과 창출.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">📋</div>
+                    <div class="pillar-title">문서화의 힘</div>
+                    <div class="pillar-description">
+                        project description.md의 품질이 최종 결과물을 좌우. 
+                        명확한 프로젝트 문서화가 AI 성능의 핵심 변수.
+                    </div>
+                </div>
+                
+                <div class="pillar-card">
+                    <div class="pillar-icon">🎯</div>
+                    <div class="pillar-title">기술자 정체성</div>
+                    <div class="pillar-description">
+                        AI는 기술을 보유한 개발자의 능력을 기하급수적으로 증폭. 
+                        핵심 의사결정과 제품 책임은 여전히 인간의 몫.
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <div style="font-weight: 600; margin-bottom: 1rem;">🔥 게임 체인저 인사이트</div>
+                <strong>"가장 큰 기회는 이러한 도구를 사용하여 자신의 기술을 훨씬 빠르게 개발하는 것입니다."</strong><br><br>
+                
+                Claude Code는 단순히 개발을 빠르게 해주는 도구를 넘어서, 
+                개발자가 새로운 기술을 학습하고 전문성을 확장하는 속도를 혁신적으로 가속화하는 
+                <strong>자기계발 플랫폼</strong>입니다.
+            </div>
+
+            <div class="chart-container">
+                <canvas id="impactChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 페이지 15: 참고 자료 및 다음 단계 -->
+        <section class="slide-section fade-in-section" id="section-15">
+            <div class="page-header">15/15</div>
+            <div class="section-subtitle">🔗 참고 자료 & 다음 단계</div>
+            
+            <div class="strategy-grid">
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-book" style="color: var(--primary-color);"></i>
+                        공식 리소스
+                    </div>
+                    <div class="strategy-content">
+                        • <strong>Claude Code 공식 문서</strong><br>
+                        • <strong>Anthropic API 레퍼런스</strong><br>
+                        • <strong>MCP 개발자 가이드</strong><br>
+                        • <strong>프롬프트 엔지니어링 가이드</strong>
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-users" style="color: var(--success-color);"></i>
+                        커뮤니티
+                    </div>
+                    <div class="strategy-content">
+                        • <strong>Discord:</strong> 실시간 문제 해결<br>
+                        • <strong>Reddit r/ClaudeAI:</strong> 경험 공유<br>
+                        • <strong>GitHub Discussions:</strong> 오픈소스<br>
+                        • <strong>매주 뉴스레터:</strong> 최신 업데이트
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-play" style="color: var(--secondary-color);"></i>
+                        실습 자료
+                    </div>
+                    <div class="strategy-content">
+                        • <strong>Templates Repository:</strong> 시작점<br>
+                        • <strong>David Andre 채널:</strong> 실무 사례<br>
+                        • <strong>Example Projects:</strong> 레퍼런스<br>
+                        • <strong>Best Practices:</strong> 모범 사례
+                    </div>
+                </div>
+                
+                <div class="strategy-item">
+                    <div class="strategy-title">
+                        <i class="fas fa-rocket" style="color: var(--accent-color);"></i>
+                        즉시 시작하기
+                    </div>
+                    <div class="strategy-content">
+                        1. <strong>Claude Code 설치</strong><br>
+                        2. <strong>첫 프로젝트 시도</strong><br>
+                        3. <strong>커뮤니티 참여</strong><br>
+                        4. <strong>꾸준한 실험과 학습</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <div class="insight-title">🎯 지금 바로 시작할 Action Items</div>
+                <div class="insight-content">
+                    <input type="checkbox"> Claude Code 설치 및 기본 키보드 단축키 숙지<br>
+                    <input type="checkbox"> 개인 맞춤형 project description.md 템플릿 개발<br>
+                    <input type="checkbox"> 자주 사용하는 프롬프트 패턴을 훅으로 자동화<br>
+                    <input type="checkbox"> Perplexity Pro 연동 워크플로우 구축 및 테스트<br>
+                    <input type="checkbox"> Playwright MCP 서버 설치 및 자동 디버깅 환경 구성<br>
+                    <input type="checkbox"> 팀 단위 settings.json 표준화 및 공유
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--bg-secondary); border-radius: 16px;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    🚀 여정의 시작점
+                </h3>
+                <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 2rem;">
+                    Claude Code와 함께 개발 효율성을 극대화하는 여정을 시작하세요.<br>
+                    5-20배 생산성 향상은 시작에 불과합니다.
+                </p>
+                <div style="font-weight: 700; color: var(--primary-color); font-size: 1.2rem;">
+                    The future of development is here. Let's build it together. 🤖✨
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <script>
+        // 테마 전환 기능
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        // 테마 전환 함수
+        function toggleTheme() {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            
+            const icon = themeToggle.querySelector('i');
+            icon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            localStorage.setItem('theme', newTheme);
+            
+            // 차트 업데이트
+            updateChartsTheme();
+        }
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // 저장된 테마 로드
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        const icon = themeToggle.querySelector('i');
+        icon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        
+        // 스크롤 진행률 표시
+        function updateScrollProgress() {
+            const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            document.querySelector('.progress-bar').style.width = Math.min(scrolled, 100) + '%';
+        }
+        
+        window.addEventListener('scroll', updateScrollProgress);
+        
+        // Intersection Observer를 활용한 애니메이션
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        // 모든 섹션에 observer 적용
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // 첫 페이지의 테마 토글 버튼만 표시
+        window.addEventListener('scroll', () => {
+            const firstSection = document.getElementById('section-1');
+            const rect = firstSection.getBoundingClientRect();
+            const isFirstSectionVisible = rect.bottom > 0 && rect.top < window.innerHeight;
+            
+            themeToggle.style.display = isFirstSectionVisible ? 'flex' : 'none';
+        });
+        
+        // 차트 생성 및 업데이트 함수
+        let charts = {};
+        
+        function getThemeColors() {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            return {
+                primary: isDark ? '#3b82f6' : '#2563eb',
+                secondary: isDark ? '#8b5cf6' : '#7c3aed',
+                accent: isDark ? '#fbbf24' : '#f59e0b',
+                success: isDark ? '#34d399' : '#10b981',
+                text: isDark ? '#f9fafb' : '#1f2937',
+                textSecondary: isDark ? '#d1d5db' : '#6b7280'
+            };
+        }
+        
+        function createPillarsChart() {
+            const ctx = document.getElementById('pillarsChart');
+            if (!ctx) return;
+            
+            const colors = getThemeColors();
+            
+            if (charts.pillars) {
+                charts.pillars.destroy();
+            }
+            
+            charts.pillars = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['커스텀 설정', '명확한 아이디어', '기술적 숙련도', '프롬프팅 엔지니어링'],
+                    datasets: [{
+                        label: '중요도',
+                        data: [90, 85, 80, 88],
+                        backgroundColor: colors.primary + '20',
+                        borderColor: colors.primary,
+                        borderWidth: 2,
+                        pointBackgroundColor: colors.primary,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            pointLabels: {
+                                color: colors.text,
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            ticks: {
+                                color: colors.textSecondary,
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createTrendChart() {
+            const ctx = document.getElementById('trendChart');
+            if (!ctx) return;
+            
+            const colors = getThemeColors();
+            
+            if (charts.trend) {
+                charts.trend.destroy();
+            }
+            
+            charts.trend = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2022', '2023', '2024', '2025', '2026 (예측)'],
+                    datasets: [{
+                        label: 'AI 코딩 도구 시장 ($B)',
+                        data: [2.8, 8.5, 14.2, 48.3, 127.5],
+                        borderColor: colors.primary,
+                        backgroundColor: colors.primary + '20',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: '개발자 채택률 (%)',
+                        data: [12, 31, 58, 89, 94],
+                        borderColor: colors.success,
+                        backgroundColor: colors.success + '20',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createLearningChart() {
+            const ctx = document.getElementById('learningChart');
+            if (!ctx) return;
+            
+            const colors = getThemeColors();
+            
+            if (charts.learning) {
+                charts.learning.destroy();
+            }
+            
+            charts.learning = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['초급 (1-3주)', '중급 (2-4개월)', '고급 (6개월+)'],
+                    datasets: [{
+                        label: '학습 시간 (시간/주)',
+                        data: [5, 12, 20],
+                        backgroundColor: [colors.success, colors.primary, colors.secondary],
+                        borderColor: [colors.success, colors.primary, colors.secondary],
+                        borderWidth: 1
+                    }, {
+                        label: '생산성 향상 (배수)',
+                        data: [3, 8, 20],
+                        backgroundColor: [colors.accent + '80', colors.accent + '80', colors.accent + '80'],
+                        borderColor: colors.accent,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: colors.text
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createResourceChart() {
+            const ctx = document.getElementById('resourceChart');
+            if (!ctx) return;
+            
+            const colors = getThemeColors();
+            
+            if (charts.resource) {
+                charts.resource.destroy();
+            }
+            
+            charts.resource = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['공식 문서', '커뮤니티', '실습 프로젝트', '영상 강의', '심화 이론'],
+                    datasets: [{
+                        data: [25, 20, 30, 15, 10],
+                        backgroundColor: [
+                            colors.primary,
+                            colors.success,
+                            colors.secondary,
+                            colors.accent,
+                            '#ef4444'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: colors.text,
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createImpactChart() {
+            const ctx = document.getElementById('impactChart');
+            if (!ctx) return;
+            
+            const colors = getThemeColors();
+            
+            if (charts.impact) {
+                charts.impact.destroy();
+            }
+            
+            charts.impact = new Chart(ctx, {
+                type: 'bubble',
+                data: {
+                    datasets: [{
+                        label: '영향도 매트릭스',
+                        data: [
+                            {x: 20, y: 90, r: 15, label: '커스텀 자동화'},
+                            {x: 60, y: 85, r: 12, label: '프로젝트 문서화'},
+                            {x: 80, y: 75, r: 10, label: '외부 도구 연동'},
+                            {x: 40, y: 70, r: 8, label: '기술 숙련도'},
+                            {x: 90, y: 95, r: 18, label: 'AI 파트너십'}
+                        ],
+                        backgroundColor: colors.primary + '60',
+                        borderColor: colors.primary,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw.label || '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '구현 용이성',
+                                color: colors.text
+                            },
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '비즈니스 임팩트',
+                                color: colors.text
+                            },
+                            grid: {
+                                color: colors.textSecondary + '40'
+                            },
+                            ticks: {
+                                color: colors.textSecondary
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateChartsTheme() {
+            createPillarsChart();
+            createTrendChart();
+            createLearningChart();
+            createResourceChart();
+            createImpactChart();
+        }
+        
+        // 페이지 로드 시 차트 생성
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                createPillarsChart();
+                createTrendChart();
+                createLearningChart();
+                createResourceChart();
+                createImpactChart();
+            }, 1000);
+        });
+        
+        // 체크박스 스타일링
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.style.marginRight = '8px';
+            checkbox.style.transform = 'scale(1.2)';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archon - AI 코딩을 위한 혁신적 운영체제</title>
+    
+    <!-- SEO 및 소셜 미디어 최적화 -->
+    <meta name="description" content="Archon - 기존 AI 코딩 도구의 한계를 극복하는 혁신적 운영체제. RAG 기반 지식 관리와 실시간 협업을 통한 차세대 개발 환경">
+    <meta property="og:title" content="Archon - AI 코딩을 위한 혁신적 운영체제">
+    <meta property="og:description" content="MCP 프로토콜과 RAG 시스템을 통합한 AI 코딩 도구의 새로운 패러다임">
+    
+    <!-- 외부 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* 라이트 모드 색상 */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --accent-tertiary: #06b6d4;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            /* 다크 모드 색상 */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-tertiary: #94a3b8;
+            --accent-primary: #60a5fa;
+            --accent-secondary: #a78bfa;
+            --accent-tertiary: #22d3ee;
+            --border-color: #334155;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            scroll-behavior: smooth;
+        }
+
+        /* 스크롤형 레이아웃 */
+        .scroll-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .slide-section {
+            min-height: 100vh;
+            padding: 80px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        /* 페이지 번호 표시 */
+        .section-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 다크/라이트 모드 토글 */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            display: none; /* 첫 페이지에서만 보이도록 JS로 제어 */
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* 타이포그래피 */
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h3 {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            text-align: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* 카드 컴포넌트 */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            margin: 1rem 0;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        /* 비교 테이블 */
+        .comparison-table {
+            width: 100%;
+            max-width: 1000px;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-weight: 600;
+        }
+
+        /* 차트 컨테이너 */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 400px;
+            margin: 2rem auto;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        /* 프로세스 플로우 */
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            width: 100%;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .process-step {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+            border: 2px solid var(--border-color);
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--accent-primary);
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        /* 하이라이트 박스 */
+        .highlight-box {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-box h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box p {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 400;
+        }
+
+        .highlight-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* 태그 스타일 */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* 애니메이션 */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .fade-in-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .slide-section {
+                padding: 60px 20px;
+            }
+            
+            .process-flow {
+                flex-direction: column;
+            }
+            
+            .process-step::after {
+                content: '↓';
+                right: 50%;
+                bottom: -20px;
+                top: auto;
+                transform: translateX(50%);
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 영상 썸네일 스타일 */
+        .video-thumbnail {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            margin: 2rem 0;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* 썸네일 대체 박스 (이미지 로드 실패 시) */
+        .thumbnail-placeholder {
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        /* 통계 박스 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        .stat-box {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--accent-primary);
+            display: block;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 단계별 가이드 */
+        .step-guide {
+            display: grid;
+            gap: 1rem;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .step-number {
+            background: var(--accent-primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* 아키텍처 다이어그램 */
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 2rem;
+            max-width: 1000px;
+            width: 100%;
+            margin: 2rem 0;
+        }
+
+        .arch-layer {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            position: relative;
+        }
+
+        .arch-layer.center {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        /* 연결선 */
+        .connection-line {
+            position: absolute;
+            top: 50%;
+            right: -1rem;
+            width: 2rem;
+            height: 2px;
+            background: var(--accent-primary);
+        }
+
+        .connection-line::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: -4px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--accent-primary);
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+    </style>
+</head>
+<body>
+    <!-- 다크/라이트 모드 토글 -->
+    <button class="theme-toggle" id="themeToggle" aria-label="테마 전환">
+        🌙
+    </button>
+
+    <main class="scroll-container">
+        <!-- 섹션 1: 타이틀 -->
+        <section class="slide-section fade-in-section" id="section-1">
+            <div class="section-number">1 / 20</div>
+            <h1>Archon</h1>
+            <p style="font-size: 1.5rem; color: var(--accent-primary); margin-bottom: 2rem;">AI 코딩을 위한 혁신적 운영체제</p>
+            
+            <!-- 썸네일 이미지 또는 대체 박스 -->
+            <div class="thumbnail-placeholder" id="thumbnailContainer">
+                <div>
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+                    <div>Archon - AI 코딩 운영체제</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem;">Cole McWhorter YouTube Channel</div>
+                </div>
+            </div>
+            
+            <div class="tags">
+                <span class="tag">Cole McWhorter</span>
+                <span class="tag">AI/개발</span>
+                <span class="tag">25:32</span>
+                <span class="tag">2024-09-14</span>
+            </div>
+            <p>기존 AI 코딩 도구들의 근본적 한계를 극복하는<br>차세대 개발 환경의 혁신</p>
+        </section>
+
+        <!-- 섹션 2: 전체 개요 -->
+        <section class="slide-section fade-in-section" id="section-2">
+            <div class="section-number">2 / 20</div>
+            <h2>학습 목표 및 전체 구조</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>핵심 목표</h3>
+                    <p>AI 코딩 도구의 컨텍스트 엔지니어링 한계 극복과 실시간 협업 시스템 구축</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏗️</div>
+                    <h3>기술 스택</h3>
+                    <p>MCP 프로토콜, RAG 시스템, Supabase, Docker, WebSocket 기반 실시간 동기화</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>협업 방식</h3>
+                    <p>인간과 AI 도구가 동일한 프로젝트에서 실시간으로 협업하는 이원적 아키텍처</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>💡 핵심 혁신</h3>
+                <p>기존 AI 도구들이 제공하지 못하는 깊이 있는 컨텍스트 관리와 실시간 프로젝트 협업을 통합한 운영체제</p>
+            </div>
+        </section>
+
+        <!-- 섹션 3: 영상 배경 정보 -->
+        <section class="slide-section fade-in-section" id="section-3">
+            <div class="section-number">3 / 20</div>
+            <h2>영상 배경 및 맥락</h2>
+            <div class="card">
+                <h3>🎥 Cole McWhorter 채널</h3>
+                <p>AI 코딩 도구와 개발 워크플로우 전문가로, 실용적이고 혁신적인 개발 솔루션을 지속적으로 제시하는 유튜버입니다.</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">25:32</span>
+                        <span class="stat-label">영상 길이</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">2024-09</span>
+                        <span class="stat-label">발표 시점</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">Beta</span>
+                        <span class="stat-label">현재 상태</span>
+                    </div>
+                </div>
+
+                <h3>📍 주요 타임스탬프</h3>
+                <div class="step-guide">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div>
+                            <strong>00:00</strong> - Archon 진화 소개
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div>
+                            <strong>02:15</strong> - AI 코딩 도구의 한계점 분석
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div>
+                            <strong>12:45</strong> - AI 뉴스 에이전트 프로젝트 구축 실습
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 4: 핵심 문제 정의 -->
+        <section class="slide-section fade-in-section" id="section-4">
+            <div class="section-number">4 / 20</div>
+            <h2>기존 AI 코딩 도구의 한계</h2>
+            <div class="chart-container">
+                <canvas id="problemChart"></canvas>
+            </div>
+            <div class="process-flow">
+                <div class="process-step">
+                    <h3>🔍 기본 웹 검색</h3>
+                    <p>표면적 정보만 수집</p>
+                </div>
+                <div class="process-step">
+                    <h3>📝 내부 작업 관리</h3>
+                    <p>제한적 프로젝트 관리</p>
+                </div>
+                <div class="process-step">
+                    <h3>❌ 컨텍스트 부족</h3>
+                    <p>RAG 시스템 부재</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>⚡ 핵심 문제</h3>
+                <p>기존 AI 코딩 도구들은 컨텍스트 엔지니어링의 핵심 구성 요소인 RAG 지식 관리와 실시간 프로젝트 관리 기능이 부족합니다</p>
+            </div>
+        </section>
+
+        <!-- 섹션 5: Archon의 해결책 -->
+        <section class="slide-section fade-in-section" id="section-5">
+            <div class="section-number">5 / 20</div>
+            <h2>Archon의 혁신적 해결책</h2>
+            <div class="architecture-diagram">
+                <div class="arch-layer">
+                    <h3>🧠 Human Interface</h3>
+                    <p>직관적 UI</p>
+                    <p>프로젝트 관리</p>
+                    <p>지식 기반 구축</p>
+                    <div class="connection-line"></div>
+                </div>
+                <div class="arch-layer center">
+                    <h3>⚙️ Archon Core</h3>
+                    <p>MCP 서버</p>
+                    <p>RAG 시스템</p>
+                    <p>실시간 동기화</p>
+                    <div class="connection-line"></div>
+                </div>
+                <div class="arch-layer">
+                    <h3>🤖 AI Tools</h3>
+                    <p>Cursor</p>
+                    <p>Claude Code</p>
+                    <p>Windsurf</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>🎯 완전한 명령 센터</h3>
+                <p>Archon은 AI 코딩 지원을 위한 "완전한 명령 센터"를 제공하여, 사용자가 코딩 지원 도구와 "훨씬 더 깊은 수준에서 협업"할 수 있도록 돕는 운영체제입니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 6: 이원적 아키텍처 -->
+        <section class="slide-section fade-in-section" id="section-6">
+            <div class="section-number">6 / 20</div>
+            <h2>이원적 아키텍처의 혁신</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍💻</div>
+                    <h3>인간용 UI</h3>
+                    <p>프로젝트의 지식 컨텍스트와 작업을 관리하기 위한 세련된 인터페이스</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>AI용 MCP 서버</h3>
+                    <p>Machine Control Protocol을 통한 LLM과의 원활한 통신</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>💫 핵심 인사이트</h3>
+                <p>"UI는 인간에게 고유하고, MCP는 LLM에게 고유합니다. 그래서 우리는 각자 동일한 프로젝트에서 협업할 수 있습니다."</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="architectureChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 섹션 7: RAG 지식 관리 시스템 -->
+        <section class="slide-section fade-in-section" id="section-7">
+            <div class="section-number">7 / 20</div>
+            <h2>RAG 기반 지식 관리 시스템</h2>
+            <div class="process-flow">
+                <div class="process-step">
+                    <h3>🌐 URL 스크랩</h3>
+                    <p>웹사이트, 사이트맵 재귀적 크롤링</p>
+                </div>
+                <div class="process-step">
+                    <h3>📄 문서 업로드</h3>
+                    <p>PDF 비즈니스 문서 통합</p>
+                </div>
+                <div class="process-step">
+                    <h3>🔍 임베딩 처리</h3>
+                    <p>청크 분할 및 벡터화</p>
+                </div>
+                <div class="process-step">
+                    <h3>💡 지식 기반</h3>
+                    <p>RAG 시스템 구축 완료</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>🔧 지식 소스 옵션</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>웹 크롤링</h4>
+                        <p>Crawl4AI를 활용한 실시간 웹사이트 내용 수집</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>문서 통합</h4>
+                        <p>PDF, 마크다운 등 다양한 포맷 지원</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>실시간 피드백</h4>
+                        <p>크롤링 및 임베딩 진행 상황 모니터링</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 8: 실시간 태스크 관리 -->
+        <section class="slide-section fade-in-section" id="section-8">
+            <div class="section-number">8 / 20</div>
+            <h2>실시간 협업 태스크 관리</h2>
+            <div class="highlight-box">
+                <h3>⚡ 혁신적 실시간 동기화</h3>
+                <p>"코딩 지원 도구가 실행되는 동안 우리는 상황을 수정하고, 작업 설명을 편집하고, 무언가를 백로그로 다시 이동시키고 그 이유를 설명할 수 있습니다."</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="collaborationChart"></canvas>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>실시간 수정</h3>
+                    <p>AI 도구 실행 중단 없이 태스크 편집 가능</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>설명 추가</h3>
+                    <p>변경 사항에 대한 맥락 정보 제공</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>즉시 반영</h3>
+                    <p>AI 도구가 다음 작업 시 변경사항 자동 적용</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 9: MCP 프로토콜과 통합 -->
+        <section class="slide-section fade-in-section" id="section-9">
+            <div class="section-number">9 / 20</div>
+            <h2>MCP 프로토콜 기반 통합 생태계</h2>
+            <div class="card">
+                <h3>🔌 현재 지원 도구</h3>
+                <div class="tags">
+                    <span class="tag">Cursor</span>
+                    <span class="tag">Windsurf</span>
+                    <span class="tag">Claude Code</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>🚀 확장 계획</h3>
+                <div class="tags">
+                    <span class="tag">Hero</span>
+                    <span class="tag">Augment Code</span>
+                    <span class="tag">Client</span>
+                </div>
+            </div>
+            <div class="architecture-diagram">
+                <div class="arch-layer">
+                    <h3>🔑 API 설정</h3>
+                    <p>Google API</p>
+                    <p>OpenAI API</p>
+                    <p>또는 Ollama 로컬</p>
+                    <div class="connection-line"></div>
+                </div>
+                <div class="arch-layer center">
+                    <h3>🌐 MCP Layer</h3>
+                    <p>Model Context Protocol</p>
+                    <div class="connection-line"></div>
+                </div>
+                <div class="arch-layer">
+                    <h3>🤖 AI Tools</h3>
+                    <p>다양한 AI 코딩 도구</p>
+                    <p>확장 가능한 생태계</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 10: Shawn Buck의 UX 비전 -->
+        <section class="slide-section fade-in-section" id="section-10">
+            <div class="section-number">10 / 20</div>
+            <h2>인간과 AI의 깊이 있는 협업 비전</h2>
+            <div class="highlight-box">
+                <h3>👨‍🎨 Shawn Buck - UX/UI 전문가</h3>
+                <p>"에이전트가 인간을 대체하는 것이 아니라 우리와 함께 하는 코파일럿으로서 작동하며, 사용자가 에이전트와 더 많은 상호 작용을 할 수 있도록 돕습니다."</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👁️</div>
+                    <h3>가시성 확보</h3>
+                    <p>"개발을 할 때 모든 것이 어떻게 진행되는지 어떻게 제어할 수 있을까?"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎛️</div>
+                    <h3>제어력 강화</h3>
+                    <p>코드베이스, 문서, 할 일 목록의 혼란스러움 해결</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>명확한 상태</h3>
+                    <p>진행 중, 완료, 검토 필요 등 작업 상태의 투명한 표시</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="visionChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 섹션 11: 심층분석 1 - 기술적 깊이 & 정확성 -->
+        <section class="slide-section fade-in-section" id="section-11">
+            <div class="section-number">11 / 20</div>
+            <h2>심층분석 ① 기술적 깊이 & 정확성</h2>
+            <div class="card">
+                <h3>🏗️ 차세대 운영체제 아키텍처</h3>
+                <p>Archon은 AI 코딩 도구 생태계의 근본적 한계를 해결하기 위해 설계된 차세대 운영체제입니다. 핵심 아키텍처는 이원적 접근법을 채택하여, 인간 개발자를 위한 직관적 웹 UI와 AI 도구를 위한 MCP 서버를 분리 운영합니다.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🗄️ Supabase + PostgreSQL</h3>
+                    <p>벡터 임베딩 기반 고급 RAG 시스템 구현</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🕷️ Crawl4AI 엔진</h3>
+                    <p>재귀적 웹 크롤링과 실시간 진행 상황 피드백</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔗 MCP 프로토콜</h3>
+                    <p>Seamless한 AI 도구 통합과 실시간 동기화</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>💡 핵심 혁신</h3>
+                <p>실시간 태스크 동기화 기능은 개발자가 AI 도구의 작업을 중단하지 않고도 태스크 설명을 수정하거나 우선순위를 변경할 수 있게 하여, 기존 AI 코딩 워크플로우의 주요 병목점을 해결합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 12: 심층분석 2 - 업계 트렌드 연관성 -->
+        <section class="slide-section fade-in-section" id="section-12">
+            <div class="section-number">12 / 20</div>
+            <h2>심층분석 ② 업계 트렌드 연관성</h2>
+            <div class="chart-container">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="card">
+                <h3>📈 시장 포지셔닝</h3>
+                <p>2024년 현재 AI 코딩 도구 시장은 급속한 성장과 함께 차별화된 접근법을 모색하는 전환점에 있습니다. Archon은 특정 AI 모델이나 에디터에 종속되지 않는 메타-플랫폼 역할을 수행합니다.</p>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎯 컨텍스트 엔지니어링</h3>
+                    <p>단순 자동완성을 넘어 프로젝트 전체 컨텍스트 이해가 핵심 차별화 요소</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔓 오픈소스 전략</h3>
+                    <p>폐쇄적 생태계 대비 투명성과 커스터마이징 욕구 충족</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🏢 기업 환경</h3>
+                    <p>온프레미스 배포 가능한 보안 중심 솔루션 제공</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 13: 심층분석 3 - 실무 적용 가능성과 한계 -->
+        <section class="slide-section fade-in-section" id="section-13">
+            <div class="section-number">13 / 20</div>
+            <h2>심층분석 ③ 실무 적용 가능성과 한계</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-number">✅</span>
+                    <span class="stat-label">중간 규모 이상 팀</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">⚠️</span>
+                    <span class="stat-label">초기 설정 복잡</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">🎯</span>
+                    <span class="stat-label">레거시 현대화</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">🚧</span>
+                    <span class="stat-label">베타 안정성</span>
+                </div>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🎯 최적 활용 시나리오</h3>
+                    <p>복잡한 비즈니스 로직과 광범위한 문서화가 필요한 중간 규모 이상 개발 팀</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔧 레거시 시스템 현대화</h3>
+                    <p>기존 시스템의 문서, API 스펙, 비즈니스 규칙을 지식 기반에 임베딩</p>
+                </div>
+            </div>
+            <div class="highlight-box">
+                <h3>⚠️ 주요 한계점</h3>
+                <p>초기 설정과 지식 기반 구축에 상당한 시간 투자 필요. Supabase 설정, Docker 환경 구성, 문서 크롤링 작업 등은 기술적 전문성을 요구하며, 소규모 프로젝트에서는 ROI가 명확하지 않을 수 있습니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 14: 심층분석 4 - 다른 기술/도구와 비교 분석 -->
+        <section class="slide-section fade-in-section" id="section-14">
+            <div class="section-number">14 / 20</div>
+            <h2>심층분석 ④ 다른 기술/도구와 비교 분석</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>비교 항목</th>
+                        <th>GitHub Copilot</th>
+                        <th>Cursor</th>
+                        <th>Archon</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>접근 방식</td>
+                        <td>에디터 내장형</td>
+                        <td>에디터 특화형</td>
+                        <td>메타-플랫폼</td>
+                    </tr>
+                    <tr>
+                        <td>컨텍스트 관리</td>
+                        <td>제한적</td>
+                        <td>프로젝트 기반</td>
+                        <td>RAG 기반 심화</td>
+                    </tr>
+                    <tr>
+                        <td>프로젝트 관리</td>
+                        <td>없음</td>
+                        <td>기본 기능</td>
+                        <td>실시간 협업</td>
+                    </tr>
+                    <tr>
+                        <td>팀 협업</td>
+                        <td>개인 중심</td>
+                        <td>개인 중심</td>
+                        <td>팀 단위 최적화</td>
+                    </tr>
+                    <tr>
+                        <td>확장성</td>
+                        <td>VS Code 플러그인</td>
+                        <td>Cursor 생태계</td>
+                        <td>오픈소스 생태계</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="highlight-box">
+                <h3>🤝 Claude Code와의 시너지</h3>
+                <p>Claude Code의 강력한 추론 능력과 Archon의 컨텍스트 관리 시스템이 결합되면 시너지 효과를 낼 수 있습니다. Archon은 Claude Code를 포함한 다양한 AI 도구들의 "운영체제" 역할을 수행합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 15: 심층분석 5 - 학습 로드맵 위치 -->
+        <section class="slide-section fade-in-section" id="section-15">
+            <div class="section-number">15 / 20</div>
+            <h2>심층분석 ⑤ 학습 로드맵 위치</h2>
+            <div class="step-guide">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div>
+                        <strong>초급 단계 (2-4주)</strong><br>
+                        Docker 기초, Supabase 설정, MCP 프로토콜 기본 원리 이해
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div>
+                        <strong>중급 단계 (1-3개월)</strong><br>
+                        커스터마이징, 실제 프로젝트 적용, PRP 프레임워크 통합
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div>
+                        <strong>고급 단계 (3-6개월 이상)</strong><br>
+                        팀 단위 도입, 커스텀 MCP 서버 개발, 오픈소스 기여
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="learningChart"></canvas>
+            </div>
+            <div class="highlight-box">
+                <h3>📚 학습 포인트</h3>
+                <p>Archon의 학습 로드맵은 AI 코딩 도구에 대한 기존 이해도와 시스템 관리 경험에 따라 크게 달라집니다. 단계별 접근으로 점진적 역량 구축이 필요합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 16: 심층분석 6~10 통합 -->
+        <section class="slide-section fade-in-section" id="section-16">
+            <div class="section-number">16 / 20</div>
+            <h2>심층분석 ⑥⑦⑧⑨⑩ 종합 인사이트</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔰</div>
+                    <h3>초보자 인사이트</h3>
+                    <p>AI 도구의 컨텍스트 관리 중요성 이해. 문서화 습관과 점진적 접근법 채택이 성공의 핵심</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>숙련자 인사이트</h3>
+                    <p>지식 아키텍처 설계와 다층적 컨텍스트 관리를 통한 조직 차원의 지식 허브 구축</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚠️</div>
+                    <h3>잠재적 함정</h3>
+                    <p>과도한 초기 복잡성, 무분별한 문서 업로드, 팀원 간 활용 수준 차이</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3>🛠️ 관련 오픈소스/도구 추천</h3>
+                <div class="tags">
+                    <span class="tag">Obsidian</span>
+                    <span class="tag">Notion</span>
+                    <span class="tag">Scrapy</span>
+                    <span class="tag">Playwright</span>
+                    <span class="tag">Ollama</span>
+                    <span class="tag">sentence-transformers</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>📚 후속 학습 자료</h3>
+                <div class="step-guide">
+                    <div class="step-item">
+                        <div class="step-number">📖</div>
+                        <div>MCP 공식 문서, LangChain 가이드, Pinecone Academy</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">💬</div>
+                        <div>Dynamis Community Discord, 주간 워크샵, 라이브 스트림</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">🤝</div>
+                        <div>GitHub Issues, Discussions, 코드 리뷰 참여</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 17: 실무 적용 전략 -->
+        <section class="slide-section fade-in-section" id="section-17">
+            <div class="section-number">17 / 20</div>
+            <h2>실무 적용 전략</h2>
+            <div class="process-flow">
+                <div class="process-step">
+                    <h3>🚀 즉시 적용</h3>
+                    <p>0-2주: 환경 구성<br>Docker, Supabase 설정</p>
+                </div>
+                <div class="process-step">
+                    <h3>⚡ 단기 최적화</h3>
+                    <p>2-8주: 지식 기반 구축<br>워크플로우 통합</p>
+                </div>
+                <div class="process-step">
+                    <h3>🎯 장기 전략</h3>
+                    <p>2-6개월: 팀 단위 확산<br>고도화 및 표준화</p>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>💰 예상 리소스</h3>
+                    <p>초기: API 크레딧 $30/월<br>중기: 팀 교육 $300/월<br>장기: DevOps 지원 0.3 FTE</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📊 성공 지표</h3>
+                    <p>컨텍스트 오류 50% 감소<br>계획 수립 시간 30% 단축<br>팀 효율성 40% 향상</p>
+                </div>
+                <div class="feature-card">
+                    <h3>⚠️ 위험 요소</h3>
+                    <p>Docker 네트워크 설정<br>API 한도 모니터링<br>팀원 간 수준 차이</p>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h3>🎯 핵심 전략</h3>
+                <p>작은 개인 프로젝트부터 시작하여 팀 프로젝트로 확장하는 점진적 도입 방식을 통해 Archon의 워크플로우에 자연스럽게 적응하는 것이 중요합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 18: 커뮤니티와 학습 자료 -->
+        <section class="slide-section fade-in-section" id="section-18">
+            <div class="section-number">18 / 20</div>
+            <h2>커뮤니티 및 학습 자료 큐레이션</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Dynamis Community</h3>
+                    <p>Discord 실시간 질의응답<br>주간 워크샵 및 라이브 스트림<br>Cole McWhorter 직접 참여</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>공식 문서</h3>
+                    <p>GitHub 저장소 가이드<br>MCP 프로토콜 문서<br>RAG 시스템 최적화 가이드</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h3>영상 자료</h3>
+                    <p>YouTube 채널 구독<br>베타 런칭 데모 영상<br>실습 튜토리얼 시리즈</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 학습 단계별 자료</h3>
+                <div class="step-guide">
+                    <div class="step-item">
+                        <div class="step-number">⭐</div>
+                        <div>
+                            <strong>Level 1 (초급)</strong><br>
+                            공식 GitHub 가이드, MCP 기초, 설치 튜토리얼 (4-6시간)
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">⭐⭐</div>
+                        <div>
+                            <strong>Level 2 (중급)</strong><br>
+                            RAG 고급 가이드, PRP 프레임워크, Docker/Supabase 마스터 (2-3주)
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">⭐⭐⭐⭐</div>
+                        <div>
+                            <strong>Level 3 (고급)</strong><br>
+                            커스텀 MCP 서버 개발, 엔터프라이즈 배포, 오픈소스 기여 (1-6개월)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🎓 측정 가능한 학습 목표</h3>
+                <p>초급: 개인 프로젝트 1개 관리 + 5개 문서 RAG 통합<br>
+                중급: 팀 프로젝트 도입 + 2개 AI 도구 연동 + 커스텀 글로벌 룰<br>
+                고급: 조직 표준화 주도 + 오픈소스 기여 + 멘토링</p>
+            </div>
+        </section>
+
+        <!-- 섹션 19: 미래 전망과 로드맵 -->
+        <section class="slide-section fade-in-section" id="section-19">
+            <div class="section-number">19 / 20</div>
+            <h2>미래 전망 및 개발 로드맵</h2>
+            
+            <div class="chart-container">
+                <canvas id="roadmapChart"></canvas>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>서브 에이전트 관리</h3>
+                    <p>역할별 전문 에이전트 설계<br>시각적 워크플로우 구현<br>에이전트 간 협업 자동화</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔗</div>
+                    <h3>생태계 확장</h3>
+                    <p>더 많은 AI 도구 통합<br>기업용 플러그인 개발<br>API 에코시스템 구축</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏢</div>
+                    <h3>엔터프라이즈</h3>
+                    <p>대규모 조직 배포<br>보안 강화 기능<br>팀 관리 도구 통합</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🎯 2025년 주요 마일스톤</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-number">Q1</span>
+                        <span class="stat-label">서브 에이전트 베타</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">Q2</span>
+                        <span class="stat-label">엔터프라이즈 버전</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">Q3</span>
+                        <span class="stat-label">마켓플레이스</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-number">Q4</span>
+                        <span class="stat-label">AI 도구 10+ 지원</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h3>🚀 비전 2030</h3>
+                <p>Archon은 AI 코딩 도구들의 표준 운영체제가 되어, 모든 개발팀이 인간과 AI의 완벽한 협업을 통해 혁신적인 소프트웨어를 창조하는 미래를 목표로 합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 20: 종합 정리 및 액션 플랜 -->
+        <section class="slide-section fade-in-section" id="section-20">
+            <div class="section-number">20 / 20</div>
+            <h2>종합 정리 및 액션 플랜</h2>
+            
+            <div class="highlight-box">
+                <h3>🎯 핵심 메시지</h3>
+                <p>Archon은 단순한 AI 코딩 도구가 아니라, 인간과 AI가 진정으로 협업할 수 있는 차세대 개발 환경의 패러다임을 제시합니다. RAG 기반 지식 관리와 실시간 협업을 통해 기존 도구들의 근본적 한계를 극복합니다.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>즉시 시작하기</h3>
+                    <p>GitHub 저장소 클론<br>Docker 환경 구축<br>Supabase 계정 생성<br>첫 프로젝트 설정</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>학습 계속하기</h3>
+                    <p>Dynamis Discord 참여<br>주간 라이브 스트림 시청<br>MCP 문서 숙지<br>커뮤니티 기여</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>팀에 적용하기</h3>
+                    <p>파일럿 프로젝트 선정<br>팀원 교육 계획<br>성공 지표 설정<br>점진적 확산 전략</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>✅ 체크리스트</h3>
+                <div class="step-guide">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div>Archon GitHub 저장소 Star 및 Watch 설정</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div>Dynamis Community Discord 가입</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div>로컬 환경에 Archon 설치 및 테스트</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div>선호하는 AI 코딩 도구와 MCP 연동</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">5</div>
+                        <div>첫 번째 문서를 RAG 시스템에 업로드</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tags">
+                <span class="tag">#Archon</span>
+                <span class="tag">#AI코딩</span>
+                <span class="tag">#RAG</span>
+                <span class="tag">#MCP</span>
+                <span class="tag">#실시간협업</span>
+                <span class="tag">#오픈소스</span>
+                <span class="tag">#DeveloperTools</span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Intersection Observer를 활용한 애니메이션
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // 모든 fade-in-section 관찰
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // 테마 전환 기능
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+
+        // 첫 번째 섹션에서만 테마 토글 표시
+        const sections = document.querySelectorAll('.slide-section');
+        const toggleObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.target.id === 'section-1' && entry.isIntersecting) {
+                    themeToggle.style.display = 'block';
+                } else if (entry.target.id === 'section-1' && !entry.isIntersecting) {
+                    themeToggle.style.display = 'none';
+                }
+            });
+        }, { threshold: 0.5 });
+
+        sections.forEach(section => {
+            toggleObserver.observe(section);
+        });
+
+        // 테마 전환 이벤트
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            body.setAttribute('data-theme', newTheme);
+            themeToggle.textContent = newTheme === 'light' ? '🌙' : '☀️';
+            
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // 저장된 테마 불러오기
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        themeToggle.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+
+        // 썸네일 이미지 로드 시도
+        const thumbnailContainer = document.getElementById('thumbnailContainer');
+        const thumbnailImg = new Image();
+        thumbnailImg.onload = function() {
+            thumbnailContainer.innerHTML = '';
+            thumbnailImg.classList.add('video-thumbnail');
+            thumbnailImg.alt = 'Archon 썸네일';
+            thumbnailContainer.appendChild(thumbnailImg);
+        };
+        thumbnailImg.onerror = function() {
+            // 이미지 로드 실패 시 현재 placeholder 유지
+            console.log('썸네일 이미지를 로드할 수 없습니다. placeholder를 사용합니다.');
+        };
+        thumbnailImg.src = 'https://i.ytimg.com/vi/8pRc_s2VQIo/maxresdefault.jpg';
+
+        // 차트 생성 함수들
+        function createChart(ctx, config) {
+            return new Chart(ctx, config);
+        }
+
+        // 차트들이 뷰포트에 들어올 때 애니메이션 시작
+        const chartObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const canvasId = entry.target.id;
+                    createChartById(canvasId);
+                    chartObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        // 차트 생성 함수
+        function createChartById(canvasId) {
+            const ctx = document.getElementById(canvasId)?.getContext('2d');
+            if (!ctx) return;
+
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f1f5f9' : '#1e293b';
+            const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+            switch(canvasId) {
+                case 'problemChart':
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['기본 웹 검색', 'AI 도구 한계', '컨텍스트 부족', 'RAG 시스템 부재'],
+                            datasets: [{
+                                data: [25, 30, 25, 20],
+                                backgroundColor: ['#ef4444', '#f97316', '#eab308', '#dc2626'],
+                                borderWidth: 2,
+                                borderColor: '#ffffff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '기존 AI 코딩 도구의 한계점 분석',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'architectureChart':
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Human UI', 'MCP Server', 'AI Tools', 'Knowledge Base'],
+                            datasets: [{
+                                label: '기능 완성도',
+                                data: [95, 90, 85, 92],
+                                backgroundColor: ['#3b82f6', '#8b5cf6', '#06b6d4', '#10b981'],
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Archon 아키텍처 구성 요소별 완성도',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'collaborationChart':
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['기존 도구', '중간 단계', 'Archon 도입', '완전 통합'],
+                            datasets: [{
+                                label: '협업 효율성',
+                                data: [30, 50, 75, 95],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '실시간 협업을 통한 효율성 향상',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'visionChart':
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: ['가시성', '제어력', '협업성', '자동화', '확장성'],
+                            datasets: [{
+                                label: '기존 도구',
+                                data: [40, 30, 35, 60, 45],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)'
+                            }, {
+                                label: 'Archon',
+                                data: [90, 85, 95, 80, 90],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor },
+                                    angleLines: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Shawn Buck의 UX 비전 구현도',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'trendChart':
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['2022', '2023', '2024', '2025E', '2026E'],
+                            datasets: [{
+                                label: 'AI 코딩 도구 시장 성장',
+                                data: [100, 200, 400, 700, 1000],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4
+                            }, {
+                                label: '컨텍스트 엔지니어링 중요도',
+                                data: [20, 40, 70, 85, 95],
+                                borderColor: '#8b5cf6',
+                                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                                tension: 0.4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'AI 코딩 도구 업계 트렌드',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'learningChart':
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['초급 (2-4주)', '중급 (1-3개월)', '고급 (3-6개월)'],
+                            datasets: [{
+                                label: '시간 투자 (시간/주)',
+                                data: [10, 20, 15],
+                                backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6'],
+                                borderRadius: 8
+                            }, {
+                                label: '학습 난이도',
+                                data: [3, 6, 9],
+                                backgroundColor: ['#fbbf24', '#f59e0b', '#d97706'],
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '학습 로드맵별 시간 투자 및 난이도',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+
+                case 'roadmapChart':
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['2024 Q4', '2025 Q1', '2025 Q2', '2025 Q3', '2025 Q4'],
+                            datasets: [{
+                                label: '기능 완성도',
+                                data: [60, 75, 85, 90, 95],
+                                borderColor: '#3b82f6',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: '사용자 채택률',
+                                data: [10, 25, 45, 65, 80],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                },
+                                x: {
+                                    ticks: { color: textColor },
+                                    grid: { color: gridColor }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    labels: { color: textColor }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Archon 발전 로드맵 2024-2025',
+                                    color: textColor
+                                }
+                            }
+                        }
+                    });
+                    break;
+            }
+        }
+
+        // 모든 차트 캔버스 관찰
+        document.querySelectorAll('canvas').forEach(canvas => {
+            chartObserver.observe(canvas);
+        });
+
+        // 테마 변경 시 차트 업데이트
+        const originalSetAttribute = body.setAttribute;
+        body.setAttribute = function(name, value) {
+            originalSetAttribute.call(this, name, value);
+            if (name === 'data-theme') {
+                // 차트들을 다시 생성 (색상 업데이트를 위해)
+                setTimeout(() => {
+                    document.querySelectorAll('canvas').forEach(canvas => {
+                        const chart = Chart.getChart(canvas);
+                        if (chart) {
+                            chart.destroy();
+                            createChartById(canvas.id);
+                        }
+                    });
+                }, 100);
+            }
+        };
+    </script>
+</body>
+</html>
