@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 코딩의 미래 - 앤트로픽 장기 실행 에이전트 하네스</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --bg-dark: #0f172a;
+            --bg-light: #ffffff;
+            --text-dark: #e2e8f0;
+            --text-light: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        body.light {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .dark .glass-effect {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            z-index: 1001;
+            transition: width 0.3s ease;
+        }
+
+        .feature-card {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+
+        .feature-card.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .code-block {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .light .code-block {
+            background: #f8fafc;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 20px;
+            width: 2px;
+            height: calc(100% + 1rem);
+            background: var(--primary-color);
+            opacity: 0.3;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 2rem 1rem;
+            }
+            
+            .theme-toggle {
+                width: 50px;
+                height: 50px;
+                top: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark">
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Theme Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon text-2xl" id="themeIcon"></i>
+    </div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide" id="slide1">
+        <div class="grid-pattern"></div>
+        <div class="container mx-auto text-center relative z-10">
+            <div class="floating">
+                <img src="https://i.ytimg.com/vi/63HbCXbc0gM/mqdefault.jpg" alt="썸네일" class="w-48 h-48 rounded-2xl mx-auto mb-8 shadow-2xl">
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 gradient-text">AI 코딩의 미래</h1>
+            <h2 class="text-3xl md:text-4xl mb-8 text-gray-300">앤트로픽 장기 실행 에이전트 하네스</h2>
+            <p class="text-xl md:text-2xl mb-8 text-gray-400 max-w-3xl mx-auto">
+                24시간 이상 컨텍스트 손실 없이<br>
+                자율적으로 애플리케이션을 개발하는 혁신적인 아키텍처
+            </p>
+            <div class="flex justify-center gap-4 flex-wrap">
+                <span class="px-4 py-2 bg-indigo-600 rounded-full text-sm">AI Education</span>
+                <span class="px-4 py-2 bg-purple-600 rounded-full text-sm">Cole Medin</span>
+                <span class="px-4 py-2 bg-pink-600 rounded-full text-sm">Ray Fernando</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Overview -->
+    <section class="slide" id="slide2">
+        <div class="container mx-auto max-w-6xl">
+            <div class="glass-effect">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text">영상 개요</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="slide-in-left">
+                        <h3 class="text-2xl font-semibold mb-4 text-indigo-400">📋 기본 정보</h3>
+                        <div class="space-y-3 text-gray-300">
+                            <p><i class="fas fa-play-circle mr-2"></i>플레이시간: 2시간 5분 20초</p>
+                            <p><i class="fas fa-calendar mr-2"></i>게시일: 2025년 12월 7일</p>
+                            <p><i class="fas fa-user mr-2"></i>채널: ColeMedin</p>
+                            <p><i class="fas fa-tag mr-2"></i>카테고리: AI Education</p>
+                        </div>
+                    </div>
+                    <div class="slide-in-right">
+                        <h3 class="text-2xl font-semibold mb-4 text-purple-400">🎯 핵심 가치</h3>
+                        <ul class="space-y-3 text-gray-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mr-2 mt-1 text-green-400"></i>
+                                <span>컨텍스트 윈도우 한계 극복</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mr-2 mt-1 text-green-400"></i>
+                                <span>세션 기반 아키텍처 설계</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mr-2 mt-1 text-green-400"></i>
+                                <span>Human-in-the-Loop 구현</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mr-2 mt-1 text-green-400"></i>
+                                <span>프로덕션급 에이전트 시스템</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8 p-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl">
+                    <p class="text-lg text-white">
+                        <i class="fas fa-quote-left mr-2"></i>
+                        앤트로픽이 공개한 '장기 실행 에이전트용 하네스'를 실제로 확장 구현하는 라이브 코딩 세션
+                        <i class="fas fa-quote-right ml-2"></i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: The Context Window Problem -->
+    <section class="slide" id="slide3">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">컨텍스트 윈도우의 한계</h2>
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="feature-card">
+                    <div class="glass-effect">
+                        <h3 class="text-2xl font-semibold mb-4 text-red-400">⚠️ 문제점</h3>
+                        <ul class="space-y-3 text-gray-300">
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle mr-2 mt-1 text-yellow-400"></i>
+                                <span>컨텍스트가 가득 차면 성능 저하</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle mr-2 mt-1 text-yellow-400"></i>
+                                <span>환각(Hallucination) 현상 발생</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-exclamation-triangle mr-2 mt-1 text-yellow-400"></i>
+                                <span>장기 작업의 근본적 장애물</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <canvas id="contextChart" width="400" height="300"></canvas>
+                </div>
+            </div>
+            <div class="mt-8 glass-effect">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-400">💡 현실적인 제약</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-red-900 bg-opacity-30 rounded-lg">
+                        <div class="text-3xl font-bold text-red-400">8K-32K</div>
+                        <div class="text-gray-400">토큰 제한</div>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-900 bg-opacity-30 rounded-lg">
+                        <div class="text-3xl font-bold text-yellow-400">수 시간</div>
+                        <div class="text-gray-400">최대 실행 시간</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-900 bg-opacity-30 rounded-lg">
+                        <div class="text-3xl font-bold text-purple-400">불안정</div>
+                        <div class="text-gray-400">장기 작업 신뢰도</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Session-Based Architecture -->
+    <section class="slide" id="slide4">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">세션 기반 아키텍처</h2>
+            <div class="glass-effect">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-green-400">✅ 솔루션</h3>
+                        <div class="space-y-4">
+                            <div class="timeline-item">
+                                <h4 class="font-semibold text-lg">세션 분리</h4>
+                                <p class="text-gray-400">각 세션은 독립적인 작업 단위 처리</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold text-lg">컨텍스트 초기화</h4>
+                                <p class="text-gray-400">새 세션마다 컨텍스트 윈도우 초기화</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold text-lg">컨텍스트 이월</h4>
+                                <p class="text-gray-400">공유 아티팩트를 통한 상태 전달</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <canvas id="sessionChart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+                <div class="mt-8 p-6 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl">
+                    <p class="text-lg text-white text-center">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        전체 작업을 여러 개의 작은 세션으로 나누어 효율적으로 관리
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Initializer Agent -->
+    <section class="slide" id="slide5">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">초기화 에이전트</h2>
+            <div class="glass-effect">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-semibold mb-4 text-blue-400">📥 입력</h3>
+                        <div class="p-4 bg-blue-900 bg-opacity-30 rounded-lg">
+                            <code class="text-green-400">appspec 파일</code>
+                            <p class="text-gray-400 mt-2">프로젝트의 고수준 요구사항 (PRD 역할)</p>
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <h3 class="text-2xl font-semibold mb-4 text-purple-400">📤 출력물</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-file-code mr-2"></i>feature-list.json</li>
+                            <li><i class="fas fa-file-alt mr-2"></i>claude-progress.txt</li>
+                            <li><i class="fas fa-folder mr-2"></i>프로젝트 스캐폴딩</li>
+                            <li><i class="fas fa-play mr-2"></i>시작 스크립트</li>
+                            <li><i class="fas fa-code-branch mr-2"></i>Git 저장소 초기화</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <div class="code-block">
+                        <pre><code class="language-json">{
+  "features": [
+    {
+      "id": "auth-001",
+      "name": "사용자 로그인",
+      "status": "todo",
+      "verification_steps": [
+        "로그인 폼 렌더링 확인",
+        "유효한 자격증명으로 로그인 성공",
+        "잘못된 비밀번호 시 에러 메시지 표시"
+      ]
+    }
+  ]
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Coding Agent Loop -->
+    <section class="slide" id="slide6">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">코딩 에이전트 루프</h2>
+            <div class="glass-effect">
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div class="feature-card text-center p-4 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl">
+                        <i class="fas fa-search text-4xl mb-3"></i>
+                        <h3 class="font-semibold">상황 파악</h3>
+                        <p class="text-sm mt-2">아티팩트 읽기</p>
+                    </div>
+                    <div class="feature-card text-center p-4 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl">
+                        <i class="fas fa-vial text-4xl mb-3"></i>
+                        <h3 class="font-semibold">회귀 테스트</h3>
+                        <p class="text-sm mt-2">이전 기능 검증</p>
+                    </div>
+                    <div class="feature-card text-center p-4 bg-gradient-to-br from-pink-600 to-red-600 rounded-xl">
+                        <i class="fas fa-code text-4xl mb-3"></i>
+                        <h3 class="font-semibold">기능 구현</h3>
+                        <p class="text-sm mt-2">코드 작성 및 수정</p>
+                    </div>
+                    <div class="feature-card text-center p-4 bg-gradient-to-br from-red-600 to-orange-600 rounded-xl">
+                        <i class="fas fa-save text-4xl mb-3"></i>
+                        <h3 class="font-semibold">상태 업데이트</h3>
+                        <p class="text-sm mt-2">Git 커밋 및 저장</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <canvas id="loopChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Shared Artifacts -->
+    <section class="slide" id="slide7">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">공유 아티팩트 시스템</h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="feature-card glass-effect hover-scale">
+                    <div class="text-center">
+                        <i class="fas fa-list-check text-5xl text-blue-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">feature-list.json</h3>
+                        <p class="text-gray-400">기능 목록 및 검증 단계</p>
+                        <div class="mt-4 p-3 bg-blue-900 bg-opacity-30 rounded-lg text-left">
+                            <code class="text-xs">{"status": "done/in_progress/todo"}</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-card glass-effect hover-scale">
+                    <div class="text-center">
+                        <i class="fas fa-file-lines text-5xl text-purple-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">claude-progress.txt</h3>
+                        <p class="text-gray-400">세션별 작업 요약</p>
+                        <div class="mt-4 p-3 bg-purple-900 bg-opacity-30 rounded-lg text-left">
+                            <code class="text-xs">## Session N<br/>Summary...</code>
+                        </div>
+                    </div>
+                </div>
+                <div class="feature-card glass-effect hover-scale">
+                    <div class="text-center">
+                        <i class="fas fa-code-branch text-5xl text-green-400 mb-4"></i>
+                        <h3 class="text-xl font-semibold mb-2">Git 커밋</h3>
+                        <p class="text-gray-400">버전 관리 및 롤백</p>
+                        <div class="mt-4 p-3 bg-green-900 bg-opacity-30 rounded-lg text-left">
+                            <code class="text-xs">git commit -m "Feature complete"</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 glass-effect">
+                <h3 class="text-2xl font-semibold mb-4 text-indigo-400">🔄 데이터 흐름</h3>
+                <div class="flex justify-between items-center">
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-play text-white"></i>
+                        </div>
+                        <p class="mt-2">세션 시작</p>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl"></i>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-purple-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-download text-white"></i>
+                        </div>
+                        <p class="mt-2">아티팩트 로드</p>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl"></i>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-pink-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-cogs text-white"></i>
+                        </div>
+                        <p class="mt-2">작업 수행</p>
+                    </div>
+                    <i class="fas fa-arrow-right text-2xl"></i>
+                    <div class="text-center">
+                        <div class="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-upload text-white"></i>
+                        </div>
+                        <p class="mt-2">상태 저장</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: Linear Integration -->
+    <section class="slide" id="slide8">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">Linear 통합 혁신</h2>
+            <div class="glass-effect">
+                <div class="mb-8">
+                    <h3 class="text-2xl font-semibold mb-4 text-green-400">🚀 콜 메딘의 확장</h3>
+                    <p class="text-gray-300 text-lg mb-4">로컬 파일 시스템 → 클라우드 기반 업무 관리 도구</p>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h4 class="text-xl font-semibold mb-4 text-blue-400">✨ 장점</h4>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-eye mr-2 mt-1 text-indigo-400"></i>
+                                <div>
+                                    <strong>관찰 가능성</strong>
+                                    <p class="text-sm text-gray-400">실시간 모니터링 대시보드</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-user-cog mr-2 mt-1 text-purple-400"></i>
+                                <div>
+                                    <strong>Human-in-the-Loop</strong>
+                                    <p class="text-sm text-gray-400">작업 설명 수정 및 개입 가능</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-cloud mr-2 mt-1 text-pink-400"></i>
+                                <div>
+                                    <strong>클라우드 호환성</strong>
+                                    <p class="text-sm text-gray-400">원격 실행 및 협업 지원</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold mb-4 text-orange-400">⚙️ 구현 방식</h4>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-orange-900 bg-opacity-30 rounded-lg">
+                                <code class="text-yellow-400">Linear MCP 서버</code>
+                                <p class="text-sm text-gray-400 mt-1">API 통신을 위한 프로토콜</p>
+                            </div>
+                            <div class="p-3 bg-orange-900 bg-opacity-30 rounded-lg">
+                                <code class="text-yellow-400">이슈 자동 생성</code>
+                                <p class="text-sm text-gray-400 mt-1">feature-list → Linear 이슈</p>
+                            </div>
+                            <div class="p-3 bg-orange-900 bg-opacity-30 rounded-lg">
+                                <code class="text-yellow-400">메타 이슈</code>
+                                <p class="text-sm text-gray-400 mt-1">진행 상황 댓글로 공유</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Architecture Comparison -->
+    <section class="slide" id="slide9">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">아키텍처 비교</h2>
+            <div class="glass-effect overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-gray-600">
+                            <th class="p-4 text-indigo-400">구분</th>
+                            <th class="p-4 text-red-400">기존 단일 세션</th>
+                            <th class="p-4 text-green-400">하네스 다중 세션</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-700">
+                            <td class="p-4 font-semibold">컨텍스트 관리</td>
+                            <td class="p-4">누적 → 성능 저하</td>
+                            <td class="p-4">세션마다 초기화</td>
+                        </tr>
+                        <tr class="border-b border-gray-700">
+                            <td class="p-4 font-semibold">작업 연속성</td>
+                            <td class="p-4">중단 시 처음부터</td>
+                            <td class="p-4">아티팩트로 이어받기</td>
+                        </tr>
+                        <tr class="border-b border-gray-700">
+                            <td class="p-4 font-semibold">에러 복구</td>
+                            <td class="p-4">불가능</td>
+                            <td class="p-4">Git 커밋 롤백</td>
+                        </tr>
+                        <tr class="border-b border-gray-700">
+                            <td class="p-4 font-semibold">인간 개입</td>
+                            <td class="p-4">실시간 불가</td>
+                            <td class="p-4">Linear 통해 가능</td>
+                        </tr>
+                        <tr class="border-b border-gray-700">
+                            <td class="p-4 font-semibold">실행 시간</td>
+                            <td class="p-4">수 시간 한계</td>
+                            <td class="p-4">24시간+ 가능</td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 font-semibold">비용 효율</td>
+                            <td class="p-4">토큰 낭비 多</td>
+                            <td class="p-4">필요한 컨텍스트만 로드</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-8 grid md:grid-cols-2 gap-6">
+                <div class="glass-effect p-6">
+                    <h3 class="text-xl font-semibold mb-3 text-red-400">❌ 기존 방식의 문제</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• 컨텍스트가 길어질수록 성능 저하</li>
+                        <li>• 중간에 실패하면 처음부터 다시 시작</li>
+                        <li>• 진행 상황 추적 어려움</li>
+                        <li>• 인간 개입이 불가능한 블랙박스</li>
+                    </ul>
+                </div>
+                <div class="glass-effect p-6">
+                    <h3 class="text-xl font-semibold mb-3 text-green-400">✅ 하네스의 장점</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li>• 항상 최적의 컨텍스트 상태 유지</li>
+                        <li>• 세션 단위 롤백 및 복구 가능</li>
+                        <li>• Git 기반 명확한 상태 관리</li>
+                        <li>• Linear 통합으로 투명한 모니터링</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: Technical Deep Dive -->
+    <section class="slide" id="slide10">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">기술 심층 분석</h2>
+            <div class="glass-effect">
+                <div class="code-block mb-6">
+                    <h3 class="text-xl font-semibold mb-3 text-blue-400">세션 관리 코드 예시</h3>
+                    <pre><code class="language-python">class SessionManager:
+    """세션 기반 에이전트 실행 관리"""
+    
+    def __init__(self, project_path: str):
+        self.artifacts = {
+            'feature_list': f"{project_path}/feature-list.json",
+            'progress': f"{project_path}/claude-progress.txt",
+            'appspec': f"{project_path}/appspec.md"
+        }
+    
+    def start_new_session(self) -> dict:
+        """새 세션 시작 시 핵심 아티팩트 로드"""
+        context = {}
+        for name, path in self.artifacts.items():
+            with open(path, 'r') as f:
+                context[name] = f.read()
+        return context
+    
+    def end_session(self, summary: str, completed_features: list):
+        """세션 종료 시 상태 업데이트"""
+        # progress 파일에 요약 추가
+        with open(self.artifacts['progress'], 'a') as f:
+            f.write(f"\n## Session {datetime.now()}\n{summary}\n")
+        
+        # feature-list 업데이트
+        self._update_feature_status(completed_features)
+        
+        # Git 커밋
+        subprocess.run(['git', 'add', '.'])
+        subprocess.run(['git', 'commit', '-m', f'Session complete: {len(completed_features)} features'])</code></pre>
+                </div>
+                <div class="code-block">
+                    <h3 class="text-xl font-semibold mb-3 text-purple-400">Linear MCP 서버 연동</h3>
+                    <pre><code class="language-typescript">interface LinearTask {
+  id: string;
+  title: string;
+  description: string;
+  status: 'todo' | 'in_progress' | 'done';
+}
+
+async function syncToLinear(features: Feature[]): Promise<void> {
+  const linearClient = new LinearClient({ apiKey: process.env.LINEAR_API_KEY });
+  
+  for (const feature of features) {
+    await linearClient.createIssue({
+      teamId: 'your-team-id',
+      title: feature.name,
+      description: feature.verification_steps.join('\n'),
+      priority: feature.priority
+    });
+  }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: Real-world Demo -->
+    <section class="slide" id="slide11">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">실제 시연 내용</h2>
+            <div class="glass-effect">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full mb-4">
+                        <i class="fas fa-robot text-5xl text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold">claude.ai 클론 애플리케이션 구축</h3>
+                </div>
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div class="text-center p-4 bg-indigo-900 bg-opacity-30 rounded-lg">
+                        <i class="fas fa-file-alt text-3xl mb-2 text-indigo-400"></i>
+                        <p class="font-semibold">요구사항 정의</p>
+                        <p class="text-sm text-gray-400">appspec 작성</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-900 bg-opacity-30 rounded-lg">
+                        <i class="fas fa-tasks text-3xl mb-2 text-purple-400"></i>
+                        <p class="font-semibold">이슈 생성</p>
+                        <p class="text-sm text-gray-400">Linear 동기화</p>
+                    </div>
+                    <div class="text-center p-4 bg-pink-900 bg-opacity-30 rounded-lg">
+                        <i class="fas fa-code text-3xl mb-2 text-pink-400"></i>
+                        <p class="font-semibold">자율 코딩</p>
+                        <p class="text-sm text-gray-400">세션 반복 실행</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-900 bg-opacity-30 rounded-lg">
+                        <i class="fas fa-check-circle text-3xl mb-2 text-green-400"></i>
+                        <p class="font-semibold">테스트 검증</p>
+                        <p class="text-sm text-gray-400">Puppeteer 자동화</p>
+                    </div>
+                </div>
+                <div class="mt-8 p-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl">
+                    <p class="text-white text-center text-lg">
+                        <i class="fas fa-magic mr-2"></i>
+                        참가자들은 에이전트가 실시간으로 작업을 생성하고 코드를 작성하는全过程을 목격
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: Cost Analysis -->
+    <section class="slide" id="slide12">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">비용 분석</h2>
+            <div class="glass-effect">
+                <canvas id="costChart" width="400" height="300"></canvas>
+                <div class="grid md:grid-cols-2 gap-6 mt-8">
+                    <div class="p-6 bg-yellow-900 bg-opacity-30 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-3 text-yellow-400">💰 API 사용 요금</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li>• Claude Sonnet 4: 입력 $3/MTok, 출력 $15/MTok</li>
+                            <li>• 10시간 실행 예상 비용: $50-100</li>
+                            <li>• 장기 실행 시 비용 급증 가능성</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-green-900 bg-opacity-30 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-3 text-green-400">💎 Claude Max 구독</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li>• 월간 $100 고정 요금</li>
+                            <li>• 무제한에 가까운 사용 가능</li>
+                            <li>• 하루 8시간 이상 사용 시 유리</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-blue-900 bg-opacity-30 rounded-lg">
+                    <p class="text-blue-300">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        ⚠️ 주의: Claude Max 구독 토큰을 API 대용으로 사용하는 방식은 앤트로픽의 서비스 약관을 확인해야 합니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: Future Implications -->
+    <section class="slide" id="slide13">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">미래 시사점</h2>
+            <div class="glass-effect">
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-indigo-400">🎯 코딩을 넘어선 잠재력</h3>
+                        <div class="space-y-3">
+                            <div class="p-4 bg-indigo-900 bg-opacity-30 rounded-lg">
+                                <h4 class="font-semibold mb-2">심층 리서치</h4>
+                                <p class="text-sm text-gray-400">방대한 자료 분석 및 보고서 자동 생성</p>
+                            </div>
+                            <div class="p-4 bg-purple-900 bg-opacity-30 rounded-lg">
+                                <h4 class="font-semibold mb-2">자동화 시스템</h4>
+                                <p class="text-sm text-gray-400">센서 데이터 기반 물리적 프로세스 제어</p>
+                            </div>
+                            <div class="p-4 bg-pink-900 bg-opacity-30 rounded-lg">
+                                <h4 class="font-semibold mb-2">데이터 분석</h4>
+                                <p class="text-sm text-gray-400">복잡한 데이터셋 처리 및 인사이트 추출</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-green-400">🔮 프로그래밍 언어의 미래</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <i class="fas fa-comments mr-3 mt-1 text-blue-400"></i>
+                                <div>
+                                    <p class="font-semibold">관점 1: 기존 언어 중심</p>
+                                    <p class="text-sm text-gray-400">AI가 주로 JavaScript, Python 등으로 학습되어 새로운 언어 등장 둔화</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <i class="fas fa-rocket mr-3 mt-1 text-purple-400"></i>
+                                <div>
+                                    <p class="font-semibold">관점 2: 특수 목적 언어 폭증</p>
+                                    <p class="text-sm text-gray-400">AI가 언어 개발 장벽 낮춰 특정 목적에 최적화된 언어 증가</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl">
+                    <h3 class="text-xl font-semibold mb-3 text-white">🏆 핵심 원칙</h3>
+                    <div class="grid md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <i class="fas fa-puzzle-piece text-3xl mb-2"></i>
+                            <p class="text-sm">컨텍스트 분할 관리</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-sync text-3xl mb-2"></i>
+                            <p class="text-sm">세션 기반 실행</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-vial text-3xl mb-2"></i>
+                            <p class="text-sm">지속적 검증</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-tools text-3xl mb-2"></i>
+                            <p class="text-sm">도구 불가지론</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 14: Learning Roadmap -->
+    <section class="slide" id="slide14">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">학습 로드맵</h2>
+            <div class="glass-effect">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-blue-400">🌱 초급자 (0-3개월)</h3>
+                        <div class="space-y-3">
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">1-2주차: Git 기초</h4>
+                                <p class="text-sm text-gray-400">커밋, 브랜치, PR 개념 학습</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">3-4주차: Claude Code</h4>
+                                <p class="text-sm text-gray-400">설치 및 기본 사용법 익히기</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">5-8주차: 프롬프트 엔지니어링</h4>
+                                <p class="text-sm text-gray-400">역할 기반 프롬프트 작성 연습</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">9-12주차: 첫 프로젝트</h4>
+                                <p class="text-sm text-gray-400">간단한 웹앱 자율 생성</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-4 text-purple-400">🚀 숙련자 (1-2개월)</h3>
+                        <div class="space-y-3">
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">1주차: 아키텍처 심층 분석</h4>
+                                <p class="text-sm text-gray-400">세션 관리 코드 이해</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">2주차: MCP 서버 개발</h4>
+                                <p class="text-sm text-gray-400">커스텀 도구 연동 구현</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">3주차: Linear/Jira 통합</h4>
+                                <p class="text-sm text-gray-400">외부 상태 관리 연동</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h4 class="font-semibold">4주차: 프로덕션 배포</h4>
+                                <p class="text-sm text-gray-400">CI/CD 연동 및 실무 적용</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 15: Summary -->
+    <section class="slide" id="slide15">
+        <div class="container mx-auto max-w-6xl">
+            <h2 class="text-4xl md:text-5xl font-bold mb-8 gradient-text text-center">핵심 요약</h2>
+            <div class="glass-effect">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center p-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 rounded-full">
+                        <i class="fas fa-brain text-6xl text-white"></i>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="text-center p-6 bg-indigo-900 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-layer-group text-4xl mb-3 text-indigo-400"></i>
+                        <h3 class="text-xl font-semibold mb-2">세션 기반 아키텍처</h3>
+                        <p class="text-gray-400">컨텍스트 윈도우 한계를 구조적으로 해결</p>
+                    </div>
+                    <div class="text-center p-6 bg-purple-900 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-share-alt text-4xl mb-3 text-purple-400"></i>
+                        <h3 class="text-xl font-semibold mb-2">공유 아티팩트</h3>
+                        <p class="text-gray-400">세션 간 상태를 효율적으로 전달</p>
+                    </div>
+                    <div class="text-center p-6 bg-pink-900 bg-opacity-30 rounded-xl">
+                        <i class="fas fa-users text-4xl mb-3 text-pink-400"></i>
+                        <h3 class="text-xl font-semibold mb-2">Human-in-the-Loop</h3>
+                        <p class="text-gray-400">인간 개입으로 신뢰성 확보</p>
+                    </div>
+                </div>
+                <div class="p-6 bg-gradient-to-r from-green-600 to-blue-600 rounded-xl text-center">
+                    <h3 class="text-2xl font-bold mb-3 text-white">🎯 최종 인사이트</h3>
+                    <p class="text-lg text-white">
+                        "프롬프트가 곧 아키텍처"<br/>
+                        복잡한 자율 에이전트 시스템이 단 2개의 핵심 프롬프트로 구동
+                    </p>
+                </div>
+                <div class="mt-8 text-center">
+                    <button onclick="window.open('https://www.youtube.com/watch?v=63HbCXbc0gM', '_blank')" class="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-semibold hover-scale">
+                        <i class="fas fa-play mr-2"></i>원본 영상 보기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Theme Toggle
+        let isDark = true;
+        function toggleTheme() {
+            isDark = !isDark;
+            document.body.classList.toggle('dark');
+            document.body.classList.toggle('light');
+            const icon = document.getElementById('themeIcon');
+            icon.className = isDark ? 'fas fa-moon text-2xl' : 'fas fa-sun text-2xl';
+            
+            // Update charts theme
+            updateChartsTheme();
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Trigger chart animations when visible
+                    if (entry.target.id === 'slide3') {
+                        setTimeout(() => drawContextChart(), 300);
+                    } else if (entry.target.id === 'slide4') {
+                        setTimeout(() => drawSessionChart(), 300);
+                    } else if (entry.target.id === 'slide6') {
+                        setTimeout(() => drawLoopChart(), 300);
+                    } else if (entry.target.id === 'slide12') {
+                        setTimeout(() => drawCostChart(), 300);
+                    }
+                }
+            });
+        }, observerOptions);
+
+        // Observe all slides
+        document.querySelectorAll('.slide').forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Observe feature cards
+        document.querySelectorAll('.feature-card').forEach((card, index) => {
+            card.style.transitionDelay = `${index * 0.1}s`;
+            observer.observe(card);
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            document.getElementById('progressBar').style.width = scrollPercent + '%';
+        });
+
+        // Chart.js configurations
+        let contextChart, sessionChart, loopChart, costChart;
+
+        function getChartColors() {
+            return {
+                text: isDark ? '#e2e8f0' : '#1e293b',
+                grid: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+            };
+        }
+
+        function drawContextChart() {
+            const ctx = document.getElementById('contextChart').getContext('2d');
+            const colors = getChartColors();
+            
+            contextChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1시간', '2시간', '4시간', '8시간', '12시간', '24시간'],
+                    datasets: [{
+                        label: '컨텍스트 크기 (토큰)',
+                        data: [2000, 4000, 8000, 16000, 24000, 32000],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '성능 점수',
+                        data: [100, 95, 85, 70, 50, 30],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: colors.text }
+                        },
+                        title: {
+                            display: true,
+                            text: '컨텍스트 윈도우 vs 성능',
+                            color: colors.text
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        },
+                        y: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawSessionChart() {
+            const ctx = document.getElementById('sessionChart').getContext('2d');
+            const colors = getChartColors();
+            
+            sessionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['세션 1', '세션 2', '세션 3', '세션 4', '세션 5'],
+                    datasets: [{
+                        label: '컨텍스트 토큰',
+                        data: [3000, 2800, 3200, 2900, 3100],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(34, 197, 94, 0.8)',
+                            'rgba(59, 130, 246, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: colors.text }
+                        },
+                        title: {
+                            display: true,
+                            text: '세션별 컨텍스트 사용량',
+                            color: colors.text
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        },
+                        y: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawLoopChart() {
+            const ctx = document.getElementById('loopChart').getContext('2d');
+            const colors = getChartColors();
+            
+            loopChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['상황 파악', '회귀 테스트', '기능 구현', '상태 업데이트'],
+                    datasets: [{
+                        data: [15, 20, 50, 15],
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(236, 72, 153, 0.8)',
+                            'rgba(34, 197, 94, 0.8)'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: colors.text }
+                        },
+                        title: {
+                            display: true,
+                            text: '코딩 에이전트 루프 시간 분배',
+                            color: colors.text
+                        }
+                    }
+                }
+            });
+        }
+
+        function drawCostChart() {
+            const ctx = document.getElementById('costChart').getContext('2d');
+            const colors = getChartColors();
+            
+            costChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['10시간', '20시간', '40시간', '80시간', '160시간'],
+                    datasets: [{
+                        label: 'API 사용 요금',
+                        data: [50, 100, 200, 400, 800],
+                        backgroundColor: 'rgba(245, 158, 11, 0.8)'
+                    }, {
+                        label: 'Claude Max 구독',
+                        data: [100, 100, 100, 100, 100],
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        type: 'line',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: colors.text }
+                        },
+                        title: {
+                            display: true,
+                            text: '사용 시간별 비용 비교 ($)',
+                            color: colors.text
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        },
+                        y: {
+                            ticks: { color: colors.text },
+                            grid: { color: colors.grid }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartsTheme() {
+            const colors = getChartColors();
+            const charts = [contextChart, sessionChart, loopChart, costChart];
+            
+            charts.forEach(chart => {
+                if (chart) {
+                    chart.options.plugins.legend.labels.color = colors.text;
+                    chart.options.plugins.title.color = colors.text;
+                    if (chart.options.scales) {
+                        if (chart.options.scales.x) {
+                            chart.options.scales.x.ticks.color = colors.text;
+                            chart.options.scales.x.grid.color = colors.grid;
+                        }
+                        if (chart.options.scales.y) {
+                            chart.options.scales.y.ticks.color = colors.text;
+                            chart.options.scales.y.grid.color = colors.grid;
+                        }
+                    }
+                    chart.update();
+                }
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
