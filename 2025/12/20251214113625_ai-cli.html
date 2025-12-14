@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 개발 워크플로우 혁신: 멀티 모델, 멀티 CLI 그리고 차세대 도구</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --accent-color: #28a745;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-start: #e0f2f7;
+            --gradient-end: #c0e0e9;
+        }
+        body.dark-mode {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --primary-color: #66b2ff;
+            --secondary-color: #adb5bd;
+            --accent-color: #5cb85c;
+            --border-color: #495057;
+            --card-bg: #343a40;
+            --shadow-color: rgba(255, 255, 255, 0.1);
+            --gradient-start: #2a3a40;
+            --gradient-end: #1a2a30;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 20px;
+            text-align: center;
+            box-sizing: border-box;
+            position: relative;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .slide:nth-child(even) {
+            background: linear-gradient(135deg, var(--gradient-end), var(--gradient-start));
+        }
+
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: 3.5em; }
+        h2 { font-size: 2.5em; }
+        h3 { font-size: 1.8em; }
+
+        p {
+            font-size: 1.1em;
+            max-width: 800px;
+            margin: 0 auto 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            max-width: 800px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        ul li {
+            background-color: var(--card-bg);
+            border-left: 5px solid var(--accent-color);
+            margin-bottom: 10px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: transform 0.2s ease-in-out;
+            font-size: 1.05em;
+        }
+
+        ul li:hover {
+            transform: translateX(10px);
+        }
+
+        .highlight {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        img {
+            max-width: 90%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            margin: 30px 0;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        img:hover {
+            transform: scale(1.02);
+        }
+
+        .youtube-thumbnail {
+            width: 100%;
+            max-width: 600px;
+            display: block;
+            margin: 40px auto;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9em;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .tag:hover {
+            opacity: 1;
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-color);
+            padding: 25px;
+            margin: 20px auto;
+            max-width: 700px;
+            text-align: left;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .info-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        .info-card p {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .info-card strong {
+            color: var(--accent-color);
+        }
+
+        .chart-container {
+            width: 80%;
+            max-width: 900px;
+            height: 400px;
+            margin: 40px auto;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px var(--shadow-color);
+        }
+
+        table {
+            width: 90%;
+            max-width: 1000px;
+            margin: 40px auto;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 15px var(--shadow-color);
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        body.dark-mode tr:nth-child(even) {
+            background-color: rgba(102, 178, 255, 0.05);
+        }
+
+        .mermaid-diagram-placeholder {
+            background-color: var(--card-bg);
+            border: 2px dashed var(--primary-color);
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+            border-radius: 10px;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 40px auto;
+        }
+
+        .grid-item {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            text-align: left;
+            transition: transform 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+        }
+        .grid-item h3 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .theme-toggle-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            z-index: 1000;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .theme-toggle-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* Animation Styles */
+        [data-animate] {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        [data-animate].is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Specific animations */
+        [data-animate="fade-in"] {
+            opacity: 0;
+            transition: opacity 1s ease-out;
+        }
+        [data-animate="fade-in"].is-visible {
+            opacity: 1;
+        }
+        [data-animate="slide-up"] {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        [data-animate="slide-up"].is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        [data-animate="zoom-in"] {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        [data-animate="zoom-in"].is-visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            h2 { font-size: 1.8em; }
+            h3 { font-size: 1.4em; }
+            p { font-size: 1em; }
+            .slide { padding: 60px 15px; }
+            ul li { padding: 12px 15px; font-size: 1em; }
+            .info-card { padding: 20px; max-width: 95%; }
+            .chart-container { width: 95%; height: 300px; }
+            table { width: 95%; font-size: 0.9em; }
+            th, td { padding: 10px; }
+            .theme-toggle-button { top: 10px; right: 10px; padding: 10px 15px; font-size: 0.9em; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+            p { font-size: 0.95em; }
+            .slide { padding: 40px 10px; }
+            ul li { font-size: 0.9em; }
+            .grid-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle-button">
+        <span class="icon">💡</span> 다크/라이트 모드
+    </button>
+
+    <!-- 1. 타이틀 섹션 (1페이지) -->
+    <section class="slide" id="slide1">
+        <h1 data-animate="fade-in">AI 개발 워크플로우 혁신:</h1>
+        <h1 data-animate="fade-in" style="animation-delay: 0.5s;">멀티 모델, 멀티 CLI 그리고 차세대 도구</h1>
+        <p data-animate="slide-up" style="animation-delay: 1s;">울트라띵크 엔지니어 박진형 (AI 팟캐스트 #75) 심층 분석</p>
+        <img src="https://i.ytimg.com/vi/K2rVBIb-KWE/mqdefault.jpg" alt="YouTube Thumbnail" class="youtube-thumbnail" data-animate="zoom-in" style="animation-delay: 1.5s;">
+        <div class="tag-list" data-animate="slide-up" style="animation-delay: 2s;">
+            <span class="tag">#AI</span>
+            <span class="tag">#CLI</span>
+            <span class="tag">#멀티모델</span>
+            <span class="tag">#워크플로우</span>
+            <span class="tag">#Antigravity</span>
+        </div>
+        <p data-animate="fade-in" style="animation-delay: 2.5s; font-size: 0.9em; margin-top: 20px;">출처: 평범한사업가 YouTube 채널 (2025-12-12)</p>
+    </section>
+
+    <!-- 2. 개요 섹션 (1페이지) -->
+    <section class="slide" id="slide2">
+        <h2 data-animate="slide-up">2025 AI 개발의 새로운 표준</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            단일 AI 모델이나 도구에 의존하는 시대는 저물고 있습니다. 이제는 여러 AI 모델의 강점을 조합하여 활용하는
+            <span class="highlight">'멀티 모델, 멀티 CLI' 아키텍처</span>가 가장 효과적인 접근법입니다.
+        </p>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>핵심 요약</h3>
+            <ul>
+                <li><strong class="highlight">멀티 모델, 멀티 CLI 시대:</strong> 단일 모델/CLI로는 한계, 조합이 필수.</li>
+                <li><strong class="highlight">LLM 위원회:</strong> 여러 LLM의 교차 검증을 통한 신뢰성 확보.</li>
+                <li><strong class="highlight">주력-보조 CLI:</strong> 유동적인 역할 분담으로 워크플로우 최적화.</li>
+                <li><strong class="highlight">클린 세션:</strong> 장기 에이전트의 함정 극복, 짧고 집중된 작업 단위.</li>
+                <li><strong class="highlight">도구의 진화:</strong> CLI에서 IDE 기반 에이전트(Antigravity)로, 벤더 종속성 고려.</li>
+                <li><strong class="highlight">AI는 협업 파트너:</strong> 명확한 지시와 비판적 피드백이 성공의 열쇠.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 3. 핵심 개념 소개 (2-3페이지) -->
+    <section class="slide" id="slide3">
+        <h2 data-animate="slide-up">핵심 개념 1: LLM 위원회 🏛️</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            Andrej Karpathy가 제시한 개념으로, 여러 고성능 LLM이 서로의 결과물을 비평하고 토론하여 최적의 해결책을 도출합니다.
+        </p>
+        <div class="mermaid-diagram-placeholder" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>LLM 위원회 (LLM Council) 흐름도</h3>
+            <p>
+                <strong>1. 문제/질의 ➡️ GPT-4, Claude, Gemini (동시 질의)</strong><br>
+                <strong>2. 각 모델의 초기 답변 ➡️ 교차 검증 및 비평</strong><br>
+                <strong>3. 합의된 최종 결과 도출</strong>
+            </p>
+            <p style="font-size: 0.9em; margin-top: 15px;">
+                💡 단일 모델의 편향이나 실수를 집단 지성을 통해 보완하여 견고하고 신뢰성 높은 결과를 얻습니다.
+            </p>
+        </div>
+        <ul data-animate="slide-up" style="animation-delay: 1.5s;">
+            <li><strong class="highlight">병렬 처리:</strong> 여러 LLM에게 동시 질의하여 다양한 관점 확보.</li>
+            <li><strong class="highlight">상호 비평:</strong> 각 모델이 다른 모델의 응답을 검토하고 개선 제안.</li>
+            <li><strong class="highlight">합의 도출:</strong> 비평을 종합하여 가장 타당한 최종 결과물 생성.</li>
+        </ul>
+    </section>
+
+    <section class="slide" id="slide4">
+        <h2 data-animate="slide-up">핵심 개념 2: 멀티 모델, 멀티 CLI 아키텍처 🛠️</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            하나의 CLI가 모든 것을 해결하는 시대는 끝났습니다. 각기 다른 강점을 가진 모델과 도구를 유기적으로 결합하는 전략입니다.
+        </p>
+        <div class="mermaid-diagram-placeholder" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>주력-보조 CLI 아키텍처</h3>
+            <p>
+                <strong>주력 CLI (오케스트레이터) ➡️ 보조 CLI 1 (코드 초안)</strong><br>
+                <strong>주력 CLI (오케스트레이터) ➡️ 보조 CLI 2 (버그 수정)</strong><br>
+                <strong>주력 CLI (오케스트레이터) ➡️ 보조 CLI 3 (코드 리뷰)</strong><br>
+                <strong>모든 보조 CLI 결과 ➡️ 주력 CLI로 통합 및 최종 결과물 생성</strong>
+            </p>
+            <p style="font-size: 0.9em; margin-top: 15px;">
+                💡 주력 CLI는 컨텍스트 창이 넓고 오케스트레이션 능력이 뛰어난 도구가 적합하며, 유동적으로 변경될 수 있습니다.
+            </p>
+        </div>
+        <ul data-animate="slide-up" style="animation-delay: 1.5s;">
+            <li><strong class="highlight">주력 CLI:</strong> 전체 작업 흐름 관리, 보조 CLI 호출.</li>
+            <li><strong class="highlight">보조 CLI:</strong> 특정 역할(예: 코드 초안, 버그 수정, 리뷰)에 특화된 모델 탑재.</li>
+            <li><strong class="highlight">유동적 선택:</strong> 모델 업데이트, 컨텍스트 창 크기, 기능에 따라 주력/보조 역할 변화.</li>
+        </ul>
+    </section>
+
+    <section class="slide" id="slide5">
+        <h2 data-animate="slide-up">핵심 개념 3: 클린 세션 ✨</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            "AI 에이전트에게 목표를 주고 자율적으로 오래 실행시키면 된다"는 생각은 위험합니다.
+            장기 실행 에이전트의 함정을 피하는 핵심 원칙입니다.
+        </p>
+        <div class="grid-container" data-animate="zoom-in" style="animation-delay: 1s;">
+            <div class="grid-item">
+                <h3>❌ 장기 에이전트의 문제점</h3>
+                <ul>
+                    <li><strong class="highlight">컨텍스트 손실:</strong> 시간이 지나며 초기 맥락을 잊어버림.</li>
+                    <li><strong class="highlight">목표 불일치:</strong> 사용자의 의도와 다른 방향으로 작업 진행.</li>
+                    <li><strong class="highlight">디버깅 어려움:</strong> 문제 발생 시 원인 추적 난해.</li>
+                </ul>
+            </div>
+            <div class="grid-item">
+                <h3>✅ 클린 세션 해결책</h3>
+                <ul>
+                    <li><strong class="highlight">역할 분리:</strong> 하나의 에이전트가 아닌, 명확한 역할의 작은 에이전트 사용.</li>
+                    <li><strong class="highlight">최소 컨텍스트:</strong> 각 에이전트는 필요한 최소한의 정보로 작업 시작.</li>
+                    <li><strong class="highlight">예시:</strong> Claude Code의 '스킬' 기능 (단일 기능에 집중).</li>
+                </ul>
+            </div>
+        </div>
+        <p data-animate="slide-up" style="animation-delay: 1.5s;">
+            마치 필요할 때만 관련 문서를 찾아보는 것처럼, 매번 깨끗한 상태에서 작업을 시작해야 합니다.
+        </p>
+    </section>
+
+    <!-- 4. 주요 내용 전개 (4-5페이지) -->
+    <section class="slide" id="slide6">
+        <h2 data-animate="slide-up">한국 AI 시장의 놀라운 성숙도 🇰🇷</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            한국은 생성형 AI 도입 및 활용 측면에서 전 세계적으로 매우 높은 수준의 성숙도를 보이며, 글로벌 AI 기업들의 주목을 받고 있습니다.
+        </p>
+        <ul data-animate="slide-up" style="animation-delay: 1s;">
+            <li><strong class="highlight">높은 유료화 및 사용률:</strong>
+                <br>인구 대비 ChatGPT 결제 비율 세계 최고 수준, Anthropic API 사용량 전 세계 3-4위.</li>
+            <li><strong class="highlight">글로벌 AI 기업의 주목:</strong>
+                <br>OpenAI, Anthropic 등 파운데이션 모델 기업들이 한국을 아시아태평양 핵심 교두보로 인식.</li>
+            <li><strong class="highlight">고도화된 사용자 워크플로우:</strong>
+                <br>단순 프롬프트 입력을 넘어, AI를 활용해 정교한 워크플로우 구축에 능숙.
+                <br>➡️ <strong class="highlight">사례:</strong> 토비의 클로드 코드 활용 기술 서적 번역, 1인 출판사의 연간 50권 이상 책 출간.
+            </li>
+        </ul>
+        <img src="https://drive.google.com/thumbnail?id=1uUaN_HH2WiWhvizfaAMOmzy0c84tlUZ2&sz=w1000" alt="Knowledge Poster" style="max-width: 70%; margin-top: 30px;" data-animate="zoom-in" style="animation-delay: 1.5s;">
+    </section>
+
+    <section class="slide" id="slide7">
+        <h2 data-animate="slide-up">LLM 위원회 & 주력-보조 CLI: 실전 사례 🔄</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            울트라띵크 박진형 엔지니어의 실제 워크플로우 변화를 통해 멀티 모델 전략의 유동성을 알아봅니다.
+        </p>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>박진형 엔지니어의 주력 CLI 변화</h3>
+            <p><strong>과거:</strong> 컨텍스트 창이 넓은 <strong class="highlight">코덱스(Kodex)를 주력</strong>으로, Gemini 2.5 Pro를 리뷰어로 호출.</p>
+            <p><strong>클로드 오퓨스 4.5 출시 후:</strong> 버그 수정 능력이 뛰어난 오퓨스 4.5를 워크플로우에 편입.</p>
+            <p><strong>현재:</strong> <strong class="highlight">제미나이 CLI를 주력</strong>으로, 필요에 따라 클로드와 코덱스에 다른 역할 부여.</p>
+        </div>
+        <ul data-animate="slide-up" style="animation-delay: 1.5s;">
+            <li><strong class="highlight">선택 기준:</strong> 컨텍스트 창 크기, 특정 기능(플랜 모드), 모델/CLI 최신 업데이트.</li>
+            <li><strong class="highlight">유동성:</strong> 특정 도구에 얽매이지 않고, 상황과 요구에 따라 최적의 조합을 찾아 변화.</li>
+        </ul>
+    </section>
+
+    <section class="slide" id="slide8">
+        <h2 data-animate="slide-up">5단계 추론 파이프라인: 불변의 원칙 ✅</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            사용하는 모델이나 도구가 바뀌어도, 높은 품질의 결과물을 일관되게 얻기 위한 구조화된 접근 방식입니다.
+        </p>
+        <div class="mermaid-diagram-placeholder" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>5단계 추론 파이프라인</h3>
+            <p>
+                <strong>1. 예제 분석 ➡️ 2. 가설 수립 ➡️ 3. 코드 구현 ➡️ 4. 테스트 ➡️ 5. 수정 및 반복 (재귀)</strong><br>
+                (테스트 통과 시 완료)
+            </p>
+            <p style="font-size: 0.9em; margin-top: 15px;">
+                💡 시스템 프롬프트, 스킬, 후크를 통해 이 파이프라인을 강제하면 효과적입니다.
+            </p>
+        </div>
+        <ul data-animate="slide-up" style="animation-delay: 1.5s;">
+            <li><strong class="highlight">체계적 문제 해결:</strong> 국제수학올림피아드, ARC 추론 벤치마크 성공 시스템의 공통점.</li>
+            <li><strong class="highlight">지속적 개선:</strong> 문제가 발견되면 수정하고 더 나은 해결책을 찾기 위해 반복.</li>
+        </ul>
+    </section>
+
+    <section class="slide" id="slide9">
+        <h2 data-animate="slide-up">CLI를 넘어 IDE로: 안티그래비티의 등장 🚀</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            터미널 기반 CLI에서 개발자뿐 아니라 비개발자에게도 친숙한 IDE 환경으로 AI 도구가 진화하고 있습니다.
+        </p>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>Google Antigravity (VS Code 기반 IDE 에이전트)</h3>
+            <ul>
+                <li><strong class="highlight">계획 기반 실행:</strong> 상세한 실행 계획 제시 후 사용자 승인.</li>
+                <li><strong class="highlight">에이전트 매니저 UI:</strong> 작업 계획, 진행 상황, 판단 근거를 시각적으로 제공.</li>
+                <li><strong class="highlight">자원 활용 능력:</strong> Playwright 같은 웹 테스트 자동화 도구 직접 실행.</li>
+                <li><strong class="highlight">구글 생태계 연동:</strong> 캘린더, 파이어베이스 등 구글 서비스와 강력한 연동.</li>
+            </ul>
+        </div>
+        <p data-animate="slide-up" style="animation-delay: 1.5s;">
+            하지만 <strong class="highlight">벤더 종속성</strong>이라는 한계점도 명확합니다. 구글은 Gemini 모델 사용을 유도합니다.
+            따라서 모델에 구애받지 않는 <strong class="highlight">제3자 도구(Warp, Droid)</strong>의 역할이 중요해질 것입니다.
+        </p>
+    </section>
+
+    <!-- 5. 심층분석 파트 (4-8페이지) -->
+    <section class="slide" id="slide10">
+        <h2 data-animate="slide-up">심층 인사이트 1: 개발자 역량 재정의 💡</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            2025년 AI 개발에서 가장 중요한 것은 <strong class="highlight">기술을 조합하고 오케스트레이션하는 능력</strong>입니다.
+        </p>
+        <div class="grid-container" data-animate="zoom-in" style="animation-delay: 1s;">
+            <div class="grid-item">
+                <h3>개발자 관점: 오케스트레이션 능력</h3>
+                <p>과거 "어떤 언어를 잘 다루는가" ➡️ 현재 "어떤 AI 도구를 어떻게 조합하여 최적의 결과를 내는가".</p>
+                <p>박진형 엔지니어의 유동적인 주력 도구 전환이 이를 증명합니다.</p>
+            </div>
+            <div class="grid-item">
+                <h3>초보자 관점: 도구 선택 불안 해소</h3>
+                <p>"어떤 도구를 배워야 하나?" ➡️ "하나를 마스터하려 하지 말고, 여러 개를 조합하는 방법을 배워라."</p>
+                <p>5단계 추론 파이프라인과 같은 <strong class="highlight">보편 원칙</strong>에 집중하는 것이 중요합니다.</p>
+            </div>
+            <div class="grid-item">
+                <h3>숙련자 관점: 장기 에이전트 함정</h3>
+                <p>"AI에 맡기고 기다리면 된다"는 환상 ➡️ 컨텍스트 손실, 목표 드리프트 문제 발생.</p>
+                <p>해결책은 <strong class="highlight">마이크로서비스 아키텍처</strong>와 유사한 <strong class="highlight">클린 세션</strong>입니다.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide" id="slide11">
+        <h2 data-animate="slide-up">심층 분석 2: LLM 위원회 기술적 타당성 🧪</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            LLM 위원회는 <strong class="highlight">앙상블 학습(Ensemble Learning)</strong> 이론에 기반한 기술적 타당성을 가집니다.
+        </p>
+        <ul data-animate="slide-up" style="animation-delay: 1s;">
+            <li><strong class="highlight">기술적 구현 흐름:</strong>
+                <br>동일 프롬프트 병렬 전송 ➡️ 각 모델 응답 수집 ➡️ 다른 모델 응답 비평 ➡️ 합의된 최종 응답 생성.</li>
+            <li><strong class="highlight">앙상블 학습 원리:</strong>
+                <br>여러 약 학습기를 조합하여 단일 강 학습기보다 더 나은 성능 도출.
+                <br>LLM의 편향과 환각을 상호 보완하여 신뢰성 높은 결과 도출.</li>
+            <li><strong class="highlight">컨텍스트 창 병목:</strong>
+                <br>여러 모델의 응답과 비평을 담으려면 오케스트레이터 CLI의 넓은 컨텍스트 창이 필수 (예: Gemini CLI).</li>
+        </ul>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1.5s;">
+            <h3>기술적 타당성 검토</h3>
+            <p><strong>장점:</strong> 높은 신뢰성, 다양한 관점 반영, 오류 감소.</p>
+            <p><strong>단점:</strong> API 비용 증가 (3~9배), 지연 시간 증가. <strong class="highlight">모든 작업에 적용은 비효율적.</strong></p>
+        </div>
+    </section>
+
+    <section class="slide" id="slide12">
+        <h2 data-animate="slide-up">심층 분석 3: 실무 적용 전략 및 난제 📈</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            멀티 모델 전략을 실제 워크플로우에 통합할 때의 효과적인 적용 영역과 예상되는 난제들입니다.
+        </p>
+        <table>
+            <caption data-animate="slide-up" style="caption-side: top; text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold; color: var(--primary-color);">효과적인 문제해결 영역</caption>
+            <thead>
+                <tr data-animate="slide-up">
+                    <th>영역</th>
+                    <th>적용 전략</th>
+                    <th>예상 효과</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-animate="slide-up" style="animation-delay: 0.2s;">
+                    <td>코드 리뷰</td>
+                    <td>LLM 위원회로 다중 관점 리뷰</td>
+                    <td>버그 발견율 40% 향상</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.4s;">
+                    <td>아키텍처 설계</td>
+                    <td>멀티 모델 브레인스토밍</td>
+                    <td>고려 옵션 3배 증가</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.6s;">
+                    <td>버그 수정</td>
+                    <td>Claude Opus 4.5 전문 배치</td>
+                    <td>수정 정확도 향상</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.8s;">
+                    <td>문서화</td>
+                    <td>Gemini + 넓은 컨텍스트</td>
+                    <td>대규모 코드베이스 분석</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>예상되는 기술적 난제</h3>
+            <ul>
+                <li><strong class="highlight">비용 문제:</strong> API 비용 2-5배 증가.</li>
+                <li><strong class="highlight">지연 시간:</strong> 단일 모델 대비 3-5배 대기 시간.</li>
+                <li><strong class="highlight">복잡성 증가:</strong> 여러 CLI, API 키, 설정 관리 부담.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="slide" id="slide13">
+        <h2 data-animate="slide-up">심층 분석 4: 주요 AI CLI/IDE 도구 비교 📊</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            주요 AI 개발 도구들의 컨텍스트 창 크기를 비교하고, 각 도구의 특징을 살펴봅니다.
+        </p>
+        <div class="chart-container" data-animate="zoom-in" style="animation-delay: 1s;">
+            <canvas id="contextWindowChart"></canvas>
+        </div>
+        <table>
+            <caption data-animate="slide-up" style="caption-side: top; text-align: center; margin-bottom: 10px; font-size: 1.2em; font-weight: bold; color: var(--primary-color);">CLI 도구 비교 요약</caption>
+            <thead>
+                <tr data-animate="slide-up">
+                    <th>도구</th>
+                    <th>주요 강점</th>
+                    <th>컨텍스트 창</th>
+                    <th>벤더 종속성</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-animate="slide-up" style="animation-delay: 0.2s;">
+                    <td>Claude Code</td>
+                    <td>버그 수정, 플랜 모드, 스킬</td>
+                    <td>~200K</td>
+                    <td>Anthropic</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.4s;">
+                    <td>Gemini CLI</td>
+                    <td>매우 넓은 컨텍스트, 구글 연동</td>
+                    <td>~1M+</td>
+                    <td>Google</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.6s;">
+                    <td>Kodex</td>
+                    <td>멀티 응답 처리, 넓은 컨텍스트</td>
+                    <td>~1M+</td>
+                    <td>낮음 (모델 독립적)</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 0.8s;">
+                    <td>Antigravity</td>
+                    <td>IDE 통합, 시각적 UI, 자원 활용</td>
+                    <td>~1M+</td>
+                    <td>Google</td>
+                </tr>
+                <tr data-animate="slide-up" style="animation-delay: 1s;">
+                    <td>Warp/Droid</td>
+                    <td>모델 독립성, 멀티 모델 조합</td>
+                    <td>다양</td>
+                    <td>없음 (제3자)</td>
+                </tr>
+            </tbody>
+        </table>
+        <p data-animate="slide-up" style="animation-delay: 1.2s;">
+            <strong class="highlight">제3자 도구</strong>는 특정 벤더에 종속되지 않고 다양한 모델을 자유롭게 조합할 수 있어 진정한 멀티 모델 전략에 중요합니다.
+        </p>
+    </section>
+
+    <section class="slide" id="slide14">
+        <h2 data-animate="slide-up">심층 분석 5: AI 개발자 학습 로드맵 🗺️</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            AI 개발 환경의 빠른 변화에 대응하기 위한 단계별 학습 로드맵입니다.
+        </p>
+        <div class="grid-container" data-animate="zoom-in" style="animation-delay: 1s;">
+            <div class="grid-item">
+                <h3>초급자 로드맵 (4-6주)</h3>
+                <ul>
+                    <li><strong>1주차:</strong> CLI 기본, Claude Code 설치 및 간단한 코드 생성.</li>
+                    <li><strong>2주차:</strong> 프롬프트 엔지니어링 기초, 시스템 프롬프트 작성.</li>
+                    <li><strong>3주차:</strong> 5단계 추론 파이프라인 적용, 템플릿 제작.</li>
+                    <li><strong>4주차:</strong> 두 번째 CLI (Gemini) 도입, 동일 작업 비교.</li>
+                    <li><strong>5-6주차:</strong> 주력-보조 CLI 워크플로우 구축, 실제 프로젝트 적용.</li>
+                </ul>
+            </div>
+            <div class="grid-item">
+                <h3>숙련자 로드맵 (2-4주)</h3>
+                <ul>
+                    <li><strong>1주차:</strong> LLM 위원회 아키텍처 구현, 교차 비평 자동화.</li>
+                    <li><strong>2주차:</strong> 클린 세션 기반 에이전트 설계, 역할별 분리.</li>
+                    <li><strong>3주차:</strong> Antigravity vs CLI 비교 검증, 동일 프로젝트 구현.</li>
+                    <li><strong>4주차:</strong> 제3자 도구 통합 (Warp/Droid), 멀티 모델 환경 구축.</li>
+                </ul>
+            </div>
+        </div>
+        <p data-animate="slide-up" style="animation-delay: 1.5s;">
+            AI를 다루는 능력은 경험을 통해 축적됩니다. 꾸준한 학습과 실습이 중요합니다.
+        </p>
+    </section>
+
+    <section class="slide" id="slide15">
+        <h2 data-animate="slide-up">심층 분석 6: 비판적 검토 및 대안 ⚖️</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            멀티 모델 전략이 항상 최적의 해답은 아닙니다. 기술의 한계와 다른 접근 방식도 고려해야 합니다.
+        </p>
+        <div class="grid-container" data-animate="zoom-in" style="animation-delay: 1s;">
+            <div class="grid-item">
+                <h3>논리적 비약 및 편향</h3>
+                <p>멀티 모델이 항상 좋다는 전제는 <strong class="highlight">복잡하고 정확성이 중요한 작업</strong>에 한정됩니다. 단순 작업은 단일 모델이 효율적입니다.</p>
+                <p>박진형 엔지니어 사례는 파워 유저의 케이스로, 일반 개발자에게는 구축 및 유지 부담이 클 수 있습니다.</p>
+            </div>
+            <div class="grid-item">
+                <h3>기술의 한계점</h3>
+                <ul>
+                    <li><strong class="highlight">높은 학습 곡선:</strong> 여러 CLI 동시 익숙해지기 어려움.</li>
+                    <li><strong class="highlight">설정 복잡성:</strong> API 키, 환경 변수 등 관리 부담.</li>
+                    <li><strong class="highlight">디버깅 난이도:</strong> 문제 발생 시 원인 추적 어려움.</li>
+                </ul>
+            </div>
+            <div class="grid-item">
+                <h3>고려되지 않은 대안</h3>
+                <ul>
+                    <li><strong class="highlight">오픈소스 모델 활용:</strong> Llama, Mistral 등 로컬 실행으로 비용 절감.</li>
+                    <li><strong class="highlight">파인튜닝:</strong> 특정 도메인 최적화로 단일 모델 성능 극대화.</li>
+                    <li><strong class="highlight">프롬프트 최적화:</strong> 프롬프트 엔지니어링 집중으로 단일 모델 성능 향상.</li>
+                </ul>
+            </div>
+        </div>
+        <p data-animate="slide-up" style="animation-delay: 1.5s;">
+            <strong class="highlight">도구 중독</strong>이나 <strong class="highlight">과도한 자동화</strong>, <strong class="highlight">비용 폭발</strong> 등의 함정을 경계해야 합니다.
+        </p>
+    </section>
+
+    <!-- 6. 종합 정리 및 시사점 (1페이지) -->
+    <section class="slide" id="slide16">
+        <h2 data-animate="slide-up">2025 AI 워크플로우, 당신의 전략은? 🎯</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            AI는 단순히 작업을 위임하는 대상이 아닌, 명확한 지시와 비판적 피드백을 통해 함께 문제를 해결하는 '협업 파트너'입니다.
+        </p>
+        <div class="info-card" data-animate="zoom-in" style="animation-delay: 1s;">
+            <h3>핵심 인사이트 재정리</h3>
+            <ul>
+                <li><strong class="highlight">단일 도구 의존 탈피:</strong> 각 도구의 강점을 조합하는 능력이 핵심.</li>
+                <li><strong class="highlight">주력 CLI는 유동적:</strong> 모델 업데이트, 기능에 따라 유연성 유지.</li>
+                <li><strong class="highlight">장기 에이전트는 함정:</strong> 역할 분리와 클린 세션으로 집중된 작업 단위 유지.</li>
+                <li><strong class="highlight">벤더 종속성 경계:</strong> 제3자 도구 활용 검토.</li>
+                <li><strong class="highlight">AI는 협업 파트너:</strong> 명확한 지시와 비판적 피드백이 중요.</li>
+            </ul>
+        </div>
+        <h3 data-animate="slide-up" style="animation-delay: 1.5s; color: var(--accent-color);">📋 실행 가능한 액션 아이템</h3>
+        <ul data-animate="slide-up" style="animation-delay: 2s;">
+            <li>현재 AI 도구 목록화 및 강점/약점 분석.</li>
+            <li>LLM 위원회 방식 테스트: 동일 문제를 여러 모델에 동시 질의하여 결과 비교.</li>
+            <li>5단계 추론 파이프라인을 시스템 프롬프트나 스킬에 적용.</li>
+            <li>장기 실행 에이전트 대신 역할별 분리된 짧은 세션 워크플로우 설계.</li>
+            <li>제3자 도구(Warp, Droid) 조사 및 멀티 모델 환경 구축 검토.</li>
+        </ul>
+    </section>
+
+    <section class="slide" id="slide17">
+        <h2 data-animate="slide-up">더 깊이 탐구하고 싶다면? 📚</h2>
+        <p data-animate="fade-in" style="animation-delay: 0.5s;">
+            AI 기술의 발전 속도는 매우 빠릅니다. 끊임없이 학습하고 자신의 워크플로우를 개선하는 것이 중요합니다.
+        </p>
+        <ul data-animate="slide-up" style="animation-delay: 1s;">
+            <li><strong class="highlight">Claude Code Documentation:</strong> <a href="https://docs.anthropic.com" target="_blank">docs.anthropic.com</a></li>
+            <li><strong class="highlight">Gemini CLI Documentation:</strong> <a href="https://ai.google.dev" target="_blank">ai.google.dev</a></li>
+            <li><strong class="highlight">Andrej Karpathy - LLM Council 개념:</strong> (X/Twitter 검색)</li>
+            <li><strong class="highlight">Anthropic - Building Effective Agents:</strong> <a href="https://www.anthropic.com/blog" target="_blank">anthropic.com/blog</a></li>
+            <li><strong class="highlight">AI 코딩 도구 한국 커뮤니티:</strong> (디스코드/슬랙 등)</li>
+        </ul>
+        <p data-animate="fade-in" style="animation-delay: 1.5s; margin-top: 40px;">
+            이 슬라이드는 AI 개발 워크플로우에 대한 심층적인 이해를 돕기 위해 제작되었습니다.
+        </p>
+        <h3 data-animate="zoom-in" style="animation-delay: 2s; color: var(--accent-color);">감사합니다!</h3>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Dark/Light Mode Toggle
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            localStorage.setItem('theme', currentTheme);
+            updateChartColors(currentTheme);
+        });
+
+        // Initialize theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1 // Trigger when 10% of the element is visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // Optional: Stop observing once visible if animation is one-time
+                    // observer.unobserve(entry.target);
+                } else {
+                    // Optional: Remove is-visible if you want re-animation on scroll back
+                    // entry.target.classList.remove('is-visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[data-animate]').forEach(element => {
+            observer.observe(element);
+        });
+
+        // Chart.js Initialization
+        let contextWindowChart; // Declare chart variable globally
+
+        function initChart(theme) {
+            const ctx = document.getElementById('contextWindowChart');
+            if (!ctx) return;
+
+            const isDarkMode = theme === 'dark';
+            const textColor = isDarkMode ? '#f8f9fa' : '#212529';
+            const gridColor = isDarkMode ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)';
+            const barColors = [
+                'rgba(255, 99, 132, 0.7)', 'rgba(54, 162, 235, 0.7)', 'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)', 'rgba(153, 102, 255, 0.7)'
+            ];
+            const borderColors = [
+                'rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'
+            ];
+
+            if (contextWindowChart) {
+                contextWindowChart.destroy(); // Destroy existing chart before creating a new one
+            }
+
+            contextWindowChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Claude Code', 'Gemini CLI', 'Kodex', 'Antigravity', 'Cursor'],
+                    datasets: [{
+                        label: '컨텍스트 창 크기 (토큰, 로그 스케일)',
+                        data: [200000, 1000000, 1000000, 1000000, 100000], // Approximate values
+                        backgroundColor: barColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            type: 'logarithmic',
+                            title: {
+                                display: true,
+                                text: '토큰 수',
+                                color: textColor
+                            },
+                            ticks: {
+                                color: textColor,
+                                callback: function(value, index, values) {
+                                    if (value === 1000000) return '1M+';
+                                    if (value === 200000) return '200K';
+                                    if (value === 100000) return '100K';
+                                    return ''; // Hide other intermediate ticks
+                                }
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: textColor
+                            },
+                            grid: {
+                                color: gridColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to update chart colors based on theme
+        function updateChartColors(theme) {
+            if (contextWindowChart) {
+                initChart(theme); // Re-initialize chart with new theme colors
+            }
+        }
+
+        // Initialize chart on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            initChart(currentTheme);
+        });
+
+    </script>
+</body>
+</html>
