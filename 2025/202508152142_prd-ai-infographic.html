@@ -1,0 +1,2283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Your Claude Code 10x Smarter - PRD 활용 전략</title>
+    
+    <meta name="description" content="AI 시대의 솔로 개발자가 Claude, Cursor 등의 AI 도구와 효과적으로 협업하기 위한 PRD 작성 및 활용 전략">
+    <meta property="og:title" content="AI 기반 개발을 위한 효과적인 PRD 활용 전략">
+    <meta property="og:description" content="SLC 접근 방식과 살아있는 문서로서의 PRD를 통한 AI 협업 최적화">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #38a169;
+            --accent: #fd8500;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-card: #ffffff;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        [data-theme="dark"] {
+            --primary: #90cdf4;
+            --secondary: #68d391;
+            --accent: #fbb041;
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #1a202c;
+            --bg-card: #2d3748;
+            --border: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInThemeToggle 0.5s ease forwards 1s;
+        }
+
+        @keyframes fadeInThemeToggle {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle .icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+            transition: fill 0.3s ease;
+        }
+
+        .scroll-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .slide-section {
+            min-height: 100vh;
+            padding: 4rem 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .slide-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page-indicator {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
+
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 2rem 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            background: var(--gradient-primary);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        h3 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+        }
+
+        h4 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            font-size: 1.125rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        .hero-section {
+            background: var(--gradient-primary);
+            color: white;
+            text-align: center;
+            border-radius: 20px;
+            padding: 4rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-section h1 {
+            color: white;
+            -webkit-text-fill-color: white;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.25rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .video-info {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .highlight-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .highlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-accent);
+            border-radius: 50%;
+            opacity: 0.1;
+            transform: translate(30px, -30px);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card .icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-secondary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .comparison-table {
+            background: var(--bg-card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin: 2rem 0;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient-primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin: 1rem 0;
+        }
+
+        .chart-container {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .action-items {
+            background: var(--gradient-accent);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .action-items h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .action-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .action-list li:before {
+            content: '✓';
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .quote-block {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border-left: 4px solid var(--primary);
+            font-style: italic;
+            position: relative;
+        }
+
+        .quote-block::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--primary);
+            position: absolute;
+            top: -0.5rem;
+            left: 1rem;
+            opacity: 0.3;
+        }
+
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .process-step {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            flex: 1;
+            min-width: 200px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .process-step:last-child::after {
+            display: none;
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .insight-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .insight-number {
+            position: absolute;
+            top: -1rem;
+            left: 2rem;
+            background: var(--gradient-primary);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-container {
+                padding: 0 1rem;
+            }
+
+            .slide-section {
+                padding: 2rem 0;
+                min-height: auto;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .hero-section {
+                padding: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-flow {
+                flex-direction: column;
+            }
+
+            .process-step::after {
+                content: '↓';
+                right: 50%;
+                top: auto;
+                bottom: -1.5rem;
+                transform: translateX(50%);
+            }
+
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 첫 번째 섹션에서만 테마 토글 표시 */
+        .theme-toggle {
+            display: none;
+        }
+
+        #section-1 ~ * .theme-toggle {
+            display: none !important;
+        }
+
+        #section-1 .theme-toggle {
+            display: flex;
+        }
+
+        /* 마지막 섹션에서 테마 토글 숨기기 */
+        body:not(.first-section) .theme-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body class="first-section">    
+    <!-- 다크/라이트 모드 토글 -->
+    <button class="theme-toggle" aria-label="테마 전환">
+        <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"></path>
+        </svg>
+    </button>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="scroll-container">
+        <!-- 섹션 1: 타이틀 페이지 -->
+        <section class="slide-section fade-in-section" id="section-1">
+            <div class="page-indicator">1 / 22</div>
+            <div class="hero-section">
+                <h1>Make Your Claude Code 10x Smarter</h1>
+                <p>AI 시대의 솔로 개발자를 위한 효과적인 PRD 활용 전략</p>
+                <div style="margin-top: 2rem; color: rgba(255,255,255,0.8);">
+                    <strong>Solo Swift Crafter</strong> • 15:30 • 2025-08-13
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 2: 학습 개요 -->
+        <section class="slide-section fade-in-section" id="section-2">
+            <div class="page-indicator">2 / 22</div>
+            <h2>🎯 학습 개요 및 목표</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>AI 협업 최적화</h3>
+                    <p>Claude, Cursor 등 AI 도구와의 효과적인 협업 방법을 학습합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📋</div>
+                    <h3>PRD 혁신</h3>
+                    <p>전통적인 문서가 아닌 "살아 숨 쉬는 .md 파일"로서의 PRD를 이해합니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">✨</div>
+                    <h3>SLC 방식</h3>
+                    <p>MVP를 넘어선 Simple, Lovable, Complete 개발 철학을 적용합니다.</p>
+                </div>
+            </div>
+            <div class="quote-block">
+                "Don't let just ship it energy keep you from building something you're actually proud of."
+            </div>
+        </section>
+
+        <!-- 섹션 3: 채널 및 배경 정보 -->
+        <section class="slide-section fade-in-section" id="section-3">
+            <div class="page-indicator">3 / 22</div>
+            <h2>📺 채널 및 배경 정보</h2>
+            <div class="video-info">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                    <div>
+                        <h3>Solo Swift Crafter</h3>
+                        <p><strong>카테고리:</strong> AI/개발</p>
+                        <p><strong>영상 길이:</strong> 15:30</p>
+                        <p><strong>게시일:</strong> 2025-08-13</p>
+                        <p><strong>주요 대상:</strong> 솔로 개발자, 인디 개발자</p>
+                    </div>
+                    <div>
+                        <h4>등장 기술/도구</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>✅ Claude (Anthropic AI)</li>
+                            <li>✅ Cursor (AI 코드 에디터)</li>
+                            <li>✅ Swift UI (iOS 개발)</li>
+                            <li>✅ PRD.md (제품 요구사항 문서)</li>
+                            <li>✅ NFC Tools (예제 앱)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">62%</span>
+                    <span class="stat-label">전 세계 개발자 AI 도구 사용률</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">200%</span>
+                    <span class="stat-label">AI 협업 시 개발 생산성 향상</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">10x</span>
+                    <span class="stat-label">Claude Code의 잠재적 성능 향상</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 4: PRD의 새로운 패러다임 -->
+        <section class="slide-section fade-in-section" id="section-4">
+            <div class="page-indicator">4 / 22</div>
+            <h2>🔄 PRD의 새로운 패러다임</h2>
+            <div class="highlight-card">
+                <h3>💫 "살아 숨 쉬는 문서"로서의 역할</h3>
+                <p>전통적인 기업 문서가 아닌, AI 도구가 실제로 읽고 이해하며 개발에 활용할 수 있는 <strong>"살아 숨 쉬는 .md 파일"</strong>로서의 PRD</p>
+            </div>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <h4>진정한 대화</h4>
+                    <p>개발자와 AI 간의 실시간 소통</p>
+                </div>
+                <div class="process-step">
+                    <h4>사고의 캡처</h4>
+                    <p>애플리케이션에 대한 개발자의 생각과 의도</p>
+                </div>
+                <div class="process-step">
+                    <h4>미래의 나</h4>
+                    <p>시간이 지난 후에도 초기 의도 상기</p>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>전통적 PRD</th>
+                            <th>AI 시대 PRD</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>목적</td>
+                            <td>팀 소통용 문서</td>
+                            <td>AI와의 협업 인터페이스</td>
+                        </tr>
+                        <tr>
+                            <td>업데이트</td>
+                            <td>프로젝트 초기에 작성</td>
+                            <td>지속적인 실시간 업데이트</td>
+                        </tr>
+                        <tr>
+                            <td>활용도</td>
+                            <td>참고용 정적 문서</td>
+                            <td>개발 과정에서 능동적 활용</td>
+                        </tr>
+                        <tr>
+                            <td>구체성</td>
+                            <td>고수준 요구사항</td>
+                            <td>AI가 이해할 수 있는 상세 명세</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 섹션 5: SLC 접근 방식 -->
+        <section class="slide-section fade-in-section" id="section-5">
+            <div class="page-indicator">5 / 22</div>
+            <h2>🎯 SLC 접근 방식: MVP 시대를 넘어서</h2>
+            
+            <div class="highlight-card">
+                <h3>🚀 Simple, Lovable, Complete</h3>
+                <p style="font-size: 1.25rem; font-weight: 500;">"This PRD defines an SLC simple lovable complete V25.0.1 not an MVP"</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>Simple</h3>
+                    <p>복잡하지 않고 사용하기 쉬운 직관적인 인터페이스</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">❤️</div>
+                    <h3>Lovable</h3>
+                    <p>사용자가 사랑하고 자주 사용하고 싶어하는 매력적인 경험</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">✅</div>
+                    <h3>Complete</h3>
+                    <p>세련되고 완성된 느낌의 폴리시된 최종 제품</p>
+                </div>
+            </div>
+
+            <div class="quote-block">
+                "Honestly that MVP era it's kind of done. Shipping something that just barely works just doesn't impress anyone anymore. The bar is so much higher now."
+            </div>
+
+            <div class="chart-container">
+                <h4>개발 기준의 진화</h4>
+                <canvas id="developmentStandardsChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="highlight-card">
+                <h3>📅 연도 기반 버전 관리</h3>
+                <p><strong>예시:</strong> 25.0.0 (2025년 앱스토어 출시 목표)</p>
+                <p>연도 기반 버전 관리를 통해 개발자 자신의 혼란을 줄이고, AI가 버전 관련 질문으로 방해하지 않도록 합니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 6: AI와의 진정한 대화 -->
+        <section class="slide-section fade-in-section" id="section-6">
+            <div class="page-indicator">6 / 22</div>
+            <h2>💬 AI와의 진정한 대화</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>질문 1: What's the actual problem I'm solving?</h4>
+                    <p>해결하고자 하는 실제 문제를 명확히 정의</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>질문 2: Who are my users really?</h4>
+                    <p>구체적인 사용자 페르소나 설정</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>질문 3: Which features actually matter?</h4>
+                    <p>핵심 기능과 부차적 기능 구분</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>답변을 PRD에 기록</h4>
+                    <p>AI와의 대화 결과를 문서에 체계적으로 정리</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Smart NFC Tools - PRD Example
+
+## Problem Statement
+"iOS NFC tools kind of suck right now. They're clunky, they're dated, 
+and the stuff you actually want is buried like five taps deep."
+
+## Target Users
+- iPhone automation enthusiasts  
+- Content creators embedding links
+- Power users building shortcuts
+- Educators and hobbyists
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎨 사고의 캡처 (Capturing Thinking)</h3>
+                <p>"The whole point isn't to build a feature list. It's to capture the way I'm actually thinking about the app."</p>
+                <p>PRD는 단순히 기능 목록이 아니라, 애플리케이션에 대한 개발자의 사고와 의도를 담아내는 도구입니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 7: 구체적인 PRD 내용 -->
+        <section class="slide-section fade-in-section" id="section-7">
+            <div class="page-indicator">7 / 22</div>
+            <h2>📋 구체적인 PRD 내용</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🎯</div>
+                    <h3>명확한 문제 정의</h3>
+                    <p>AI가 정확하게 이해할 수 있는 구체적인 문제 설명</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">👥</div>
+                    <h3>구체적 사용자 정의</h3>
+                    <p>"모든 사람"이 아닌 특정 사용자층 명시</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💰</div>
+                    <h3>가격 모델 설정</h3>
+                    <p>무료/유료 기능, 가격, 제한사항 명확히 정의</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🚫</div>
+                    <h3>Out of Scope 목록</h3>
+                    <p>개발 범위에 포함되지 않는 기능 명시</p>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h3>💡 구체성의 중요성</h3>
+                <p>"If you don't spell out your pricing, your feature tiers, your boundaries, they just start inventing stuff out of thin air."</p>
+                <p>AI의 불필요한 추측이나 기능 제안을 방지하기 위해 모든 요소를 명확히 명시해야 합니다.</p>
+            </div>
+
+            <div class="code-block">
+## Pricing Model - Smart NFC Tools
+- **Free**: 3 scans, 3 writes per device. That's it.
+- **Pro**: $14.99 one time purchase
+
+## Out of Scope (v25)
+- No iCloud sync
+- No iPad support  
+- No CSV export
+- No data parity features
+            </div>
+
+            <div class="quote-block">
+                "I'm a little obsessive about making my out of scope list explicit like no iCloud sync and v25 no iPad data parody no CSV export."
+            </div>
+        </section>
+
+        <!-- 섹션 8: 상세한 UX 플로우 -->
+        <section class="slide-section fade-in-section" id="section-8">
+            <div class="page-indicator">8 / 22</div>
+            <h2>🔄 상세한 UX 플로우</h2>
+            
+            <div class="highlight-card">
+                <h3>🎨 세밀한 사용자 경험 설계</h3>
+                <p>"Most PRDs they just kind of wave at the user flow, maybe list some screens but don't get into the weeds. I do the opposite. I get really granular with it."</p>
+            </div>
+
+            <div class="process-flow">
+                <div class="process-step">
+                    <h4>모든 탭</h4>
+                    <p>각 화면의 탭 구성과 네비게이션</p>
+                </div>
+                <div class="process-step">
+                    <h4>주요 플로우</h4>
+                    <p>사용자의 핵심 사용 경로</p>
+                </div>
+                <div class="process-step">
+                    <h4>오류 상태</h4>
+                    <p>예외 상황과 에러 처리 방안</p>
+                </div>
+                <div class="process-step">
+                    <h4>엣지 케이스</h4>
+                    <p>극단적 상황에서의 동작 방식</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h4>UX 플로우 상세도 비교</h4>
+                <canvas id="uxDetailChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🔧 실제 구현 가능한 명세</h3>
+                <p>AI가 실제 UI 코드 생성이나 테스트 계획 수립 시 정확하게 반영할 수 있도록 매우 상세하게 기술합니다.</p>
+                <ul style="margin-top: 1rem;">
+                    <li>✅ 각 화면별 구체적인 동작</li>
+                    <li>✅ 사용자 입력 검증 방식</li>
+                    <li>✅ 오류 메시지와 해결 방안</li>
+                    <li>✅ 로딩 상태와 피드백</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 섹션 9: PRD 유지보수 -->
+        <section class="slide-section fade-in-section" id="section-9">
+            <div class="page-indicator">9 / 22</div>
+            <h2>🔄 PRD 유지보수: 살아있는 문서의 지속적 업데이트</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🔄</div>
+                    <h3>지속적 업데이트</h3>
+                    <p>"My PRD it's never actually finished. I'm always tweaking it."</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>AI와의 동기화</h3>
+                    <p>변경사항을 AI 도구에 실시간으로 반영</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">✅</div>
+                    <h3>진실의 정보원</h3>
+                    <p>프로젝트의 가장 정확한 정보원 역할</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>버그 발견 시</h4>
+                    <p>PRD 업데이트 → AI 동기화 → 테스트 계획 수정</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>사용자 피드백</h4>
+                    <p>요구사항 수정 → PRD 반영 → AI 재훈련</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>기능 변경</h4>
+                    <p>PRD 업데이트 → 관련 코드 재생성 → 테스트 실행</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+// AI와의 대화 예시
+"Hey here's what changed in v25.1 
+- Update the test plan 
+- Rewrite the error messages 
+- Double check the settings UI 
+- Did I miss anything?"
+            </div>
+
+            <div class="quote-block">
+                "The PRD is honestly the only artifact that never lies. If you keep it fresh, everything else in your workflow just works better."
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 워크플로우 최적화 효과</h3>
+                <p>PRD를 최신 상태로 유지함으로써 전체 워크플로우의 효율성이 향상됩니다.</p>
+                <div class="stats-grid" style="margin-top: 1rem;">
+                    <div class="stat-card">
+                        <span class="stat-number">↓60%</span>
+                        <span class="stat-label">디버깅 시간 단축</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">↑300%</span>
+                        <span class="stat-label">코드 생성 정확도</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 섹션 10: 실제 활용 방법 -->
+        <section class="slide-section fade-in-section" id="section-10">
+            <div class="page-indicator">10 / 22</div>
+            <h2>🛠 실제 활용 방법: AI 개발 워크플로우의 핵심</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">💻</div>
+                    <h3>UI 코드 생성</h3>
+                    <p>"Generate a Swift UI view for the right screen, gate the pro features, add live bite estimates"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🧪</div>
+                    <h3>테스트 계획 수립</h3>
+                    <p>"From the test plan in the PRD generate store kit test cases for free pro purchase refund and offline flows"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔍</div>
+                    <h3>코드 검증</h3>
+                    <p>"Scan my latest commit. Does the error handling match the friendly fixes in the PRD?"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎯</div>
+                    <h3>AI 에이전트 온보딩</h3>
+                    <p>Cursor 규칙으로 PRD 추가하여 즉시 컨텍스트 이해</p>
+                </div>
+            </div>
+
+            <div class="process-flow">
+                <div class="process-step">
+                    <h4>PRD 작성</h4>
+                    <p>구체적이고 상세한 요구사항 정의</p>
+                </div>
+                <div class="process-step">
+                    <h4>AI 도구 연동</h4>
+                    <p>Cursor/Claude에 PRD 업로드</p>
+                </div>
+                <div class="process-step">
+                    <h4>코드 생성</h4>
+                    <p>PRD 기반 정확한 코드 자동 생성</p>
+                </div>
+                <div class="process-step">
+                    <h4>테스트 & 검증</h4>
+                    <p>PRD 기준으로 품질 검증</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Cursor에서 PRD 규칙 설정 예시
+cp PRD.md .cursor-rules
+
+# Claude 세션에 PRD 컨텍스트 제공
+"Use this PRD as the single source of truth for all 
+code generation, testing, and feature decisions."
+            </code-block>
+
+            <div class="highlight-card">
+                <h3>🎯 PRD = AI 개발의 백본(Backbone)</h3>
+                <p>PRD는 단순히 문서가 아니라, AI 기반 개발 워크플로우의 "백본(backbone)"으로서 다양한 방식으로 활용됩니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 11: 핵심 인사이트 -->
+        <section class="slide-section fade-in-section" id="section-11">
+            <div class="page-indicator">11 / 22</div>
+            <h2>💡 핵심 인사이트 & 액션 아이템</h2>
+            
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-number">1</div>
+                    <h3>AI 시대의 PRD는 문서가 아닌 도구다</h3>
+                    <p>기존의 형식적 문서에서 AI와 실시간으로 소통하는 살아있는 인터페이스로 패러다임 전환</p>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-number">2</div>
+                    <h3>구체성이 AI 성능을 결정한다</h3>
+                    <p>모호한 요구사항보다 명확하고 상세한 정의가 AI의 정확한 지원을 가능하게 함</p>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-number">3</div>
+                    <h3>SLC는 새로운 기본 기준이다</h3>
+                    <p>AI 도구의 발달로 MVP 수준은 더 이상 충분하지 않으며, 완성도 높은 제품이 필수</p>
+                </div>
+            </div>
+
+            <div class="action-items">
+                <h3>🚀 즉시 실행 가능한 액션 아이템</h3>
+                <ul class="action-list">
+                    <li>현재 프로젝트에 PRD.md 파일 생성하고 SLC 선언문 추가하기</li>
+                    <li>AI와의 대화를 통해 구체적인 사용자 페르소나 정의하기</li>
+                    <li>Out of Scope 목록을 명시적으로 작성하여 개발 범위 명확화하기</li>
+                    <li>Cursor 또는 Claude에 PRD를 규칙으로 추가하여 AI 에이전트 온보딩하기</li>
+                    <li>주간 단위로 PRD 업데이트 및 AI 동기화 루틴 구축하기</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <h4>PRD 활용 효과 측정</h4>
+                <canvas id="prdEffectChart" width="400" height="200"></canvas>
+            </div>
+        </section>
+
+        <!-- 섹션 12-21: 심층분석 항목들 (10개) -->
+        <section class="slide-section fade-in-section" id="section-12">
+            <div class="page-indicator">12 / 22</div>
+            <h2>🔬 심층분석 1: 기술적 깊이 & 정확성</h2>
+            
+            <div class="highlight-card">
+                <h3>🎯 AI 모델의 특성을 정확히 반영한 접근법</h3>
+                <p>현재 AI 도구의 컨텍스트 윈도우와 주의 메커니즘(attention mechanism)의 한계를 정확히 이해한 기술적으로 타당한 방법론</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🧠</div>
+                    <h3>컨텍스트 최적화</h3>
+                    <p>대규모 언어 모델의 입력 구조와 명확성에 따른 출력 품질 최적화</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🚫</div>
+                    <h3>할루시네이션 방지</h3>
+                    <p>"Out of Scope" 명시를 통한 AI의 잘못된 추론 예방</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>성능 최적화</h3>
+                    <p>IDE 통합 AI의 프로젝트별 컨텍스트 유지 메커니즘</p>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>측면</th>
+                            <th>기존 접근법</th>
+                            <th>PRD 기반 접근법</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>정보 구조화</td>
+                            <td>비체계적 프롬프트</td>
+                            <td>구조화된 요구사항 명세</td>
+                        </tr>
+                        <tr>
+                            <td>할루시네이션</td>
+                            <td>높은 발생률</td>
+                            <td>Out of Scope로 예방</td>
+                        </tr>
+                        <tr>
+                            <td>컨텍스트 유지</td>
+                            <td>대화마다 초기화</td>
+                            <td>PRD 기반 지속적 유지</td>
+                        </tr>
+                        <tr>
+                            <td>코드 품질</td>
+                            <td>일관성 부족</td>
+                            <td>명세 기반 일관된 품질</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="quote-block">
+                "연도 기반 버전 관리(25.0.0)도 AI가 버전 관련 추론에서 혼동을 피할 수 있는 실용적인 방법입니다."
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-13">
+            <div class="page-indicator">13 / 22</div>
+            <h2>📈 심층분석 2: 업계 트렌드 연관성</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">62%</span>
+                    <span class="stat-label">2024년 전 세계 개발자 AI 도구 사용률</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">↑300%</span>
+                    <span class="stat-label">솔로 개발자 AI 채택률 증가</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">2025</span>
+                    <span class="stat-label">AI 네이티브 개발 원년</span>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🚀</div>
+                    <h3>GitHub Copilot</h3>
+                    <p>코드 라인 수준의 자동완성에 특화</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎯</div>
+                    <h3>Cursor + PRD</h3>
+                    <p>프로젝트 전체 아키텍처 이해한 포괄적 코드 생성</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>Claude Code</h3>
+                    <p>터미널 기반 에이전트 방식으로 발전</p>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h3>📊 시장 경쟁 구도 변화</h3>
+                <p>AI 도구가 코딩, 테스팅, 문서화를 자동화하면서 MVP 접근법의 제약이 크게 완화되었습니다.</p>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>2023년: AI 도구 도입기</h4>
+                    <p>GitHub Copilot 중심의 코드 자동완성</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2024년: 생태계 확장</h4>
+                    <p>Cursor, Claude 등 다양한 AI 개발 도구 등장</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2025년: AI 네이티브</h4>
+                    <p>PRD 기반 워크플로우의 표준화</p>
+                </div>
+            </div>
+
+            <div class="quote-block">
+                "PRD 기반 접근법은 이러한 도구들의 특성을 모두 활용할 수 있는 플랫폼 중립적인 방법론으로, 향후 새로운 AI 도구가 등장해도 지속 가능한 워크플로우를 제공합니다."
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-14">
+            <div class="page-indicator">14 / 22</div>
+            <h2>🛠 심층분석 3: 실무 적용 가능성과 한계</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">✅</div>
+                    <h3>최적 적용 환경</h3>
+                    <p>솔로 개발자나 소규모 팀(2-3명)에게 매우 효과적</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📱</div>
+                    <h3>적합한 프로젝트</h3>
+                    <p>B2C 모바일 앱, SaaS 제품, 개인 프로젝트</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚠️</div>
+                    <h3>제한 사항</h3>
+                    <p>대규모 엔터프라이즈, 복잡한 레거시 시스템</p>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>프로젝트 규모</th>
+                            <th>효과성</th>
+                            <th>주요 장점</th>
+                            <th>주의사항</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>개인 프로젝트</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>완전한 자유도, 빠른 실험</td>
+                            <td>과도한 AI 의존 주의</td>
+                        </tr>
+                        <tr>
+                            <td>소규모 팀 (2-3명)</td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>효율적 협업, 일관성</td>
+                            <td>PRD 동기화 필요</td>
+                        </tr>
+                        <tr>
+                            <td>중간 팀 (4-10명)</td>
+                            <td>⭐⭐⭐</td>
+                            <td>표준화된 개발</td>
+                            <td>버전 관리 복잡도</td>
+                        </tr>
+                        <tr>
+                            <td>대규모 조직</td>
+                            <td>⭐⭐</td>
+                            <td>부분적 도입 가능</td>
+                            <td>규제, 보안 검토 필수</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 성공 요인</h3>
+                <ul>
+                    <li>명확한 사용자 대상과 기능 범위 정의</li>
+                    <li>컴포넌트 기반 프레임워크와의 호환성</li>
+                    <li>현대적인 개발 스택 사용</li>
+                    <li>지속적인 PRD 업데이트 의지</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <h4>프로젝트 복잡도별 적용 효과</h4>
+                <canvas id="projectComplexityChart" width="400" height="200"></canvas>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-15">
+            <div class="page-indicator">15 / 22</div>
+            <h2>⚖️ 심층분석 4: 다른 기술/도구와 비교</h2>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>특성</th>
+                            <th>전통 애자일</th>
+                            <th>GitHub Copilot</th>
+                            <th>노코드 플랫폼</th>
+                            <th>PRD + AI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>학습 곡선</td>
+                            <td>높음</td>
+                            <td>낮음</td>
+                            <td>매우 낮음</td>
+                            <td>중간</td>
+                        </tr>
+                        <tr>
+                            <td>커스터마이징</td>
+                            <td>높음</td>
+                            <td>높음</td>
+                            <td>낮음</td>
+                            <td>높음</td>
+                        </tr>
+                        <tr>
+                            <td>개발 속도</td>
+                            <td>중간</td>
+                            <td>빠름</td>
+                            <td>매우 빠름</td>
+                            <td>빠름</td>
+                        </tr>
+                        <tr>
+                            <td>팀 확장성</td>
+                            <td>높음</td>
+                            <td>높음</td>
+                            <td>중간</td>
+                            <td>낮음</td>
+                        </tr>
+                        <tr>
+                            <td>코드 품질</td>
+                            <td>높음</td>
+                            <td>중간</td>
+                            <td>제한적</td>
+                            <td>높음</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🏃</div>
+                    <h3>vs 전통 애자일</h3>
+                    <p>구조화된 프로세스 vs 유연한 AI 협업</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>vs GitHub Copilot</h3>
+                    <p>"코딩 어시스턴트" vs "AI 팀원"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎨</div>
+                    <h3>vs 노코드</h3>
+                    <p>빠른 프로토타이핑 vs 완전한 제어권</p>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 PRD + AI의 독특한 가치</h3>
+                <p>완전한 코드 제어권을 유지하면서도 개발 속도를 크게 향상시킬 수 있어, 전문 개발자에게는 더 매력적인 옵션입니다.</p>
+            </div>
+
+            <div class="chart-container">
+                <h4>도구별 특성 비교 레이더 차트</h4>
+                <canvas id="toolComparisonChart" width="400" height="300"></canvas>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-16">
+            <div class="page-indicator">16 / 22</div>
+            <h2>🎓 심층분석 5: 학습 로드맵 위치</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>초급 단계 (0-2년)</h4>
+                    <p>기본 프로그래밍 + 하나 이상의 프레임워크 이해 필요</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>중급 단계 (2-5년)</h4>
+                    <p>가장 효과적인 단계 - 기본기 + AI 협업으로 한 단계 향상</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>고급 단계 (5년+)</h4>
+                    <p>생산성 향상 도구로 활용, 아이디어 검증과 빠른 실험</p>
+                </div>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🌱</div>
+                    <h3>초보자 혜택</h3>
+                    <p>요구사항 분석 능력과 시스템 설계 사고력 향상</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>중급자 최적</h3>
+                    <p>기본기 + AI 지원으로 시니어급 결과물 생성</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🚀</div>
+                    <h3>고급자 활용</h3>
+                    <p>멘토링과 교육, 복잡한 아키텍처 실험</p>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h3>📚 학습 효과</h3>
+                <p>전통적인 튜토리얼 방식의 학습은 주어진 문제를 해결하는 방법만 알려주지만, PRD 작성 과정은 문제를 정의하고 요구사항을 구체화하는 능력을 기릅니다.</p>
+            </div>
+
+            <div class="chart-container">
+                <h4>경력 단계별 PRD 활용 효과</h4>
+                <canvas id="careerStageChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="action-items">
+                <h3>🎯 단계별 학습 전략</h3>
+                <ul class="action-list">
+                    <li>초급: 작은 프로젝트부터 시작, 기본 PRD 구조 익히기</li>
+                    <li>중급: 복잡한 기능의 상세 명세 작성 연습</li>
+                    <li>고급: 팀 프로세스 통합, 멘토링에 활용</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-17">
+            <div class="page-indicator">17 / 22</div>
+            <h2>💡 심층분석 6: 초보자 인사이트</h2>
+            
+            <div class="highlight-card">
+                <h3>🎯 "올바른 질문하기"를 배우는 것</h3>
+                <p>이 PRD 기반 AI 협업 방법론이 초보 개발자에게 제공하는 가장 큰 가치는 "올바른 질문하기"를 배우는 것입니다.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">❓</div>
+                    <h3>핵심 질문들</h3>
+                    <p>"What's the actual problem?", "Who are my users really?"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🧠</div>
+                    <h3>제품 사고력</h3>
+                    <p>기술이 아닌 사용자 중심의 사고 방식</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📋</div>
+                    <h3>체계적 접근</h3>
+                    <p>막연한 아이디어를 구체적인 명세로 변환</p>
+                </div>
+            </div>
+
+            <div class="process-flow">
+                <div class="process-step">
+                    <h4>아이디어</h4>
+                    <p>"NFC 앱을 만들고 싶다"</p>
+                </div>
+                <div class="process-step">
+                    <h4>구체화</h4>
+                    <p>"iPhone 사용자가 3탭 이내로 NFC 태그 작성"</p>
+                </div>
+                <div class="process-step">
+                    <h4>실행 계획</h4>
+                    <p>구체적인 UX 플로우와 기술 구현</p>
+                </div>
+            </div>
+
+            <div class="quote-block">
+                "예를 들어, '막연한 아이디어'를 'iPhone 사용자가 3탭 이내로 NFC 태그를 작성할 수 있는 직관적인 도구'로 구체화하는 과정을 통해 제품 사고(product thinking)를 배울 수 있습니다."
+            </div>
+
+            <div class="highlight-card">
+                <h3>⚠️ 주의사항</h3>
+                <ul>
+                    <li>AI가 생성한 코드를 이해하지 못한 채 사용하지 말 것</li>
+                    <li>기본적인 디버깅 능력은 별도로 학습 필요</li>
+                    <li>작은 프로젝트부터 시작하여 점진적으로 복잡도 증가</li>
+                    <li>PRD는 기본 개발 능력을 대체가 아닌 보완하는 도구</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <h4>초보자 학습 효과 비교</h4>
+                <canvas id="beginnerLearningChart" width="400" height="200"></canvas>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-18">
+            <div class="page-indicator">18 / 22</div>
+            <h2>🎯 심층분석 7: 숙련자 인사이트</h2>
+            
+            <div class="highlight-card">
+                <h3>🚀 "증강된 개발(Augmented Development)" 경험</h3>
+                <p>숙련된 개발자에게 이 방법론은 단순한 생산성 도구를 넘어 새로운 형태의 "증강된 개발" 경험을 제공합니다.</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🧠</div>
+                    <h3>AI의 메모리</h3>
+                    <p>PRD를 "AI의 메모리"로 활용하여 장기 프로젝트 맥락 유지</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔄</div>
+                    <h3>계층적 관리</h3>
+                    <p>고수준 아키텍처부터 저수준 구현까지 계층적 PRD 구조</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🎓</div>
+                    <h3>팀 리딩</h3>
+                    <p>주니어 개발자 멘토링과 교육 도구로 활용</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>마이크로서비스별 PRD</h4>
+                    <p>복잡한 시스템에서 서비스별 독립적 PRD 관리</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>실행 가능한 사양서</h4>
+                    <p>API 명세→OpenAPI 자동 생성→모킹 서버 구성</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>품질 검증 자동화</h4>
+                    <p>PRD 기준 코드 리뷰 및 일관성 검증</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# 고급 PRD 패턴 예시
+## Architecture Level PRD
+- High-level system design decisions
+- Cross-service communication patterns
+
+## Service Level PRD  
+- Individual microservice specifications
+- API contracts and data models
+
+## Implementation Level PRD
+- Detailed feature specifications
+- Error handling and edge cases
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 전략적 활용법</h3>
+                <ul>
+                    <li>여러 계층의 PRD로 복잡한 시스템 관리</li>
+                    <li>AI 기반 통합 테스트 자동화</li>
+                    <li>신입 개발자 온보딩 프로그램에 활용</li>
+                    <li>도메인 특화 프롬프트 라이브러리 구축</li>
+                </ul>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">↑400%</span>
+                    <span class="stat-label">프로토타입 개발 속도</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">↓70%</span>
+                    <span class="stat-label">코드 리뷰 시간</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">↑300%</span>
+                    <span class="stat-label">실험 가능한 아이디어 수</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-19">
+            <div class="page-indicator">19 / 22</div>
+            <h2>⚠️ 심층분석 8: 잠재적 함정 & 주의사항</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🚨</div>
+                    <h3>과도한 AI 의존성</h3>
+                    <p>기본적인 문제 해결 능력을 잃고 AI에 과도하게 의존하는 위험</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📋</div>
+                    <h3>PRD 품질의 중요성</h3>
+                    <p>잘못된 PRD는 전체 프로젝트를 잘못된 방향으로 유도</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔄</div>
+                    <h3>동기화 문제</h3>
+                    <p>PRD와 코드베이스 간의 불일치로 인한 혼란</p>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🔴 주요 위험 요소들</h3>
+                <ul>
+                    <li><strong>이해 없는 코드 사용:</strong> AI 생성 코드를 이해하지 못한 채 사용 시 디버깅 불가</li>
+                    <li><strong>보안 취약점:</strong> 보안이 중요한 애플리케이션에서 AI 코드에 대한 철저한 검토 필수</li>
+                    <li><strong>기술 부채 누적:</strong> 단기적 편의를 위해 장기적 유지보수성 희생</li>
+                    <li><strong>팀 프로젝트 복잡성:</strong> 여러 개발자가 동시에 PRD 수정 시 충돌 가능성</li>
+                </ul>
+            </div>
+
+            <div class="chart-container">
+                <h4>위험 요소별 발생 빈도와 영향도</h4>
+                <canvas id="riskAssessmentChart" width="400" height="300"></canvas>
+            </div>
+
+            <div class="action-items" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52);">
+                <h3>🛡️ 위험 완화 전략</h3>
+                <ul class="action-list">
+                    <li>주 1회 AI 없이 코딩하는 날 설정하여 기본기 유지</li>
+                    <li>PRD 품질 체크리스트 운영 및 주간 리뷰</li>
+                    <li>AI 생성 코드에 대한 이해도 검증 프로세스</li>
+                    <li>보안 취약점 스캔 도구 통합</li>
+                    <li>버전 관리 시스템을 통한 PRD 변경 이력 추적</li>
+                </ul>
+            </div>
+
+            <div class="quote-block">
+                "PRD가 코드베이스와 동기화되지 않으면 '거짓말하는 문서'가 될 수 있습니다. 특히 팀 프로젝트에서는 별도의 프로세스가 필요합니다."
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-20">
+            <div class="page-indicator">20 / 22</div>
+            <h2>🔧 심층분석 9: 관련 도구 및 리소스</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">🤖</div>
+                    <h3>핵심 AI 도구</h3>
+                    <p>Cursor, Claude Code, GitHub Copilot</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📝</div>
+                    <h3>PRD 관리</h3>
+                    <p>Obsidian, Notion, GitBook</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h3>자동화 도구</h3>
+                    <p>Yeoman, Cookiecutter, Plop</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+# 추천 도구 설치 및 설정
+
+# Cursor 설치 (macOS)
+brew install --cask cursor
+
+# Obsidian 설치 
+brew install --cask obsidian
+
+# PRD 템플릿 클론
+git clone https://github.com/ai-prd-templates/starter
+cd starter && npm install
+
+# Cursor에 PRD 규칙 추가
+cp PRD-template.md .cursor-rules
+            </code-block>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>도구</th>
+                            <th>용도</th>
+                            <th>가격</th>
+                            <th>특징</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cursor</td>
+                            <td>AI 코드 에디터</td>
+                            <td>$20/월</td>
+                            <td>VS Code 기반, PRD 규칙 지원</td>
+                        </tr>
+                        <tr>
+                            <td>Claude Pro</td>
+                            <td>AI 어시스턴트</td>
+                            <td>$20/월</td>
+                            <td>긴 컨텍스트, 코드 분석</td>
+                        </tr>
+                        <tr>
+                            <td>Obsidian</td>
+                            <td>지식 관리</td>
+                            <td>무료</td>
+                            <td>마크다운 기반, 링크드 노트</td>
+                        </tr>
+                        <tr>
+                            <td>GitHub</td>
+                            <td>버전 관리</td>
+                            <td>무료~</td>
+                            <td>PRD 버전 관리, 협업</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 권장 도구 조합</h3>
+                <p><strong>시작 패키지:</strong> Cursor + Claude + GitHub (월 $40)</p>
+                <p><strong>프로 패키지:</strong> 위 + Obsidian + Linear (월 $60)</p>
+                <p><strong>팀 패키지:</strong> 위 + Notion + CI/CD 도구 (월 $100)</p>
+            </div>
+
+            <div class="action-items">
+                <h3>🚀 즉시 설치 추천</h3>
+                <ul class="action-list">
+                    <li>Cursor 설치하고 첫 PRD 규칙 파일 생성</li>
+                    <li>Claude Pro 구독하고 PRD 템플릿 실험</li>
+                    <li>GitHub에 PRD 저장소 생성하고 버전 관리 시작</li>
+                    <li>Obsidian으로 PRD와 연관 노트들 연결</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="slide-section fade-in-section" id="section-21">
+            <div class="page-indicator">21 / 22</div>
+            <h2>📚 심층분석 10: 후속 학습 자료 큐레이션</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <h4>1-2주: 기초 단계</h4>
+                    <p>Claude, Cursor 공식 문서 + 기본 PRD 작성법 (4-6시간)</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>2-3주: 응용 단계</h4>
+                    <p>프롬프트 엔지니어링 + 실제 프로젝트 적용 (8-12시간)</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>3-4주: 심화 단계</h4>
+                    <p>복잡한 프로젝트 PRD 관리 + 자동화 도구 (12-16시간)</p>
+                </div>
+                <div class="timeline-item">
+                    <h4>지속적: 전문가</h4>
+                    <p>최신 AI 도구 트렌드 + 커뮤니티 기여</p>
+                </div>
+            </timeline>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="icon">📖</div>
+                    <h3>공식 문서</h3>
+                    <p>Anthropic Claude Documentation<br>Cursor IDE 가이드</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💻</div>
+                    <h3>실습 예제</h3>
+                    <p>iOS/React 프로젝트 튜토리얼<br>PRD-to-Code 자동화</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">👥</div>
+                    <h3>커뮤니티</h3>
+                    <p>Reddit AI Coding<br>Discord AI Builders</p>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>자료</th>
+                            <th>난이도</th>
+                            <th>소요시간</th>
+                            <th>핵심 내용</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Claude API 문서</td>
+                            <td>초급</td>
+                            <td>2-3시간</td>
+                            <td>프롬프트 엔지니어링 기초</td>
+                        </tr>
+                        <tr>
+                            <td>Cursor 실습 가이드</td>
+                            <td>초급</td>
+                            <td>1-2시간</td>
+                            <td>IDE 통합 AI 활용법</td>
+                        </tr>
+                        <tr>
+                            <td>iOS+AI 튜토리얼</td>
+                            <td>중급</td>
+                            <td>8-10시간</td>
+                            <td>실제 앱 개발 과정</td>
+                        </tr>
+                        <tr>
+                            <td>PRD 자동화 파이프라인</td>
+                            <td>고급</td>
+                            <td>10-12시간</td>
+                            <td>완전 자동화 워크플로우</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🎯 추천 학습 순서</h3>
+                <ol style="margin-left: 1.5rem;">
+                    <li>Claude/Cursor 기본 사용법 익히기</li>
+                    <li>간단한 PRD 작성하고 AI와 대화해보기</li>
+                    <li>실제 프로젝트에 적용하며 PRD 개선</li>
+                    <li>자동화 도구 도입하여 워크플로우 최적화</li>
+                    <li>커뮤니티 참여하며 최신 트렌드 파악</li>
+                </ol>
+            </div>
+
+            <div class="action-items">
+                <h3>📌 북마크 필수 리소스</h3>
+                <ul class="action-list">
+                    <li>Anthropic Claude Documentation</li>
+                    <li>Prompt Engineering Guide</li>
+                    <li>r/ChatGPTCoding 서브레딧</li>
+                    <li>AI Builders Discord 서버</li>
+                    <li>GitHub Awesome AI Coding 리스트</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 섹션 22: 종합 정리 및 시사점 -->
+        <section class="slide-section fade-in-section" id="section-22">
+            <div class="page-indicator">22 / 22</div>
+            <h2>🎯 종합 정리 및 핵심 시사점</h2>
+            
+            <div class="hero-section" style="background: var(--gradient-secondary);">
+                <h3>🚀 AI 시대 개발자의 새로운 워크플로우</h3>
+                <p>PRD는 더 이상 단순한 문서가 아니라, AI와 협업하는 개발자의 핵심 도구가 되었습니다.</p>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-number">1</div>
+                    <h3>패러다임의 전환</h3>
+                    <p>형식적 문서 → 살아있는 AI 협업 인터페이스</p>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-number">2</div>
+                    <h3>품질 기준의 상승</h3>
+                    <p>MVP 시대 종료 → SLC(Simple, Lovable, Complete) 필수</p>
+                </div>
+                <div class="insight-card">
+                    <div class="insight-number">3</div>
+                    <h3>개발 방식의 혁신</h3>
+                    <p>단순 코딩 → AI와의 진정한 대화를 통한 제품 구축</p>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">10x</span>
+                    <span class="stat-label">잠재적 개발 생산성 향상</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">↓70%</span>
+                    <span class="stat-label">요구사항 변경으로 인한 재작업</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">↑400%</span>
+                    <span class="stat-label">프로토타입 개발 속도</span>
+                </div>
+            </div>
+
+            <div class="quote-block" style="font-size: 1.5rem; text-align: center;">
+                "Don't let just ship it energy keep you from building something you're actually proud of."
+            </div>
+
+            <div class="action-items" style="background: var(--gradient-primary);">
+                <h3>🎯 지금 당장 시작할 수 있는 것들</h3>
+                <ul class="action-list">
+                    <li>현재 진행 중인 프로젝트에 PRD.md 파일 생성</li>
+                    <li>AI와 대화하며 구체적인 사용자 페르소나 정의</li>
+                    <li>Out of Scope 목록으로 개발 범위 명확화</li>
+                    <li>Cursor나 Claude에 PRD 규칙으로 추가</li>
+                    <li>주간 PRD 업데이트 루틴 구축</li>
+                </ul>
+            </div>
+
+            <div class="highlight-card">
+                <h3>🔮 미래 전망</h3>
+                <p>PRD 기반 AI 협업은 단순한 트렌드가 아닌, <strong>새로운 표준</strong>이 될 것입니다. 
+                지금 시작하는 개발자들이 향후 10년간의 기술 변화에서 주도권을 가질 수 있습니다.</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem; color: var(--text-secondary);">
+                <p><strong>Solo Swift Crafter</strong> 영상을 바탕으로 제작</p>
+                <p>2025년 8월 15일 • AI 기반 개발 워크플로우 가이드</p>
+            </div>
+        </section>
+    </main>
+    
+    <!-- 인라인 JavaScript -->
+    <script>
+        // 테마 전환 기능
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+        
+        // 초기 테마 설정
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+        });
+        
+        function updateThemeIcon() {
+            const theme = body.getAttribute('data-theme');
+            const icon = themeToggle.querySelector('.icon');
+            if (theme === 'dark') {
+                icon.innerHTML = '<path d="M12 3a6.364 6.364 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>';
+            } else {
+                icon.innerHTML = '<path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313-12.454z"></path>';
+            }
+        }
+        
+        // Intersection Observer 설정
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+        
+        // 모든 섹션에 observer 적용
+        document.querySelectorAll('.fade-in-section').forEach(section => {
+            observer.observe(section);
+        });
+        
+        // 스크롤 위치에 따른 테마 토글 표시/숨김
+        let currentSection = 1;
+        const sections = document.querySelectorAll('.slide-section');
+        
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const sectionId = entry.target.id;
+                    const sectionNumber = parseInt(sectionId.split('-')[1]);
+                    
+                    if (sectionNumber === 1) {
+                        body.classList.add('first-section');
+                        themeToggle.style.display = 'flex';
+                    } else {
+                        body.classList.remove('first-section');
+                        themeToggle.style.display = 'none';
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+        
+        // 차트 생성 함수들
+        function createChart(canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            return new Chart(ctx, config);
+        }
+        
+        // 차트들을 지연 로딩으로 생성
+        function initializeCharts() {
+            // 개발 기준 진화 차트
+            createChart('developmentStandardsChart', {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [{
+                        label: 'MVP 기준',
+                        data: [5, 5, 4, 3, 2, 1],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'SLC 기준',
+                        data: [1, 2, 3, 5, 7, 9],
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: '기대 품질 수준'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // UX 상세도 비교 차트
+            createChart('uxDetailChart', {
+                type: 'bar',
+                data: {
+                    labels: ['전통적 PRD', 'AI 시대 PRD'],
+                    datasets: [{
+                        label: 'UX 플로우 상세도',
+                        data: [3, 9],
+                        backgroundColor: ['#ff6b6b', '#4facfe'],
+                        borderColor: ['#ff5252', '#2196f3'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: '상세도 점수 (1-10)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // PRD 효과 차트
+            createChart('prdEffectChart', {
+                type: 'radar',
+                data: {
+                    labels: ['개발 속도', '코드 품질', '요구사항 이해', '팀 협업', '유지보수성', 'AI 활용도'],
+                    datasets: [{
+                        label: '전통적 방식',
+                        data: [3, 7, 4, 6, 5, 1],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)',
+                        pointBackgroundColor: '#ff6b6b'
+                    }, {
+                        label: 'PRD + AI',
+                        data: [9, 8, 9, 7, 8, 10],
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.2)',
+                        pointBackgroundColor: '#4facfe'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+            
+            // 프로젝트 복잡도별 적용 효과
+            createChart('projectComplexityChart', {
+                type: 'line',
+                data: {
+                    labels: ['개인 프로젝트', '소규모 팀', '중간 팀', '대규모 조직'],
+                    datasets: [{
+                        label: '적용 효과',
+                        data: [10, 8, 6, 4],
+                        borderColor: '#38a169',
+                        backgroundColor: 'rgba(56, 161, 105, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: '효과 점수'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 도구 비교 레이더 차트
+            createChart('toolComparisonChart', {
+                type: 'radar',
+                data: {
+                    labels: ['학습 용이성', '커스터마이징', '개발 속도', '팀 확장성', '코드 품질'],
+                    datasets: [{
+                        label: '전통 애자일',
+                        data: [3, 9, 5, 9, 8],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.2)'
+                    }, {
+                        label: 'GitHub Copilot',
+                        data: [8, 8, 8, 8, 6],
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.2)'
+                    }, {
+                        label: 'PRD + AI',
+                        data: [6, 9, 8, 5, 9],
+                        borderColor: '#38a169',
+                        backgroundColor: 'rgba(56, 161, 105, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+            
+            // 경력 단계별 효과
+            createChart('careerStageChart', {
+                type: 'bar',
+                data: {
+                    labels: ['초급 (0-2년)', '중급 (2-5년)', '고급 (5년+)'],
+                    datasets: [{
+                        label: '학습 효과',
+                        data: [8, 10, 7],
+                        backgroundColor: '#4facfe',
+                        borderColor: '#2196f3',
+                        borderWidth: 2
+                    }, {
+                        label: '생산성 향상',
+                        data: [6, 9, 8],
+                        backgroundColor: '#38a169',
+                        borderColor: '#2e7d32',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10
+                        }
+                    }
+                }
+            });
+            
+            // 초보자 학습 효과
+            createChart('beginnerLearningChart', {
+                type: 'doughnut',
+                data: {
+                    labels: ['제품 사고력', '시스템 설계', '코딩 스킬', '문제 해결'],
+                    datasets: [{
+                        data: [35, 25, 20, 20],
+                        backgroundColor: ['#4facfe', '#38a169', '#fd8500', '#ff6b6b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+            
+            // 위험 평가 차트
+            createChart('riskAssessmentChart', {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '위험 요소',
+                        data: [
+                            {x: 8, y: 9, label: 'AI 과의존'},
+                            {x: 7, y: 8, label: 'PRD 품질'},
+                            {x: 6, y: 6, label: '동기화 문제'},
+                            {x: 4, y: 7, label: '보안 취약점'},
+                            {x: 5, y: 4, label: '팀 협업'}
+                        ],
+                        backgroundColor: '#ff6b6b',
+                        borderColor: '#ff5252',
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '발생 빈도'
+                            },
+                            min: 0,
+                            max: 10
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '영향도'
+                            },
+                            min: 0,
+                            max: 10
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `발생빈도: ${context.parsed.x}, 영향도: ${context.parsed.y}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 페이지 로드 후 차트 초기화
+        window.addEventListener('load', () => {
+            setTimeout(initializeCharts, 1000);
+        });
+        
+        // 스크롤 진행률 표시 (선택적)
+        function updateScrollProgress() {
+            const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+            document.documentElement.style.setProperty('--scroll-progress', scrolled + '%');
+        }
+        
+        window.addEventListener('scroll', updateScrollProgress);
+        
+        // 첫 번째 섹션에서만 테마 토글 표시
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstSection = document.getElementById('section-1');
+            if (firstSection) {
+                themeToggle.style.display = 'flex';
+            }
+        });
+        
+    </script>
+</body>
+</html>

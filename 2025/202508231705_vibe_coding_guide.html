@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>바이브코딩을 활용한 프로젝트 개발 심층 가이드</title>
+    
+    <!-- SEO 및 소셜 미디어 최적화 -->
+    <meta name="description" content="AI 기반 노코드 도구 바이브코딩을 활용한 실전 프로젝트 개발 가이드. MVP 개발부터 보안, 운영까지 완전 정복">
+    <meta property="og:title" content="바이브코딩 프로젝트 개발 심층 가이드">
+    <meta property="og:description" content="비개발자도 전문적인 웹 애플리케이션을 개발할 수 있는 바이브코딩 활용법">
+    
+    <!-- 외부 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- 인라인 CSS -->
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #06b6d4;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-accent: #f1f5f9;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --bg-accent: #374151;
+            --border-color: #4b5563;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            scroll-behavior: smooth;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeInFirst 1s ease 2s forwards;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .scroll-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .slide-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 0;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .slide-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-number {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            margin: 4rem 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 800px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+            width: 100%;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .icon-primary { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); }
+        .icon-secondary { background: linear-gradient(135deg, var(--secondary-color), var(--accent-color)); }
+        .icon-success { background: linear-gradient(135deg, var(--success-color), var(--secondary-color)); }
+        .icon-warning { background: linear-gradient(135deg, var(--warning-color), var(--danger-color)); }
+
+        .process-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: center;
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .step-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--bg-accent);
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .pros, .cons {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pros {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .cons {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .pros h4 {
+            color: var(--success-color);
+        }
+
+        .cons h4 {
+            color: var(--warning-color);
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, var(--primary-color)10, var(--secondary-color)10);
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .highlight-box::before {
+            content: '💡';
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            background: var(--bg-primary);
+            padding: 0 1rem;
+            font-size: 1.5rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, var(--warning-color)10, var(--danger-color)10);
+            border: 2px solid var(--warning-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .warning-box::before {
+            content: '⚠️';
+            position: absolute;
+            top: -15px;
+            left: 2rem;
+            background: var(--bg-primary);
+            padding: 0 1rem;
+            font-size: 1.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 3rem 0;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 3rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 8px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .matrix-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .matrix-cell {
+            aspect-ratio: 1;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .matrix-cell:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--bg-accent);
+            color: var(--text-primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .tag.primary { background: var(--primary-color); color: white; }
+        .tag.secondary { background: var(--secondary-color); color: white; }
+        .tag.success { background: var(--success-color); color: white; }
+        .tag.warning { background: var(--warning-color); color: white; }
+        .tag.danger { background: var(--danger-color); color: white; }
+
+        .checklist {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .checklist li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checklist li::before {
+            content: '✓';
+            color: var(--success-color);
+            font-weight: bold;
+            margin-right: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid #334155;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 1s ease;
+        }
+
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in-section.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes fadeInFirst {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .scroll-container {
+                padding: 0 1rem;
+            }
+            
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 2rem; }
+            h3 { font-size: 1.5rem; }
+            
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+            
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+            
+            .theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 45px;
+                height: 45px;
+            }
+        }
+
+        /* 첫 페이지에서만 테마 토글 버튼 표시 */
+        body:not(.scrolled) .theme-toggle {
+            display: flex;
+        }
+
+        body.scrolled .theme-toggle {
+            display: none;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- 다크/라이트 모드 토글 -->
+    <button class="theme-toggle" aria-label="테마 전환" onclick="toggleTheme()">
+        🌙
+    </button>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="scroll-container">
+        <!-- 섹션 1: 타이틀 -->
+        <section class="slide-section fade-in-section" id="section-1">
+            <div class="section-number">1/19</div>
+            <h1>바이브코딩을 활용한<br>프로젝트 개발 심층 가이드</h1>
+            <p class="subtitle">AI 기반 노코드 도구로 전문적인 웹 애플리케이션을 개발하는 완전 가이드</p>
+            
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-number">15+</span>
+                    <span class="stat-label">핵심 섹션</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">70%</span>
+                    <span class="stat-label">개발 시간 단축</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">95%</span>
+                    <span class="stat-label">비용 절약</span>
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <h4>🎯 학습 목표</h4>
+                <p>비개발자도 전문적인 내부 업무 도구를 빠르고 효율적으로 개발할 수 있는 실무 역량을 기르고, MVP부터 운영까지 전체 라이프사이클을 이해합니다.</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 2: 개요 -->
+        <section class="slide-section fade-in-section" id="section-2">
+            <div class="section-number">2/19</div>
+            <h2>📋 전체 구조 및 학습 로드맵</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">1단계: 성공 사례 분석</div>
+                    <p>프롬프트 관리 도구 개발 사례를 통한 바이브코딩의 가능성 탐구</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">2단계: 문제점과 해결방안</div>
+                    <p>실제 개발 과정에서 직면한 UI/UX 및 보안 이슈와 대응 전략</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">3단계: 체계적 개발 프로세스</div>
+                    <p>LM 활용부터 반복적 개선까지의 완전한 워크플로우</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">4단계: 심층 전문가 분석</div>
+                    <p>AI 네이티브 개발의 미래와 실무 적용 가이드라인</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🎯</div>
+                    <h4>실전 중심</h4>
+                    <p>이론보다는 실제 프로젝트 경험을 바탕으로 한 실무 활용 가이드</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">⚡</div>
+                    <h4>즉시 적용 가능</h4>
+                    <p>오늘부터 시작할 수 있는 구체적인 액션 플랜과 체크리스트</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">🔄</div>
+                    <h4>반복 개선</h4>
+                    <p>초기 MVP부터 고도화까지 단계별 발전 전략</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 3: 영상 배경 정보 -->
+        <section class="slide-section fade-in-section" id="section-3">
+            <div class="section-number">3/19</div>
+            <h2>📺 영상 배경 및 맥락 정보</h2>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">📊</div>
+                    <h4>프로젝트 배경</h4>
+                    <p><strong>AI 기업 강사의 실무 과제</strong><br>
+                    수많은 프롬프트를 효율적으로 관리하고 검색하는 시스템 구축 필요</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">🎯</div>
+                    <h4>대상 사용자</h4>
+                    <p><strong>회사 내부 직원 전용</strong><br>
+                    일반 구독자 사용 불가, 내부 업무 효율성 향상이 목적</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">⚡</div>
+                    <h4>개발 성과</h4>
+                    <p><strong>놀라운 구현 속도</strong><br>
+                    기존 노코드 도구 대비 압도적으로 빠르고 높은 품질 달성</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>핵심 기술 스택</h4>
+                <div class="matrix-view">
+                    <div class="matrix-cell">
+                        <strong>Lovable</strong>
+                        <small>AI 개발 플랫폼</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>Supabase</strong>
+                        <small>백엔드 서비스</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>CSV Upload</strong>
+                        <small>벌크 데이터 처리</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>RLS</strong>
+                        <small>보안 정책</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>중요 인사이트</h4>
+                <p>"너무나 빠르게 구현할 수 있었고 구현할 수 있는 퀄리티도 높았습니다. 노코드 툴로만 구현한다고 하면은 저는 어떻게 해야 될지 도저히 감이 안 올 정도의 기능인데 제가 원하는 요구 사항을 말로만 설명해 주니까 이런 기능을 뚝딱 만들어 줬습니다."</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 4: 핵심 개념 소개 1 -->
+        <section class="slide-section fade-in-section" id="section-4">
+            <div class="section-number">4/19</div>
+            <h2>🚀 바이브코딩의 핵심 기능 분석</h2>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">📝</div>
+                    <h4>프롬프트 목록 및 상세 보기</h4>
+                    <p>여러 프롬프트가 나열되어 있으며, 클릭 시 상세 내용과 함께 개별 카드로 관리</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">🔍</div>
+                    <h4>필터링 및 태그 시스템</h4>
+                    <p>다양한 조건 및 태그를 통해 프롬프트를 효율적으로 검색하고 분류</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">🔗</div>
+                    <h4>외부 공유 기능</h4>
+                    <p>장바구니처럼 프롬프트를 담아 외부 공유 링크 생성, 회원가입 없이 읽기 전용 접근</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">📤</div>
+                    <h4>CSV 벌크 업로드</h4>
+                    <p>CSV 파일을 통해 기존 프롬프트들을 한꺼번에 업로드하여 대량 데이터 처리</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">📊</div>
+                    <h4>매트릭스 뷰</h4>
+                    <p>산업별, 회사별 프롬프트를 매트릭스 형태로 시각화하여 페인 포인트 해결</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">🤖</div>
+                    <h4>AI 태그 추천</h4>
+                    <p>프롬프트 입력 시 AI가 정해진 범주에서 태그를 추천하고 자동 업데이트</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="featureChart"></canvas>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 5: 핵심 개념 소개 2 -->
+        <section class="slide-section fade-in-section" id="section-5">
+            <div class="section-number">5/19</div>
+            <h2>⭐ 성공 요인 및 놀라운 점</h2>
+            
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ 성공 요인</h4>
+                    <ul class="checklist">
+                        <li>기존 노코드 도구 대비 압도적인 구현 속도</li>
+                        <li>웹플로우, 소프트, 글라이드, 버블 등 대비 높은 품질</li>
+                        <li>CSV 업로드 같은 복잡한 기능도 쉽게 구현</li>
+                        <li>데이터베이스 설정까지 AI가 자동 처리</li>
+                        <li>디자인적으로도 만족스러운 결과물</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>🎯 핵심 가치</h4>
+                    <ul class="checklist">
+                        <li>내가 진짜 해결해야 되는 문제를 더 정확하게 발견</li>
+                        <li>창발적인 인사이트를 얻을 수 있는 도구</li>
+                        <li>비용 대비 조직 내 생산성 향상 효과</li>
+                        <li>마케팅 수익화 고려 없이 문제 해결에 집중</li>
+                        <li>인증이 쉽고 보안 걱정 적음</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>비교 요소</th>
+                        <th>기존 노코드 도구</th>
+                        <th>바이브코딩</th>
+                        <th>개선 효과</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>개발 속도</td>
+                        <td>수주~수개월</td>
+                        <td>수일~수주</td>
+                        <td>5-10배 빨라짐</td>
+                    </tr>
+                    <tr>
+                        <td>구현 복잡도</td>
+                        <td>제한적</td>
+                        <td>고도화된 기능</td>
+                        <td>SaaS 수준 달성</td>
+                    </tr>
+                    <tr>
+                        <td>데이터 처리</td>
+                        <td>수동 설정</td>
+                        <td>AI 자동 구성</td>
+                        <td>설정 시간 90% 단축</td>
+                    </tr>
+                    <tr>
+                        <td>디자인 품질</td>
+                        <td>템플릿 의존</td>
+                        <td>맞춤형 디자인</td>
+                        <td>브랜드 일관성 확보</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <h4>실제 사용자 피드백</h4>
+                <p>"디자인적으로도 꽤 저는 만족스러웠어요. 노코드 툴로만 구현한다고 하면은 저는 어떻게 해야 될지 도저히 감이 안 올 정도의 기능인데 제가 원하는 요구 사항을 말로만 설명해 주니까 이런 기능을 뚝딱 만들어 줬고 데이터베이스 설정에 대해서도 알아서 다 해 주니까 너무도너무 신기하고 좋았습니다."</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 6: 주요 내용 전개 1 -->
+        <section class="slide-section fade-in-section" id="section-6">
+            <div class="section-number">6/19</div>
+            <h2>⚠️ 프로젝트 개선점 및 피드백</h2>
+            
+            <h3>휘동 개발자님의 전문가 피드백 분석</h3>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🖼️</div>
+                    <h4>UI/UX 일관성 부족</h4>
+                    <p><strong>문제:</strong> 즐겨찾기 기능이 사라지고, 상세보기 레이아웃이 중간/왼쪽 위치가 일관되지 않음</p>
+                    <div class="tag warning">개선 필요</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">⏰</div>
+                    <h4>로딩 지연 및 캐싱 부재</h4>
+                    <p><strong>문제:</strong> 매번 로딩하는 것 같고, 한번 들어간 후에는 캐싱되어 바로 나와야 함</p>
+                    <div class="tag warning">성능 이슈</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">💔</div>
+                    <h4>화면 잘림 현상</h4>
+                    <p><strong>문제:</strong> 화면 요소가 잘리는 문제가 눈에 보임</p>
+                    <div class="tag danger">레이아웃 오류</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">💾</div>
+                    <h4>데이터 소실 문제</h4>
+                    <p><strong>문제:</strong> 모달/팝업 전환 시 데이터가 날아가는 문제 발생</p>
+                    <div class="tag danger">치명적 버그</div>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>비개발자의 보안 인식 부족</h4>
+                <p><strong>핵심 문제:</strong> "사실 제 입장에서는 이게 문제인 줄도 상상을 못 했어요. 어떻게 문제인지 확인해야 될지 문제를 확인하더라도 어떻게 고쳐야 될지에 대해서 아예 감이 없는데"</p>
+                <ul class="checklist">
+                    <li>API 키 노출 가능성 인식 부족</li>
+                    <li>외부 공유 기능의 잠재적 보안 위험</li>
+                    <li>Supabase URL 노출의 의미 파악 어려움</li>
+                    <li>보안 문제 해결 방법 모름</li>
+                </ul>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+            <p style="text-align: center; color: var(--text-secondary); margin-top: 0.5rem;">전체 기능의 75%는 성공적으로 구현됨</p>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 7: 주요 내용 전개 2 -->
+        <section class="slide-section fade-in-section" id="section-7">
+            <div class="section-number">7/19</div>
+            <h2>🔐 보안 이슈 및 해결 방안</h2>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">🚨</div>
+                    <h4>API 키 노출 위험</h4>
+                    <p>외부 공유 기능 사용 시 "Supabase의 URL이 노출되는 건 어쩔 수 없을 것 같은데 여기서 API 키가 그대로 노출이 되서 이게 문제인지 아닌지를 정확히 모르겠다"</p>
+                    <div class="tag danger">심각한 보안 위험</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🔍</div>
+                    <h4>잠재적 정보 접근</h4>
+                    <p>노출된 API 키로 "굉장히 다른 많은 정보를 가져올 수 있는 상태일 수도 있고 아닐 수도 있어요"</p>
+                    <div class="tag warning">불확실한 위험도</div>
+                </div>
+            </div>
+
+            <h3>🛠️ 해결 방안</h3>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">러버블의 'Review Security' 기능 활용</div>
+                        <div class="step-description">"리뷰 시큐리티라고 해서 무료로 제거하는 기능이 있어서 걸맞만 눌러봐도 아마 어느 정도는 해결이 될 거고"</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">개발자 도구를 통한 직접 확인</div>
+                        <div class="step-description">오른쪽 클릭 → 검사 → 네트워크 탭에서 API 요청 헤더에 API 키가 노출되는지 확인하고 캡처하여 LM에 문의</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">LM에게 직접 문의</div>
+                        <div class="step-description">"내가 공유 페이지에서 API 키가 헤더로 노출이 되고 있는데 이거는 괜찮은 거야?"라고 질문하여 전문적 조언 구하기</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Anonymous Key와 RLS 정책</h4>
+                <p><strong>중요한 발견:</strong> 노출된 키가 'Anonymous Key'이며 RLS(Row Level Security) 정책이 제대로 설정되어 있다면 큰 문제는 아닐 수 있습니다. 하지만 비개발자는 이런 구분을 할 수 없기 때문에 체계적인 보안 검토가 필요합니다.</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="securityChart"></canvas>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 8: 핵심 인사이트 -->
+        <section class="slide-section fade-in-section" id="section-8">
+            <div class="section-number">8/19</div>
+            <h2>💡 핵심 인사이트 및 시각적 정보 흐름</h2>
+            
+            <div class="highlight-box">
+                <h4>바이브코딩의 핵심 철학</h4>
+                <p><strong>"정말 내가 진짜 해결해야 되는 좀 문제를 오히려 더 정확하게 발견할 수 있었다"</strong></p>
+                <p>단순히 도구를 사용하는 것이 아니라, 문제 해결 과정에서 창발적인 인사이트를 얻을 수 있는 것이 바이브코딩의 가장 큰 가치입니다.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">🎯</div>
+                    <h4>최적 활용 사례</h4>
+                    <p><strong>내부 업무 도구 개발</strong><br>
+                    "내부 업무 도구를 만드는 툴로서 너무 좋은 거 같아요"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">💼</div>
+                    <h4>개인 문제 해결</h4>
+                    <p><strong>나만의 작은 문제 해결 도구</strong><br>
+                    유튜브 PRD 메이커, 노션 블로그 마크다운 변환 도구 등</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">⚡</div>
+                    <h4>조직 생산성 향상</h4>
+                    <p><strong>비용 효율적 솔루션</strong><br>
+                    "비용도 크게 들지 않으면서 조직내 생산성을 높일 수 있다"</p>
+                </div>
+            </div>
+
+            <h3>📊 정보 흐름도</h3>
+            <div class="matrix-view">
+                <div class="matrix-cell">
+                    <strong>문제 인식</strong>
+                    <small>일상적 불편함</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>아이디어 구상</strong>
+                    <small>LM과의 대화</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>요구사항 정의</strong>
+                    <small>구체적 명세</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>바이브코딩 구현</strong>
+                    <small>반복적 개발</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>피드백 수집</strong>
+                    <small>사용자 테스트</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>보안 검토</strong>
+                    <small>전문가 점검</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>운영 최적화</strong>
+                    <small>성능 개선</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>조직 확산</strong>
+                    <small>성공 사례</small>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>중요한 결론</h4>
+                <p><strong>대상 독자:</strong> "항상 당신의 문제를 해결하는 당신만의 프로젝트를 해라 당신만의 앱을 만들어 와라"</p>
+                <p><strong>최적 활용:</strong> 기업 안에서 내부 생산성을 높이기 위한 인터널 툴이나 나만의 작은 문제 해결하기 위한 도구 만들기</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 9: 체계적 개발 프로세스 1 -->
+        <section class="slide-section fade-in-section" id="section-9">
+            <div class="section-number">9/19</div>
+            <h2>🎯 효과적인 바이브코딩 활용 절차 (1부)</h2>
+            
+            <h3>💭 초기 기획 및 문제 정의 (LM 활용)</h3>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">내 머릿속 정리</div>
+                        <div class="step-description">러버블 채팅 이전에 LRM(Gemini, GPT)과 대화하며 만들고자 하는 기능에 대한 생각을 정리</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">테스트 시나리오 구상</div>
+                        <div class="step-description">"내가 어떤 입력을 얘한테 지어주 지어주면 어떤 출력이 나와야 내가 만족할까" QA 관점에서 테스트 케이스 미리 구상</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">레퍼런스 탐색</div>
+                        <div class="step-description">만들고자 하는 기능과 유사한 서비스를 찾아 캡처하여 LM에게 보여주며 "이런 걸 만들고 싶은데 그럼 내가 어떤 유저 테스트 시나리오를 짜려면 어떻게 해야 되냐" 질문</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🔍</div>
+                    <h4>자신을 검색 엔지니어라고 가정</h4>
+                    <p>"내가 검색 엔지니어 치고 내가 직접 검색을 키워드를 받아서 검색을 해 준다면 그럼 나는 어떤 행동을 어떤 순서로 어떤 데이터를 어떻게 확인하면서 할까"를 생각해 보고, 이를 LM에게 설명하여 구체적인 인풋-아웃풋 예시를 만듭니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">📝</div>
+                    <h4>암묵지 언어화</h4>
+                    <p>자신이 어떤 기준으로 검색 결과가 '부족하다'고 판단하는지(예: 검색된 프롬프트 양 3개 이하, 디테일 측면에서 불일치) 등을 명확히 하여 LM에게 전달합니다.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Acceptance Criteria 정의</h4>
+                <p><strong>핵심 질문:</strong> "이 유저 스토리가 승인되려면 그니까 이게 제대로 만들었다고 얘기하려면 어떤 기준을 통과해야 되는가를 얘가 만들게 하는 거죠"</p>
+                <p>LM에게 'Acceptance Criteria'를 요청하여 요구사항의 완성 기준을 명확히 합니다.</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 10: 체계적 개발 프로세스 2 -->
+        <section class="slide-section fade-in-section" id="section-10">
+            <div class="section-number">10/19</div>
+            <h2>📋 효과적인 바이브코딩 활용 절차 (2부)</h2>
+            
+            <h3>🗂️ 구현 계획 수립 (ToDo.md & 이터레이션 분할)</h3>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">전체 기획 논의</div>
+                        <div class="step-description">러버블 채팅 기능을 활성화하여 어떤 기능을 개발하고 싶은지, 어떻게 구현하는 것이 좋을지, 세부 기능은 어떻게 할지 등 전체적인 기획에 대해 대화</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">ToDo.md 업데이트</div>
+                        <div class="step-description">대화 내용을 기반으로 'ToDo.md' 파일에 구현할 내용을 체계적으로 업데이트</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">이터레이션 분할</div>
+                        <div class="step-description">"새 네기 이터레이션으로 쪼개서 구현하라"와 같이 프롬프트를 날려 러버블이 자동으로 ToDo.md에 상세 요구 사항과 이터레이션별 구현 계획을 세우도록 함</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">📝</div>
+                    <h4>명령어 구체화</h4>
+                    <p><strong>기본형:</strong> "9-1 이터레이션을 구현해 줘"<br>
+                    <strong>개선형:</strong> "어떻게 구현할지를 설명해라 설명한 다음에 구현해라", "혹시 구현하는 과정에서 좀 모호해 가지고 사용자에게 의사 결정을 받을게 있으면 나한테 역으로 물어봐줘"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🔄</div>
+                    <h4>완성도 확인</h4>
+                    <p>"다 구현한 다음에 이제 구현한 요구 사항들을 이렇게 체크하라고 투두스 MD를 또 업데이트 하라고 했습니다"와 같이 구현 완료 후 체크리스트 업데이트까지 자동화</p>
+                </div>
+            </div>
+
+            <h3>📚 PRD 및 전체 구조 문서화</h3>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">📖</div>
+                    <h4>Knowledge File 활용</h4>
+                    <p>첫 번째 PRD가 완성되면 "독스의 PRD는 그 도리지에 넘설 것 같거든요"와 같이 PRD나 전체 프로젝트 구조 등 항상 참조하면 좋을 만한 공통 자료를 러버블의 'Knowledge File'에 넣어 관리 (수동 업데이트 필요)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🔄</div>
+                    <h4>Git Commit으로 히스토리 관리</h4>
+                    <p>"저라면 이거를 다 기세 커밋으로 관리를 좀 할 것 같습니다"와 같이 기획 및 구현 히스토리를 Git으로 관리하여 되돌리기가 용이하도록 함</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 11: 체계적 개발 프로세스 3 -->
+        <section class="slide-section fade-in-section" id="section-11">
+            <div class="section-number">11/19</div>
+            <h2>🔄 구현 및 테스트 (반복 프로세스)</h2>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">이터레이션 단위 구현</div>
+                        <div class="step-description">이터레이션 단위로 기능을 구현하고, 구현 후 러버블이 "무엇을 구현했다고 설명을 해 주거든요" 이를 바탕으로 직접 QA 및 테스트를 진행</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">상세 피드백 제공</div>
+                        <div class="step-description">디자인(여백, 폰트 크기), 페이지 이동 오류, 오작동 등 "은근히 디테일한 걸 실수 많이 하고 특히 디자인적인 부분에서 뭐 여백이라든지 뭐 눌렸을 때 내가 생각했을 때 이 페이지로 가야 되는데 거기로 안 가거나" 애정을 가지고 상세하게 피드백</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">ToDo.md 업데이트</div>
+                        <div class="step-description">기능 구현이 잘 동작하는 것을 확인하면, ToDo.md에 해당 기능의 구현 완료 상태를 업데이트</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">📋</div>
+                    <h4>테스트 케이스 문서화</h4>
+                    <p>피드백 사항을 이터레이션 문서의 테스트 케이스로 반영하도록 요청하여 "그런 불필요한 비효율적인 루프는 안 돌아가겠다"는 효과를 얻음</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">♻️</div>
+                    <h4>반복 개선</h4>
+                    <p>위 과정을 반복하여 이터레이션을 완수하고 프로젝트를 완성해 나감</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>실제 피드백 사례</h4>
+                <p><strong>디테일한 개선 사항들:</strong> "뭐 엉뚱한 페이지로 연결하거나 뭐 이런 되게 마이너한 자잘구레한 이슈들이 있었어요"</p>
+                <p><strong>지속적 관심:</strong> "은근히 디테일한 걸 실수 많이 하고 특히 디자인적인 부분에서 뭐 여백이라든지 뭐 눌렸을 때 내가 생각했을 때 이 페이지로 가야 되는데 거기로 안 가거나"</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 12: 완성도 향상 조언 -->
+        <section class="slide-section fade-in-section" id="section-12">
+            <div class="section-number">12/19</div>
+            <h2>🎨 프로젝트 완성도 향상을 위한 추가 조언</h2>
+            
+            <h3>🎨 디자인 시스템 구축 (Code Factory 영상 참고)</h3>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🧩</div>
+                    <h4>컴포넌트 페이지 우선 구축</h4>
+                    <p>'컴포넌트' 페이지를 만들어 디자인 시스템을 먼저 계획하고, 이를 따라 디자인을 만들어 나가는 것이 좋습니다. "디자이너분들이 일반적으로 디자인을 할 때 디자인 시스템을 정의하고 디자인을 하는 것처럼"</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">✨</div>
+                    <h4>일관된 디자인 품질</h4>
+                    <p>"바이브 코딩할 때도 동일한 프로세스를 따랐을 때 바이브 코딩 냄새가 좀 안 나고 되게 깔끔한 디자인을 일관성 있게 해주셨 할 수 있다"</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>추천 학습 자료</h4>
+                <p><strong>유튜브 '코드팩토리' 채널의 "AI로 디자인 잘하는 법" 영상 참고</strong></p>
+                <p>체계적인 디자인 시스템 구축을 통해 바이브코딩 특유의 어색함을 제거하고 전문적인 품질을 확보할 수 있습니다.</p>
+            </div>
+
+            <h3>📋 러버블 템플릿 활용</h3>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">템플릿 탐색</div>
+                        <div class="step-description">"러버블에 템플릿이라는 게 있어요" - 내가 만들고 싶은 UI/UX와 가장 비슷한 템플릿을 찾아보기</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">리믹스 기능 활용</div>
+                        <div class="step-description">"리믹스" 기능을 통해 적합한 템플릿을 복제하여 시작하면 "내가 원하는 대로 UI나 갖고 나가실 수 있어요"</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>🔒 보안 검토 강화</h3>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🛡️</div>
+                    <h4>Review Security 정기 실행</h4>
+                    <p>러버블의 'Review Security' 기능을 정기적으로 실행하여 잠재적 보안 위협을 사전에 발견하고 해결</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">🔍</div>
+                    <h4>개발자 도구 활용 점검</h4>
+                    <p>브라우저 개발자 도구를 통한 네트워크 탭 점검을 통해 API 키 노출 여부를 직접 확인</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 13: 심층분석 파트 1 - AI 패러다임 전환 -->
+        <section class="slide-section fade-in-section" id="section-13">
+            <div class="section-number">13/19</div>
+            <h2>🧠 전문가 심층분석: AI 네이티브 개발 패러다임</h2>
+            
+            <div class="highlight-box">
+                <h4>패러다임 전환의 핵심</h4>
+                <p><strong>바이브코딩은 전통적인 노코드/로우코드 도구를 넘어선 차세대 AI 네이티브 개발 패러다임의 전형</strong>을 보여줍니다. 기존 GUI 기반의 드래그&드롭 인터페이스에서 자연어 기반의 대화형 개발 환경으로의 진화입니다.</p>
+            </div>
+
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>구분</th>
+                        <th>1세대 노코드 도구</th>
+                        <th>바이브코딩 (AI 네이티브)</th>
+                        <th>혁신 포인트</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>입력 방식</td>
+                        <td>GUI 드래그&드롭</td>
+                        <td>자연어 대화형 인터페이스</td>
+                        <td>인간 중심의 직관적 소통</td>
+                    </tr>
+                    <tr>
+                        <td>복잡성 처리</td>
+                        <td>제한적 (선형 워크플로)</td>
+                        <td>맥락적 이해 및 추론</td>
+                        <td>비선형적 문제해결</td>
+                    </tr>
+                    <tr>
+                        <td>학습 곡선</td>
+                        <td>중간 (인터페이스 학습 필요)</td>
+                        <td>낮음 (자연어 소통)</td>
+                        <td>진입장벽 획기적 감소</td>
+                    </tr>
+                    <tr>
+                        <td>구현 속도</td>
+                        <td>중간 (템플릿 의존)</td>
+                        <td>매우 빠름 (실시간 생성)</td>
+                        <td>생산성 5-10배 향상</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">🚀</div>
+                    <h4>초보자 관점</h4>
+                    <p>기존 노코드 도구조차 어려워했던 사용자도 마치 개발자와 대화하듯 자연스럽게 애플리케이션을 만들 수 있습니다. "CSV 업로드 기능을 만들어줘"라는 단순한 요청으로도 복잡한 데이터 처리 로직을 구현할 수 있다는 점은 혁신적입니다.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">⚡</div>
+                    <h4>고급 숙련자 관점</h4>
+                    <p>전통적인 개발에서 요구사항 분석, 기술 스택 선택, 아키텍처 설계 등에 소요되던 시간을 대폭 단축시킬 수 있습니다. 특히 MVP 개발이나 프로토타이핑 단계에서 아이디어 검증 속도를 획기적으로 높일 수 있는 도구로 평가됩니다.</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="paradigmChart"></canvas>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 14: 심층분석 파트 2 - 비개발자 진입장벽 해체 -->
+        <section class="slide-section fade-in-section" id="section-14">
+            <div class="section-number">14/19</div>
+            <h2>🛡️ 비개발자를 위한 기술적 진입장벽 해체 메커니즘</h2>
+            
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🎯</div>
+                    <h4>의도 파싱 엔진</h4>
+                    <p><strong>핵심 혁신:</strong> 자연어로 표현된 비즈니스 요구사항을 기술적 구현 사양으로 자동 변환하는 AI 엔진</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">🔄</div>
+                    <h4>컨텍스트 유지 시스템</h4>
+                    <p><strong>지능적 대화:</strong> 대화 맥락을 이해하여 일관성 있는 개발 진행과 점진적 개선을 자동으로 처리</p>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>기존 기술 장벽과 바이브코딩의 해결</h4>
+                <div class="matrix-view">
+                    <div class="matrix-cell">
+                        <strong>프로그래밍 언어</strong>
+                        <small>→ 자연어 요구사항</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>데이터베이스 설계</strong>
+                        <small>→ AI 자동 DB 스키마</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>API 개발</strong>
+                        <small>→ 자동 API 생성</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>보안 구현</strong>
+                        <small>→ 내장 보안 정책</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>인프라 관리</strong>
+                        <small>→ 원클릭 배포</small>
+                    </div>
+                    <div class="matrix-cell">
+                        <strong>성능 최적화</strong>
+                        <small>→ 자동 최적화</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>실제 성과 지표</h4>
+                <p><strong>개발 속도:</strong> 전통적 개발 대비 MVP 개발 속도가 약 70-80% 단축</p>
+                <p><strong>요구사항 변경 대응:</strong> 기존 대비 90% 이상 빠른 대응 시간</p>
+                <p><strong>코드 품질:</strong> 현재 베스트 프랙티스를 반영한 깔끔한 아키텍처 자동 생성</p>
+            </div>
+
+            <h3>🔄 AI-인간 협업 모델</h3>
+            
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>개발 단계</th>
+                        <th>AI 역할</th>
+                        <th>인간 역할</th>
+                        <th>협업 방식</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>요구사항 분석</td>
+                        <td>맥락 이해, 구조화</td>
+                        <td>비즈니스 로직 정의</td>
+                        <td>대화형 정제</td>
+                    </tr>
+                    <tr>
+                        <td>아키텍처 설계</td>
+                        <td>베스트 프랙티스 적용</td>
+                        <td>제약조건 명시</td>
+                        <td>반복적 검증</td>
+                    </tr>
+                    <tr>
+                        <td>코드 생성</td>
+                        <td>실제 구현 코드 작성</td>
+                        <td>품질 검토, 조정</td>
+                        <td>실시간 피드백</td>
+                    </tr>
+                    <tr>
+                        <td>테스트</td>
+                        <td>기본 테스트 케이스</td>
+                        <td>비즈니스 시나리오</td>
+                        <td>협력적 검증</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 15: 심층분석 파트 3 - 보안 취약점과 대응 전략 -->
+        <section class="slide-section fade-in-section" id="section-15">
+            <div class="section-number">15/19</div>
+            <h2>🔒 보안 취약점과 비개발자 인식 격차 분석</h2>
+            
+            <div class="warning-box">
+                <h4>구조적 보안 리스크</h4>
+                <p><strong>핵심 문제:</strong> 비개발자가 보안 위험을 인식하지 못하는 상황에서 실제 서비스를 운영하게 되는 구조적 문제입니다.</p>
+            </div>
+
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>위험 유형</th>
+                        <th>발생 확률</th>
+                        <th>영향도</th>
+                        <th>비개발자 인식도</th>
+                        <th>대응 난이도</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>API 키 노출</td>
+                        <td>높음</td>
+                        <td>높음</td>
+                        <td>매우 낮음</td>
+                        <td>중간</td>
+                    </tr>
+                    <tr>
+                        <td>데이터베이스 직접 접근</td>
+                        <td>중간</td>
+                        <td>매우 높음</td>
+                        <td>낮음</td>
+                        <td>높음</td>
+                    </tr>
+                    <tr>
+                        <td>인증/인가 우회</td>
+                        <td>중간</td>
+                        <td>높음</td>
+                        <td>낮음</td>
+                        <td>높음</td>
+                    </tr>
+                    <tr>
+                        <td>민감정보 로깅</td>
+                        <td>높음</td>
+                        <td>중간</td>
+                        <td>매우 낮음</td>
+                        <td>낮음</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🛠️ 체계적 보안 대응 프레임워크</h3>
+            
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">자동 보안 검토</div>
+                        <div class="step-description">Lovable Review Security 기능, 브라우저 개발자 도구로 네트워크 탭 점검</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">전문가 검토</div>
+                        <div class="step-description">LM(AI)에게 보안 상황 설명 및 조언 요청, Supabase 대시보드에서 RLS 정책 확인</div>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">지속적 모니터링</div>
+                        <div class="step-description">로그 분석을 통한 이상 접근 패턴 감지, 정기적 보안 업데이트 적용</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-danger">⚠️</div>
+                    <h4>실제 위험 사례</h4>
+                    <p><strong>Supabase Anonymous Key 노출:</strong> "이게 노출이 되면 어쩌면 이 API키로 굉장히 다른 많은 정보를 가져올 수 있는 상태일 수도 있고 아닐 수도 있어요"</p>
+                    <div class="tag danger">즉시 점검 필요</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">✅</div>
+                    <h4>Anonymous Key의 이해</h4>
+                    <p><strong>상대적 안전성:</strong> 노출된 키가 'Anonymous Key'이며 RLS 정책이 제대로 설정되어 있다면 큰 문제는 아닐 수 있습니다. 하지만 비개발자는 이런 구분을 할 수 없기 때문에 체계적인 보안 검토가 필요합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 16: 심층분석 파트 4 - 내부 도구 개발의 전략적 가치 -->
+        <section class="slide-section fade-in-section" id="section-16">
+            <div class="section-number">16/19</div>
+            <h2>💼 내부 도구 개발의 전략적 가치와 ROI 분석</h2>
+            
+            <div class="highlight-box">
+                <h4>바이브코딩의 최적 활용 영역</h4>
+                <p><strong>"내부 업무 도구를 만드는 툴로서 너무 좋은 거 같아요"</strong></p>
+                <p>단순한 업무 자동화를 넘어서 조직의 지적 자산 축적과 프로세스 혁신의 기반이 됩니다.</p>
+            </div>
+
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>비용/효익 요소</th>
+                        <th>전통적 외주개발</th>
+                        <th>SaaS 구독</th>
+                        <th>바이브코딩</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>초기 개발비용</td>
+                        <td>$10,000-50,000</td>
+                        <td>$0</td>
+                        <td>$0-1,000</td>
+                    </tr>
+                    <tr>
+                        <td>월간 운영비용</td>
+                        <td>$500-2,000</td>
+                        <td>$50-500/user</td>
+                        <td>$20-100</td>
+                    </tr>
+                    <tr>
+                        <td>커스터마이징</td>
+                        <td>$5,000-20,000</td>
+                        <td>불가능/제한적</td>
+                        <td>$0-500</td>
+                    </tr>
+                    <tr>
+                        <td>데이터 통제권</td>
+                        <td>완전 통제</td>
+                        <td>제한적</td>
+                        <td>완전 통제</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">📊</div>
+                    <h4>ROI 계산 사례</h4>
+                    <p><strong>프롬프트 관리 도구:</strong></p>
+                    <ul class="checklist">
+                        <li>개발 시간: 2주 (vs 전통적 방법 3-6개월)</li>
+                        <li>비용 절약: 기존 방법 대비 95% 절약</li>
+                        <li>생산성 향상: 강사 1인당 주 5시간 절약</li>
+                        <li>조직 전체 효과: 월 200시간 × $50 = $10,000 가치 창출</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🎯</div>
+                    <h4>성공적인 내부 도구의 특징</h4>
+                    <ul class="checklist">
+                        <li>명확한 페인 포인트 해결</li>
+                        <li>사용자 친화적 인터페이스</li>
+                        <li>기존 워크플로우 통합</li>
+                        <li>점진적 기능 확장</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="matrix-view">
+                <div class="matrix-cell">
+                    <strong>업무 프로세스 이해도 향상</strong>
+                    <small>→ 자동화 영역 확장</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>데이터 기반 의사결정</strong>
+                    <small>→ 조직 효율성 증대</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>직원 만족도 향상</strong>
+                    <small>→ 업무 집중도 증가</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>혁신 활동 확대</strong>
+                    <small>→ 조직 문화 변화</small>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>추천 활용 사례</h4>
+                <p><strong>개인 솔루션:</strong> 유튜브 PRD 메이커, 노션 블로그를 SNS로 옮길 때 마크다운 형식 제거 도구, 이미지 이름 검색 벌크 도구</p>
+                <p><strong>조직 솔루션:</strong> 내부 지식 관리 시스템, 업무 프로세스 자동화 도구, 데이터 분석 대시보드</p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 17: 심층분석 파트 5 - AI 네이티브 개발의 미래 전망 -->
+        <section class="slide-section fade-in-section" id="section-17">
+            <div class="section-number">17/19</div>
+            <h2>🚀 AI 네이티브 개발의 미래 전망과 업계 영향력</h2>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">2024: 바이브코딩 등장</div>
+                    <p>기본 CRUD 애플리케이션, 프롬프트 기반 개발의 시작</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">2025: 복잡한 비즈니스 로직 처리</div>
+                    <p>자동 테스트 생성, 멀티모달 인터페이스 지원</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">2026: 엔터프라이즈급 시스템 구축</div>
+                    <p>AI 기반 아키텍처 설계, 자동 성능 최적화</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">2027: 완전 자율 개발 시스템</div>
+                    <p>자가 진화 애플리케이션, 인간-AI 완전 협업</p>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>영향 영역</th>
+                        <th>기존 상황</th>
+                        <th>변화 방향</th>
+                        <th>5년 후 전망</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>개발자 역할</td>
+                        <td>코드 작성자</td>
+                        <td>AI 오케스트레이터</td>
+                        <td>비즈니스 아키텍트</td>
+                    </tr>
+                    <tr>
+                        <td>진입 장벽</td>
+                        <td>높음 (학습 3-5년)</td>
+                        <td>중간 (학습 3-6개월)</td>
+                        <td>낮음 (학습 1-2개월)</td>
+                    </tr>
+                    <tr>
+                        <td>개발 속도</td>
+                        <td>기준</td>
+                        <td>3-5배 빠름</td>
+                        <td>10-20배 빠름</td>
+                    </tr>
+                    <tr>
+                        <td>시장 구조</td>
+                        <td>대기업 집중</td>
+                        <td>중소기업 확산</td>
+                        <td>개인 창업 활성화</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">💼</div>
+                    <h4>새로운 직업 생태계</h4>
+                    <p><strong>신규 직종:</strong></p>
+                    <ul class="checklist">
+                        <li>AI 프롬프트 엔지니어</li>
+                        <li>노코드 솔루션 아키텍트</li>
+                        <li>AI 개발 감리사</li>
+                        <li>비즈니스-기술 번역가</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">📚</div>
+                    <h4>교육 패러다임 변화</h4>
+                    <p><strong>기존:</strong> 프로그래밍 언어 → 알고리즘 → 시스템 설계</p>
+                    <p><strong>미래:</strong> 문제 해결 사고법 → AI 협업 스킬 → 비즈니스 이해력</p>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>시장 파급효과 예측</h4>
+                <p><strong>스타트업 생태계 활성화:</strong> 기술적 진입장벽 하락으로 더 많은 비즈니스 아이디어 실현</p>
+                <p><strong>기존 SW 기업의 대응:</strong> 전통적 개발 서비스에서 AI 컨설팅으로 비즈니스 모델 전환</p>
+                <p><strong>교육 기관의 변화:</strong> 코딩 교육에서 문제해결 능력 중심 교육으로 커리큘럼 전환</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="futureChart"></canvas>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 18: 종합 정리 및 시사점 -->
+        <section class="slide-section fade-in-section" id="section-18">
+            <div class="section-number">18/19</div>
+            <h2>🎯 종합 정리 및 핵심 시사점</h2>
+            
+            <div class="highlight-box">
+                <h4>바이브코딩의 본질적 가치</h4>
+                <p><strong>"정말 내가 진짜 해결해야 되는 좀 문제를 오히려 더 정확하게 발견할 수 있었다"</strong></p>
+                <p>단순한 개발 도구를 넘어서 문제 해결 과정에서 창발적 인사이트를 얻을 수 있는 사고 도구로서의 가치가 핵심입니다.</p>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">✅</div>
+                    <h4>즉시 실행 가능한 액션</h4>
+                    <ul class="checklist">
+                        <li>Lovable 계정 생성 및 기본 환경 탐색</li>
+                        <li>해결하고 싶은 내부 업무 문제 1-2개 선정</li>
+                        <li>LM과 함께 프로젝트 아이디어 구체화 세션</li>
+                        <li>첫 번째 이터레이션 계획 수립</li>
+                        <li>Review Security 기능으로 보안 검토</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">📈</div>
+                    <h4>장기 발전 전략</h4>
+                    <ul class="checklist">
+                        <li>프롬프트 엔지니어링 스킬 향상</li>
+                        <li>체계적 개발 프로세스 구축</li>
+                        <li>보안 및 운영 관리 체계 확립</li>
+                        <li>조직 내 성공 사례 확산</li>
+                        <li>AI 협업 역량 지속 개발</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ 핵심 성공 요인</h4>
+                    <ul class="checklist">
+                        <li>LM과의 체계적인 기획 대화</li>
+                        <li>이터레이션 기반 점진적 개발</li>
+                        <li>지속적이고 상세한 피드백</li>
+                        <li>보안 검토의 생활화</li>
+                        <li>내부 도구에 최적화된 접근</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>⚠️ 주의 사항</h4>
+                    <ul class="checklist">
+                        <li>보안 인식 부족의 위험성</li>
+                        <li>확장성 한계점 미리 고려</li>
+                        <li>전문가 검토 체계 구축</li>
+                        <li>운영 관리 체계 준비</li>
+                        <li>기술 종속성 리스크 관리</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="matrix-view">
+                <div class="matrix-cell">
+                    <strong>개인 차원</strong>
+                    <small>문제해결 역량 향상</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>팀 차원</strong>
+                    <small>업무 효율성 증대</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>조직 차원</strong>
+                    <small>디지털 성숙도 향상</small>
+                </div>
+                <div class="matrix-cell">
+                    <strong>산업 차원</strong>
+                    <small>개발 패러다임 전환</small>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <!-- 섹션 19: 참고 자료 및 추가 학습 -->
+        <section class="slide-section fade-in-section" id="section-19">
+            <div class="section-number">19/19</div>
+            <h2>📚 참고 자료 및 추가 학습 가이드</h2>
+            
+            <h3>🛠️ 핵심 도구 및 플랫폼</h3>
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-primary">🚀</div>
+                    <h4>개발 플랫폼</h4>
+                    <ul class="checklist">
+                        <li><strong>Lovable (lovable.dev)</strong> - AI 기반 웹앱 개발</li>
+                        <li><strong>Supabase (supabase.com)</strong> - 백엔드 서비스</li>
+                        <li><strong>Cursor (cursor.com)</strong> - AI 코드 에디터</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-secondary">📊</div>
+                    <h4>프로젝트 관리</h4>
+                    <ul class="checklist">
+                        <li><strong>Linear (linear.app)</strong> - 이슈 트래킹</li>
+                        <li><strong>Notion (notion.so)</strong> - 문서 관리</li>
+                        <li><strong>GitHub Projects</strong> - 코드 연동 관리</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📖 학습 로드맵</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-title">기초 단계 (10-15시간)</div>
+                    <p>Lovable 공식 문서, Supabase 기초, 프롬프트 엔지니어링 기본</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">중급 단계 (20-25시간)</div>
+                    <p>웹 애플리케이션 보안, API 설계, 사용자 경험 설계</p>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-title">고급 단계 (40-50시간)</div>
+                    <p>클라우드 아키텍처, DevOps, 데이터 분석 및 비즈니스 인텔리전스</p>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div class="feature-card">
+                    <div class="feature-icon icon-warning">🔒</div>
+                    <h4>보안 도구</h4>
+                    <ul class="checklist">
+                        <li><strong>OWASP ZAP</strong> - 웹 보안 스캐너</li>
+                        <li><strong>Snyk</strong> - 의존성 보안 검사</li>
+                        <li><strong>Security Headers</strong> - HTTP 보안 헤더 검사</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon icon-success">📈</div>
+                    <h4>모니터링</h4>
+                    <ul class="checklist">
+                        <li><strong>Uptime Robot</strong> - 서비스 가용성 모니터링</li>
+                        <li><strong>Sentry</strong> - 오류 추적</li>
+                        <li><strong>LogRocket</strong> - 사용자 세션 분석</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>최종 권장사항</h4>
+                <p><strong>"옛날보다 훨씬 쉬워졌습니다. 정말 쉽게 시작할 수 있고 완성도 할 수 있거든요"</strong></p>
+                <p>바이브코딩은 단순한 도구가 아닌 문제해결 사고방식의 변화를 가져다주는 패러다임입니다. 작은 불편함부터 시작해서 점진적으로 더 복잡한 시스템으로 발전시켜 나가는 것이 성공의 핵심입니다.</p>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="learningChart"></canvas>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: var(--bg-secondary); border-radius: 16px;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">🚀 지금 시작하세요!</h3>
+                <p style="font-size: 1.1rem; color: var(--text-secondary);">작은 아이디어 하나로 시작하는 바이브코딩 여정</p>
+                <p style="margin-top: 1rem; font-weight: 600;">당신만의 문제를 해결하는 첫 번째 도구를 만들어보세요.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 인라인 JavaScript -->
+    <script>
+        // 테마 전환 기능
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            
+            const toggle = document.querySelector('.theme-toggle');
+            toggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Intersection Observer 설정
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, observerOptions);
+
+        // 모든 fade-in-section에 observer 적용
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.fade-in-section');
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // 스크롤 감지하여 테마 버튼 숨기기
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 100) {
+                    document.body.classList.add('scrolled');
+                } else {
+                    document.body.classList.remove('scrolled');
+                }
+            });
+
+            // 차트 생성
+            createCharts();
+        });
+
+        function createCharts() {
+            // 기능 비교 차트
+            const featureCtx = document.getElementById('featureChart');
+            if (featureCtx) {
+                new Chart(featureCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['구현속도', '기능복잡도', '디자인품질', '유지보수', '보안성', '확장성'],
+                        datasets: [{
+                            label: '기존 노코드 도구',
+                            data: [6, 4, 5, 6, 7, 5],
+                            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 2
+                        }, {
+                            label: '바이브코딩',
+                            data: [9, 8, 7, 6, 6, 7],
+                            backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                            borderColor: 'rgba(6, 182, 212, 1)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '바이브코딩 vs 기존 노코드 도구 비교',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 10
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 보안 위험도 차트
+            const securityCtx = document.getElementById('securityChart');
+            if (securityCtx) {
+                new Chart(securityCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['API 키 노출', '데이터베이스 접근', '인증 우회', '정보 로깅', '기타'],
+                        datasets: [{
+                            data: [35, 25, 20, 15, 5],
+                            backgroundColor: [
+                                '#ef4444',
+                                '#f59e0b',
+                                '#8b5cf6',
+                                '#06b6d4',
+                                '#10b981'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '보안 위험 요소 분포',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 패러다임 전환 차트
+            const paradigmCtx = document.getElementById('paradigmChart');
+            if (paradigmCtx) {
+                new Chart(paradigmCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                        datasets: [{
+                            label: '전통적 개발',
+                            data: [100, 95, 90, 85, 75, 65],
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            fill: true
+                        }, {
+                            label: 'AI 네이티브 개발',
+                            data: [0, 5, 15, 25, 45, 65],
+                            borderColor: 'rgba(6, 182, 212, 1)',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '개발 패러다임 전환 트렌드',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '시장 점유율 (%)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 미래 전망 차트
+            const futureCtx = document.getElementById('futureChart');
+            if (futureCtx) {
+                new Chart(futureCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['개발 속도', '진입 장벽', '품질 수준', '비용 효율', '창업 활성도'],
+                        datasets: [{
+                            label: '현재',
+                            data: [5, 8, 6, 5, 4],
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)'
+                        }, {
+                            label: '5년 후 예상',
+                            data: [9, 3, 8, 9, 8],
+                            backgroundColor: 'rgba(6, 182, 212, 0.8)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'AI 네이티브 개발의 미래 전망',
+                                font: { size: 16, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 10
+                            }
+                        }
+                    }
+                });
+            }
+
+            // 학습 로드맵 차트
+            const learningCtx = document.getElementById('learningChart');
+            if (learningCtx) {
+                new Chart(learningCtx, {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: '학습 영역',
+                            data: [
+                                {x: 2, y: 8, r: 15, label: '프롬프트 엔지니어링'},
+                                {x: 4, y: 6, r: 12, label: '보안 기초'},
+                                {x: 6, y: 7, r: 10, label: 'UX/UI 설계'},
+                                {x: 7, y: 4, r: 8, label: '데이터베이스'},
+                                {x: 9, y: 5, r: 6, label: '클라우드 아키텍처'}
+                            ],
+                            backgroundColor: [
+                                'rgba(99, 102, 241, 0.6)',
+                                'rgba(239, 68, 68, 0.6)',
+                                'rgba(6, 182, 212, 0.6)',
+                                'rgba(16, 185, 129, 0.6)',
+                                'rgba(139, 92, 246, 0.6)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '학습 우선순위 매트릭스 (x: 복잡도, y: 중요도, 크기: 학습시간)',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: '학습 복잡도'
+                                },
+                                min: 0,
+                                max: 10
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '실무 중요도'
+                                },
+                                min: 0,
+                                max: 10
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

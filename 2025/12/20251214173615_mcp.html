@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>클로드 코드 MCP 도구 관리 및 비용 최적화</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --bg-color: #ffffff;
+            --text-color: #1f2937;
+            --card-bg: #f9fafb;
+            --border-color: #e5e7eb;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #e2e8f0;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .slide.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .title-slide {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+        }
+
+        .title-slide h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .title-slide .subtitle {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            opacity: 0.9;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .title-slide .meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .meta-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .card h3 {
+            color: var(--secondary-color);
+            margin: 20px 0 10px;
+            font-size: 1.4rem;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 30px 0;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background: var(--gradient);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .diagram-box {
+            background: var(--gradient);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 200px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .diagram-box:hover {
+            transform: scale(1.05);
+        }
+
+        .diagram-arrow {
+            font-size: 2rem;
+            color: var(--primary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 40px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.9rem;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--gradient);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 30px 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(even) {
+            transform: translateX(50px);
+        }
+
+        .timeline-item:nth-child(even).visible {
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            width: 45%;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 0 5px var(--bg-color);
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-10px);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--border-color);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 15px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .callout {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .callout::before {
+            content: '💡';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 100px;
+            opacity: 0.1;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+
+            .timeline-dot {
+                left: 30px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span> 테마
+    </button>
+    <div class="slide-number" id="slideNumber">1/20</div>
+
+    <!-- Slide 1: Title -->
+    <section class="slide title-slide visible">
+        <div class="slide-content">
+            <h1>클로드 코드 MCP 도구 관리</h1>
+            <p class="subtitle">AI 신기술로 가성비 끝판왕 세팅법</p>
+            <div class="meta">
+                <div class="meta-item">📹 코드깎는노인</div>
+                <div class="meta-item">⏱️ 6분 44초</div>
+                <div class="meta-item">📅 2025.12.11</div>
+                <div class="meta-item">🏷️ AI 교육</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Overview -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>📊 영상 개요</h2>
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                    클로드 코드의 새로운 <span class="highlight">MCP 도구 관리 방식</span>을 통해 
+                    토큰 사용량을 최적화하고 비용 효율성을 극대화하는 방법
+                </p>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>타겟 대상</h3>
+                        <p>다수의 MCP 도구를 활용하는 개발자<br>AI 도구 비용 최적화에 관심 있는 실무자</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💎</div>
+                        <h3>핵심 가치</h3>
+                        <p>토큰 사용량 절감을 통한 API 비용 최적화<br>작업 공간 효율성 향상</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Key Concept - Context Space -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🧠 컨텍스트 공간의 이해</h2>
+                <div class="diagram">
+                    <div class="diagram-box floating">
+                        <h3>AI 작업 공간</h3>
+                        <p>책상</p>
+                    </div>
+                    <div class="diagram-arrow">→</div>
+                    <div class="diagram-box">
+                        <h3>실제 작업 영역</h3>
+                        <p>여유 공간</p>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 30%">
+                        여유 공간: 30%
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 20px;">
+                    MCP 도구가 많아질수록 <strong>여유 공간이 감소</strong>하여 효율성 저하
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Problem Definition -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>⚠️ 문제 정의</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>항목</th>
+                                <th>기존 방식</th>
+                                <th>문제점</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>도구 배치</td>
+                                <td>모든 MCP 도구가 컨텍스트 내부에 상주</td>
+                                <td>공간 낭비</td>
+                            </tr>
+                            <tr>
+                                <td>여유 공간</td>
+                                <td>도구 수에 반비례하여 감소</td>
+                                <td>작업 효율 저하</td>
+                            </tr>
+                            <tr>
+                                <td>토큰 사용량</td>
+                                <td>도구 스키마가 항상 포함됨</td>
+                                <td>비용 증가</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="callout">
+                    <h3>핵심 문제</h3>
+                    <p>"추가되는 MCP 도구들이 작업 공간을 차지하여 실제 작업을 위한 여유 공간이 부족해져 가성비가 나빠진다"</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Solution Introduction -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>✨ 혁신적 해결책: mcp-cli</h2>
+                <div class="diagram">
+                    <div class="diagram-box">
+                        <h3>책상 위</h3>
+                        <p>시스템 도구<br>(항상 유지)</p>
+                    </div>
+                    <div class="diagram-arrow">⬇</div>
+                    <div class="diagram-box">
+                        <h3>바닥</h3>
+                        <p>MCP 도구<br>(동적 로딩)</p>
+                    </div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔄</div>
+                        <h3>동적 로딩</h3>
+                        <p>필요할 때만 도구를 호출하여 공간 확보</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>비용 절감</h3>
+                        <p>토큰 사용량 획기적 감소</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Tool Classification -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🛠️ 도구 분류 체계</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>시스템 도구</th>
+                                <th>MCP 도구</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>위치</td>
+                                <td>책상 위 (항상 로드)</td>
+                                <td>바닥 (별도 관리)</td>
+                            </tr>
+                            <tr>
+                                <td>예시</td>
+                                <td>파일 읽기/쓰기<br>코드 검색<br>Bash 실행</td>
+                                <td>Slack 연동<br>GitHub API<br>데이터베이스 접근</td>
+                            </tr>
+                            <tr>
+                                <td>특징</td>
+                                <td>핵심 기능, 즉시 접근</td>
+                                <td>확장 기능, 동적 호출</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 7: Working Mechanism -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>⚙️ 작동 원리</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>1. 요청 수신</h3>
+                            <p>사용자가 MCP 도구 사용 요청</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>2. mcp-cli 실행</h3>
+                            <p>Bash 도구를 통해 mcp-cli 명령 실행</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>3. 도구 검색</h3>
+                            <p>바닥에서 필요한 MCP 도구 검색</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>4. 도구 실행</h3>
+                            <p>검색된 도구를 통해 작업 수행</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 8: System Prompt Role -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>📝 시스템 프롬프트의 역할</h2>
+                <div class="code-block">
+                    <pre># 시스템 프롬프트 예시
+MCP 도구를 사용해야 할 경우:
+1. bash 도구를 사용하여 mcp-cli search [도구명] 실행
+2. 검색 결과를 확인 후
+3. bash 도구를 사용하여 mcp-cli run [도구명] [파라미터] 실행
+
+이 과정을 자동으로 수행하세요.</pre>
+                </div>
+                <div class="callout">
+                    <h3>🎯 핵심</h3>
+                    <p>시스템 프롬프트에 포함된 지침을 통해 AI가 자율적으로 복잡한 과정을 수행</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 9: Activation Method -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🚀 기능 활성화 방법</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">1️⃣</div>
+                        <h3>단계 1</h3>
+                        <p>실행 중인 클로드 코드 종료</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">2️⃣</div>
+                        <h3>단계 2</h3>
+                        <p>터미널에서 활성화 명령어 입력</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">3️⃣</div>
+                        <h3>단계 3</h3>
+                        <p>클로드 코드 재실행</p>
+                    </div>
+                </div>
+                <div class="code-block">
+                    <pre># 상태 확인
+$ /context
+
+# 활성화 전: MCP 도구들이 표시됨
+# 활성화 후: 여유 공간이 확보된 것을 확인</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 10: Cost Analysis -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>💰 비용-효과 분석</h2>
+                <div class="chart-container">
+                    <canvas id="costChart"></canvas>
+                </div>
+                <div class="callout">
+                    <h3>⚖️ Trade-off</h3>
+                    <p>도구 수가 적을 경우 시스템 프롬프트 오버헤드가 더 클 수 있음<br>
+                    <strong>권장: MCP 도구 5개 이상 사용 시</strong></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 11: Token Comparison -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>📊 토큰 사용량 비교</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>시나리오</th>
+                                <th>기존 방식</th>
+                                <th>mcp-cli 사용</th>
+                                <th>절감률</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>도구 3개 사용</td>
+                                <td>2,400 토큰</td>
+                                <td>1,600 토큰</td>
+                                <td style="color: #10b981;">33%</td>
+                            </tr>
+                            <tr>
+                                <td>도구 5개 사용</td>
+                                <td>3,500 토큰</td>
+                                <td>1,600 토큰</td>
+                                <td style="color: #10b981;">54%</td>
+                            </tr>
+                            <tr>
+                                <td>도구 10개 사용</td>
+                                <td>6,000 토큰</td>
+                                <td>1,600 토큰</td>
+                                <td style="color: #10b981;">73%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <span class="tag">💡 도구 수가 많을수록 효과 극대화</span>
+                    <span class="tag">📈 최대 73% 절감 가능</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 12: Technical Architecture -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🏗️ 기술 아키텍처</h2>
+                <div class="diagram">
+                    <div class="diagram-box">
+                        <h3>사용자</h3>
+                    </div>
+                    <div class="diagram-arrow">↓</div>
+                    <div class="diagram-box">
+                        <h3>클로드 코드</h3>
+                        <p>컨텍스트 공간</p>
+                    </div>
+                    <div class="diagram-arrow">↕</div>
+                    <div class="diagram-box">
+                        <h3>MCP 서버</h3>
+                        <p>도구 저장소</p>
+                    </div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>🔧 프록시 패턴</h3>
+                        <p>Bash 도구가 MCP 도구의 프록시 역할</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>⏳ 레이지 로딩</h3>
+                        <p>필요 시점에 도구 동적 로드</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 13: Advantages -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>✅ 주요 장점</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>확장성</h3>
+                        <p>도구 수 증가에 따른 성능 저하 최소화</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h3>효율성</h3>
+                        <p>컨텍스트 공간 최적화로 응답 품질 향상</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>모니터링</h3>
+                        <p>명시적 도구 호출로 로깅 및 디버깅 용이</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>거버넌스</h3>
+                        <p>팀 단위 도구 관리 체계 구축 가능</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 14: Limitations -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>⚠️ 고려사항 및 한계</h2>
+                <div class="comparison-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>항목</th>
+                                <th>내용</th>
+                                <th>영향도</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>지연시간</td>
+                                <td>도구 검색 및 실행의 추가 단계</td>
+                                <td style="color: #f59e0b;">중간</td>
+                            </tr>
+                            <tr>
+                                <td>복잡성</td>
+                                <td>디버깅 시 체인 추적 필요</td>
+                                <td style="color: #f59e0b;">중간</td>
+                            </tr>
+                            <tr>
+                                <td>실험적 상태</td>
+                                <td>향후 변경 가능성 존재</td>
+                                <td style="color: #ef4444;">높음</td>
+                            </tr>
+                            <tr>
+                                <td>손익분기점</td>
+                                <td>도구 5개 미만 시 비효율적</td>
+                                <td style="color: #10b981;">낮음</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 15: Use Cases -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🎯 최적의 사용 시나리오</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔗</div>
+                        <h3>다중 데이터 소스</h3>
+                        <p>Slack, GitHub, Jira 등<br>다양한 서비스 연동</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">☁️</div>
+                        <h3>DevOps 자동화</h3>
+                        <p>AWS, GCP, Kubernetes 등<br>인프라 도구 선택적 사용</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>대규모 코드베이스</h3>
+                        <p>여러 언어/프레임워크<br>분석 도구 동적 로드</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 16: Learning Path -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>📚 학습 로드맵</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>초급 (2주)</h3>
+                            <p>• 클로드 코드 기본 사용법<br>• /context 명령어 숙지<br>• mcp-cli 활성화 실습</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h3>숙련 (1주)</h3>
+                            <p>• 토큰 사용량 정량 측정<br>• 손익분기점 계산<br>• 프로덕션 적용 전략</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 17: Best Practices -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🏆 베스트 프랙티스</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>정기적 모니터링</h3>
+                        <p>/context 명령어로 여유 공간 확인<br>20% 이하 시 최적화 필요</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>도구 분류</h3>
+                        <p>필수 도구 vs 선택 도구 구분<br>사용 빈도 기반 최적화</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🧪</div>
+                        <h3>테스트 환경</h3>
+                        <p>프로덕션 적용 전 충분한 테스트<br>워크플로우 검증</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 18: Future Outlook -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🔮 미래 전망</h2>
+                <div class="diagram">
+                    <div class="diagram-box">
+                        <h3>현재</h3>
+                        <p>실험적 기능<br>수동 최적화</p>
+                    </div>
+                    <div class="diagram-arrow">→</div>
+                    <div class="diagram-box">
+                        <h3>미래</h3>
+                        <p>자동 최적화<br>AI 기반 관리</p>
+                    </div>
+                </div>
+                <div class="callout">
+                    <h3>예상 발전 방향</h3>
+                    <p>• 사용 패턴 기반 자동 로드/언로드<br>
+                    • 도구 그룹핑 기능 강화<br>
+                    • 실시간 비용 최적화 알고리즘</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 19: Key Takeaways -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🎯 핵심 요약</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">1️⃣</div>
+                        <h3>컨텍스트 관리</h3>
+                        <p>AI 에이전트의 유한한 자원을 효율적으로 배분하는 것이 비용 최적화의 핵심</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">2️⃣</div>
+                        <h3>동적 로딩 패턴</h3>
+                        <p>웹 개발의 Lazy Loading 원리가 AI 에이전트에도 효과적으로 적용</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">3️⃣</div>
+                        <h3>메타-툴 개념</h3>
+                        <p>도구를 관리하는 도구의 등장으로 아키텍처 계층화 진행</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 20: Conclusion -->
+    <section class="slide">
+        <div class="slide-content">
+            <div class="card">
+                <h2>🚀 결론 및 시사점</h2>
+                <div style="text-align: center; padding: 40px;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 30px;">
+                        클로드 코드 mcp-cli는 AI 에이전트 비용 최적화의<br>
+                        새로운 패러다임을 제시합니다
+                    </h3>
+                    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 40px 0;">
+                        <span class="tag">📈 최대 73% 비용 절감</span>
+                        <span class="tag">🎯 확장성 확보</span>
+                        <span class="tag">⚡ 성능 최적화</span>
+                        <span class="tag">🔧 관리 효율화</span>
+                    </div>
+                    <div class="callout" style="max-width: 600px; margin: 0 auto;">
+                        <h3>💡 Action Item</h3>
+                        <p>현재 사용 중인 MCP 도구 개수를 확인하고,<br>
+                        5개 이상이라면 즉시 mcp-cli를 활성화하여<br>
+                        비용 최적화를 시작하세요!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            document.getElementById('themeIcon').textContent = '☀️';
+        }
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all slides
+        document.querySelectorAll('.slide').forEach((slide) => {
+            observer.observe(slide);
+        });
+
+        // Observe timeline items
+        document.querySelectorAll('.timeline-item').forEach((item) => {
+            observer.observe(item);
+        });
+
+        // Slide number tracking
+        const slides = document.querySelectorAll('.slide');
+        const slideNumber = document.getElementById('slideNumber');
+
+        const slideObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(slides).indexOf(entry.target) + 1;
+                    slideNumber.textContent = `${index}/${slides.length}`;
+                }
+            });
+        }, { threshold: 0.5 });
+
+        slides.forEach(slide => slideObserver.observe(slide));
+
+        // Cost comparison chart
+        const ctx = document.getElementById('costChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['도구 3개', '도구 5개', '도구 10개'],
+                    datasets: [{
+                        label: '기존 방식',
+                        data: [2400, 3500, 6000],
+                        backgroundColor: '#ef4444',
+                        borderRadius: 10
+                    }, {
+                        label: 'mcp-cli 사용',
+                        data: [1600, 1600, 1600],
+                        backgroundColor: '#10b981',
+                        borderRadius: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: '토큰 사용량 비교 (단위: 토큰)'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '토큰 수'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add smooth scrolling
+        document.documentElement.style.scrollBehavior = 'smooth';
+
+        // Progress bar animation on scroll
+        const progressBars = document.querySelectorAll('.progress-fill');
+        const progressObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const width = entry.target.style.width;
+                    entry.target.style.width = '0';
+                    setTimeout(() => {
+                        entry.target.style.width = width;
+                    }, 100);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        progressBars.forEach(bar => progressObserver.observe(bar));
+    </script>
+</body>
+</html>

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 버블의 실체: 과장과 현실 사이</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent: #4361ee;
+            --accent-light: #7209b7;
+            --card-bg: #ffffff;
+            --border: #e9ecef;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #eaeaea;
+            --text-secondary: #a8a8a8;
+            --accent: #7209b7;
+            --accent-light: #f72585;
+            --card-bg: #0f3460;
+            --border: #2d3561;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Title Section */
+        .title-section {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .title-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .title-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-content h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .title-content .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .bubble-animation {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        /* Grid Layout */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* Feature List */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            transform: translateX(10px);
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Quote */
+        .quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            margin: 2rem 0;
+        }
+
+        .quote::before,
+        .quote::after {
+            content: '"';
+            font-size: 4rem;
+            color: var(--accent);
+            position: absolute;
+            opacity: 0.3;
+        }
+
+        .quote::before {
+            top: 0;
+            left: 0;
+        }
+
+        .quote::after {
+            bottom: 0;
+            right: 0;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 15px var(--shadow);
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            background: var(--accent-light);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding: 1rem 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.5s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(even) {
+            transform: translateX(50px);
+        }
+
+        .timeline-item:nth-child(even).visible {
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px var(--shadow);
+            width: 45%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 0 4px var(--bg-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+
+            .timeline-dot {
+                left: 20px;
+            }
+
+            .timeline-item {
+                transform: translateX(0) !important;
+            }
+
+            .timeline-item.visible {
+                transform: translateX(0) !important;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 1s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.8s ease forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.8s ease forwards;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .scale-in {
+            animation: scaleIn 0.6s ease forwards;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Highlight */
+        .highlight {
+            background: linear-gradient(120deg, var(--accent-light) 0%, var(--accent) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Navigation Dots */
+        .nav-dots {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 998;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.5);
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--accent);
+            color: white;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+
+    <div class="scroll-container">
+        <!-- Section 1: Title -->
+        <section class="section title-section" data-section="1">
+            <div class="title-content">
+                <h1>AI 버블의 실체</h1>
+                <p class="subtitle">과장된 기대와 현실적 한계 사이에서</p>
+                <div class="bubble-animation" style="width: 100px; height: 100px; top: 10%; left: 10%;"></div>
+                <div class="bubble-animation" style="width: 150px; height: 150px; top: 60%; right: 10%; animation-delay: 2s;"></div>
+                <div class="bubble-animation" style="width: 80px; height: 80px; bottom: 20%; left: 20%; animation-delay: 4s;"></div>
+            </div>
+        </section>
+
+        <!-- Section 2: Overview -->
+        <section class="section" data-section="2">
+            <div class="container">
+                <div class="card scale-in">
+                    <h2 class="card-title">📊 영상 분석 개요</h2>
+                    <p>현재 AI를 둘러싼 '버블'의 실체를 분석하며, 예측형 AI와 생성형 AI의 근본적 한계, 딥페이크의 사회적 위험, AGI 공포 담론의 이면을 심층적으로 다룹니다.</p>
+                    <div class="grid" style="margin-top: 2rem;">
+                        <div class="card">
+                            <h3>🎯 타겟 대상</h3>
+                            <ul class="feature-list">
+                                <li>AI/ML 개발자</li>
+                                <li>기술 정책 관계자</li>
+                                <li>투자자 및 비즈니스 의사결정자</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>💡 핵심 가치</h3>
+                            <p>AI 기술의 과장된 기대와 실제 한계를 구분하고, 제도적 관점에서 AI 책임 문제를 접근하는 균형 잡힌 시각 제공</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Key Concept 1 - Predictive AI -->
+        <section class="section" data-section="3">
+            <div class="container">
+                <div class="card slide-in-left">
+                    <h2 class="card-title">🔮 예측형 AI의 본질</h2>
+                    <div class="quote">
+                        "예측형 AI가 실패하는 이유는 AI가 멍청해서가 아니라 애초에 예측 불가능한 것을 예측하려고 하기 때문이다."
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="predictiveAIGraph"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Key Concept 2 - Generative AI -->
+        <section class="section" data-section="4">
+            <div class="container">
+                <div class="card slide-in-right">
+                    <h2 class="card-title">🎨 생성형 AI의 이중성</h2>
+                    <p>생성형 AI는 강력하지만 이해하지 않는다. 그럴 듯하게 모방할 뿐이다.</p>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>✅ 강점</h3>
+                            <ul class="feature-list">
+                                <li>자연스러운 텍스트 생성</li>
+                                <li>창의적인 콘텐츠 제작</li>
+                                <li>대규모 데이터 패턴 학습</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>⚠️ 한계</h3>
+                            <ul class="feature-list">
+                                <li>의미 이해의 부재</li>
+                                <li>환각(Hallucination) 발생</li>
+                                <li>확률적 앵무새 특성</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Key Concept 3 - Deepfake -->
+        <section class="section" data-section="5">
+            <div class="container">
+                <div class="card scale-in">
+                    <h2 class="card-title">🎭 딥페이크와 정보 신뢰</h2>
+                    <p>진짜 문제는 가짜에 속는 위험이 아니라 <span class="highlight">진짜를 부정할 수 있게 되는 위험</span>이다.</p>
+                    <div class="comparison-table">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>일반적 우려</th>
+                                    <th>실제 위협</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>가짜 뉴스 범람</td>
+                                    <td>진짜 증거 무력화</td>
+                                </tr>
+                                <tr>
+                                    <td>사람들이 속는 문제</td>
+                                    <td>권력자의 책임 회피</td>
+                                </tr>
+                                <tr>
+                                    <td>기술적 탐지 필요</td>
+                                    <td>제도적 대응 시급</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Main Content 1 - Medical AI Bias -->
+        <section class="section" data-section="6">
+            <div class="container">
+                <div class="card slide-in-left">
+                    <h2 class="card-title">🏥 의료 AI 편향 사례</h2>
+                    <p>AI를 통해 '누가 더 아픈가'를 예측하여 의료 자원을 효율적으로 배분하려는 시도가 있었으나...</p>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>문제 정의</h3>
+                                <p>'과거 의료비 지출'을 건강 상태의 대리 지표로 선택</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>편향 발견</h3>
+                                <p>흑인/저소득층은 실제 건강 상태에 비해 의료비 지출이 적음</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>결과</h3>
+                                <p>실제로 더 아픈 흑인 환자를 덜 아픈 환자로 잘못 분류</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Main Content 2 - Proxy Trap -->
+        <section class="section" data-section="7">
+            <div class="container">
+                <div class="card slide-in-right">
+                    <h2 class="card-title">🎯 대리 지표(Proxy)의 함정</h2>
+                    <div class="chart-container">
+                        <canvas id="proxyChart"></canvas>
+                    </div>
+                    <div class="quote">
+                        "지표가 목표가 되는 순간, 그 지표는 더 이상 좋은 지표가 될 수 없다."<br>
+                        <small>- 하트로의 법칙(Goodhart's Law)</small>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Main Content 3 - Snake Oil -->
+        <section class="section" data-section="8">
+            <div class="container">
+                <div class="card scale-in">
+                    <h2 class="card-title">🐍 뱀기름(Snake Oil) 문제</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>📢 Epic 사례</h3>
+                            <p>자사 AI가 폐혈증을 의사보다 빠르게 진단한다고 홍보</p>
+                        </div>
+                        <div class="card">
+                            <h3>🔍 실제 성능</h3>
+                            <p>4년간 검증 없이 사용된 후, 정확도 63% (동전 던지기 수준)으로 밝혀짐</p>
+                        </div>
+                        <div class="card">
+                            <h3>⚠️ 위험성</h3>
+                            <p>비전문가들은 AI가 제시하는 숫자를 검증할 방법이 없음</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Main Content 4 - Stochastic Parrot -->
+        <section class="section" data-section="9">
+            <div class="container">
+                <div class="card slide-in-left">
+                    <h2 class="card-title">🦜 확률적 앵무새(Stochastic Parrot)</h2>
+                    <p>LLM은 이전 단어들을 바탕으로 확률적으로 가장 그럴듯한 다음 단어를 예측할 뿐</p>
+                    <div class="chart-container">
+                        <canvas id="llmChart"></canvas>
+                    </div>
+                    <div class="card" style="margin-top: 2rem;">
+                        <h3>기술적 특성</h3>
+                        <ul class="feature-list">
+                            <li>토큰화(Tokenization) 과정</li>
+                            <li>확률적 다음 토큰 예측</li>
+                            <li>어텐션 메커니즘 활용</li>
+                            <li>의미 이해 없는 통계적 패턴 매칭</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Main Content 5 - Hallucination -->
+        <section class="section" data-section="10">
+            <div class="container">
+                <div class="card slide-in-right">
+                    <h2 class="card-title">💭 환각(Hallucination)의 진실</h2>
+                    <p>환각은 AI의 버그나 결함이 아니라, 그럴듯한 말을 만들어내는 모델의 본질적 설계에서 비롯된 필연적 결과물</p>
+                    <div class="comparison-table">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>일반적 오해</th>
+                                    <th>실제 원인</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>AI가 사실을 몰라서</td>
+                                    <td>'모른다'고 답하는 대신 그럴듯한 말 생성</td>
+                                </tr>
+                                <tr>
+                                    <td>기술적 버그</td>
+                                    <td>설계된 아키텍처의 필연적 결과</td>
+                                </tr>
+                                <tr>
+                                    <td>해결 가능한 문제</td>
+                                    <td>완전한 해결보다 관리가 필요한 특성</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: Deep Dive 1 - Liar's Dividend -->
+        <section class="section" data-section="11">
+            <div class="container">
+                <div class="card scale-in">
+                    <h2 class="card-title">🎭 거짓말쟁이의 배당금(Liar's Dividend)</h2>
+                    <p>딥페이크가 보편화되면 모든 증거에 대해 "이것이 진짜인가?"라는 의심이 기본값이 된다.</p>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>🏛️ 주요 수혜자</h3>
+                            <ul class="feature-list">
+                                <li>책임을 회피하려는 권력자</li>
+                                <li>부패한 정치인</li>
+                                <li>가해자</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>⚡ 사회적 영향</h3>
+                            <ul class="feature-list">
+                                <li>정보 이론적 신뢰 붕괴</li>
+                                <li>진실 규명 메커니즘 무력화</li>
+                                <li>사회적 발전 저해</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Deep Dive 2 - AGI Fear -->
+        <section class="section" data-section="12">
+            <div class="container">
+                <div class="card slide-in-left">
+                    <h2 class="card-title">🤖 AGI 공포 담론의 이면</h2>
+                    <p>AGI가 인류를 지배하거나 멸망시킬 것이라는 공포 담론은 인류의 진짜 위협에서 눈을 돌리게 만든다.</p>
+                    <div class="chart-container">
+                        <canvas id="agiChart"></canvas>
+                    </div>
+                    <div class="card" style="margin-top: 2rem;">
+                        <h3>🎭 마케팅 효과</h3>
+                        <p>AGI 공포는 AI를 비판하는 것처럼 보이지만, 실제로는 AI를 더욱 강력하게 포장하는 마케팅 효과를 낳는다.</p>
+                        <p class="highlight">"우리 AI는 너무 강력해서 위험할 정도"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 13: Deep Dive 3 - Platform Policy -->
+        <section class="section" data-section="13">
+            <div class="container">
+                <div class="card slide-in-right">
+                    <h2 class="card-title">📱 플랫폼 정책과 AI 검열</h2>
+                    <p>네이팜 소녀 사진 삭제 사건은 AI의 오판이 아니라 정책 설계의 실패였다.</p>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>통념</h3>
+                                <p>AI가 맥락을 이해하지 못하고 역사적 사진을 아동 나체 사진으로 오인</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>실제</h3>
+                                <p>페이스북은 내부 교육 자료를 통해 사진의 역사적 가치를 인지</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <h3>문제</h3>
+                                <p>'아동 나체 사진은 무조건 금지'라는 미국 중심 규범을 전 세계에 일괄 적용</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 14: Deep Dive 4 - Institutional Responsibility -->
+        <section class="section" data-section="14">
+            <div class="container">
+                <div class="card scale-in">
+                    <h2 class="card-title">⚖️ AI 책임 제도 설계</h2>
+                    <p>AI에 대해 우리가 던져야 할 질문은 "AI가 얼마나 더 똑똑해질까?"가 아니라 "우리는 어떤 제도를 만들고 누구에게 책임을 물을 것인가?"이다.</p>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>📋 실행 가능한 액션 아이템</h3>
+                            <ul class="feature-list">
+                                <li>AI 시스템 도입 시 편향 감사(Bias Audit) 수행</li>
+                                <li>생성형 AI 출력물 사실 검증 프로세스 수립</li>
+                                <li>조직 내 AI 의사결정 책임 소재 명문화</li>
+                                <li>AI 벤더 성능 주장에 대한 독립적 검증 요구</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h3>🔍 추가 연구 필요 영역</h3>
+                            <ul class="feature-list">
+                                <li>대리 지표 선택이 AI 편향에 미치는 영향 연구</li>
+                                <li>LLM 환각 감소를 위한 아키텍처 접근법</li>
+                                <li>'거짓말쟁이의 배당금' 현상 실증 분석</li>
+                                <li>AI 거버넌스 제도 설계 국제 비교 연구</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 15: Summary -->
+        <section class="section" data-section="15">
+            <div class="container">
+                <div class="card slide-in-left">
+                    <h2 class="card-title">🎯 핵심 요약</h2>
+                    <div class="grid">
+                        <div class="card">
+                            <h3>1️⃣ 대리 지표(Proxy)의 함정</h3>
+                            <p>잘못된 대리 지표 선택은 의도치 않은 편향과 차별을 증폭시킨다.</p>
+                        </div>
+                        <div class="card">
+                            <h3>2️⃣ 확률적 앵무새(Stochastic Parrot)</h3>
+                            <p>LLM은 의미를 이해하지 못하고 확률적으로 다음 단어를 예측할 뿐이다.</p>
+                        </div>
+                        <div class="card">
+                            <h3>3️⃣ 거짓말쟁이의 배당금(Liar's Dividend)</h3>
+                            <p>딥페이크의 진짜 위험은 진짜 증거를 부정할 수 있게 되는 것이다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 16: Implications -->
+        <section class="section" data-section="16">
+            <div class="container">
+                <div class="card scale-in" style="text-align: center;">
+                    <h2 class="card-title">🚀 우리가 나아가야 할 방향</h2>
+                    <div class="quote">
+                        "중요한 건 단 하나죠. 이 모델이 실제로 어떤 결정을 내리고 그 결정이 누구에게 어떤 영향을 주는지를 우리가 끝까지 책임지게 만드는 제도입니다."
+                    </div>
+                    <p style="font-size: 1.2rem; margin-top: 2rem;">
+                        현재의 AI 버블은 기술 그 자체보다 기대, 공포, 과대광고라는 사회적 구조 속에서 만들어지고 있다.<br>
+                        AI는 인류가 만든 도구이며, 인류 사회가 기존에 가지고 있던 문제들로부터 자유로울 수 없다.
+                    </p>
+                    <div style="margin-top: 3rem;">
+                        <h3>💡 최종 인사이트</h3>
+                        <p class="highlight" style="font-size: 1.5rem; font-weight: 700;">
+                            AI의 미래를 결정하는 것은 기술 발전 속도가 아니라,<br>
+                            우리가 어떤 제도를 만들고 누구에게 책임을 물을 것인지에 대한 사회적 합의이다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        let currentTheme = localStorage.getItem('theme') || 'light';
+
+        if (currentTheme === 'dark') {
+            html.setAttribute('data-theme', 'dark');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('theme', currentTheme);
+            themeToggle.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Progress Bar
+        const progressBar = document.getElementById('progressBar');
+        window.addEventListener('scroll', () => {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPosition = window.scrollY;
+            const progress = (scrollPosition / scrollHeight) * 100;
+            progressBar.style.width = progress + '%';
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Update navigation dots
+                    const section = entry.target.getAttribute('data-section');
+                    updateNavDots(section);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Observe timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Navigation Dots
+        const navDots = document.getElementById('navDots');
+        const sections = document.querySelectorAll('.section');
+        
+        sections.forEach((section, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'nav-dot';
+            if (index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                section.scrollIntoView({ behavior: 'smooth' });
+            });
+            navDots.appendChild(dot);
+        });
+
+        function updateNavDots(currentSection) {
+            document.querySelectorAll('.nav-dot').forEach(dot => {
+                dot.classList.remove('active');
+            });
+            const dots = document.querySelectorAll('.nav-dot');
+            const index = parseInt(currentSection) - 1;
+            if (dots[index]) {
+                dots[index].classList.add('active');
+            }
+        }
+
+        // Chart.js configurations
+        Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+        Chart.defaults.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border');
+
+        // Predictive AI Chart
+        const predictiveAICtx = document.getElementById('predictiveAIGraph');
+        if (predictiveAICtx) {
+            new Chart(predictiveAICtx, {
+                type: 'line',
+                data: {
+                    labels: ['범죄 재발률', '의료비 예측', '학업 중퇴율', '복지 사기', '주가 예측'],
+                    datasets: [{
+                        label: '예측 정확도',
+                        data: [55, 60, 52, 48, 51],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: '기대 수준',
+                        data: [85, 90, 80, 85, 88],
+                        borderColor: '#7209b7',
+                        backgroundColor: 'rgba(114, 9, 183, 0.1)',
+                        borderDash: [5, 5],
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '예측형 AI의 실제 성능 vs 기대 수준'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Proxy Chart
+        const proxyCtx = document.getElementById('proxyChart');
+        if (proxyCtx) {
+            new Chart(proxyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['실제 건강 상태', '의료비 지출'],
+                    datasets: [{
+                        label: '고소득층',
+                        data: [65, 85],
+                        backgroundColor: '#4361ee'
+                    }, {
+                        label: '저소득층',
+                        data: [75, 45],
+                        backgroundColor: '#7209b7'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '대리 지표 편향 현상'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // LLM Chart
+        const llmCtx = document.getElementById('llmChart');
+        if (llmCtx) {
+            new Chart(llmCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['통계적 패턴 매칭', '의미 이해'],
+                    datasets: [{
+                        data: [95, 5],
+                        backgroundColor: ['#4361ee', '#7209b7']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'LLM의 작동 방식'
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // AGI Chart
+        const agiCtx = document.getElementById('agiChart');
+        if (agiCtx) {
+            new Chart(agiCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['차별 문제', '저작권', '노동 감시', '데이터 프라이버시', '편향 증폭'],
+                    datasets: [{
+                        label: '현재 AI 문제',
+                        data: [85, 75, 80, 70, 90],
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)'
+                    }, {
+                        label: 'AGI 공포 담론',
+                        data: [20, 15, 25, 10, 30],
+                        borderColor: '#7209b7',
+                        backgroundColor: 'rgba(114, 9, 183, 0.2)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '현실 AI 문제 vs AGI 공포 담론'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Update chart colors on theme change
+        themeToggle.addEventListener('click', () => {
+            setTimeout(() => {
+                Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--text-primary');
+                Chart.defaults.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border');
+                Chart.helpers.each(Chart.instances, (instance) => {
+                    instance.update();
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>구글 AI 생태계 완벽 정복! NotebookLM + Stitch + Gemini</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            scroll-behavior: smooth;
+        }
+
+        /* Color Variables for Dark/Light Mode */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --primary-color: #4285f4; /* Google Blue */
+            --secondary-color: #ea4335; /* Google Red */
+            --accent-color: #fbbc05; /* Google Yellow */
+            --tertiary-color: #34a853; /* Google Green */
+            --card-bg: #f5f5f5;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --code-bg: #eeeeee;
+        }
+
+        html[data-theme='dark'] {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --primary-color: #8ab4f8;
+            --secondary-color: #f28b82;
+            --accent-color: #fcd263;
+            --tertiary-color: #81c995;
+            --card-bg: #2a2a2a;
+            --border-color: #3a3a3a;
+            --shadow-color: rgba(255, 255, 255, 0.1);
+            --code-bg: #333333;
+        }
+
+        /* Layout & Typography */
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            margin-bottom: 0.8em;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: 3.5em; color: var(--primary-color); }
+        h2 { font-size: 2.5em; color: var(--primary-color); }
+        h3 { font-size: 1.8em; color: var(--secondary-color); }
+        h4 { font-size: 1.3em; color: var(--tertiary-color); }
+        p { margin-bottom: 1em; }
+        ul { margin-bottom: 1em; padding-left: 1.5em; }
+        li { margin-bottom: 0.5em; }
+
+        /* Section Styling */
+        section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-content {
+            max-width: 900px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        section.active .section-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Specific Section Overrides */
+        #title-page .section-content {
+            background: none;
+            box-shadow: none;
+            border: none;
+            padding-top: 100px; /* Adjust for header */
+        }
+        #title-page h1 {
+            font-size: 4.5em;
+            margin-bottom: 0.2em;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 5px var(--shadow-color);
+        }
+        #title-page p {
+            font-size: 1.8em;
+            color: var(--text-color);
+            font-weight: 300;
+        }
+
+        /* Cards & Boxes */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background-color: var(--bg-color);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            text-align: left;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h4 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-size: 1.4em;
+        }
+        .card p {
+            font-size: 0.95em;
+            color: var(--text-color);
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .flow-step {
+            background-color: var(--bg-color);
+            padding: 20px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px var(--shadow-color);
+            font-weight: 700;
+            font-size: 1.3em;
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .flow-arrow {
+            font-size: 2em;
+            color: var(--tertiary-color);
+            animation: bounceArrow 1.5s infinite ease-in-out;
+        }
+
+        @keyframes bounceArrow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        /* Utility Classes */
+        .highlight {
+            color: var(--secondary-color);
+            font-weight: 700;
+        }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+
+        /* Header for Dark/Light Mode Toggle */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px 5%;
+            z-index: 1000;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background: linear-gradient(to bottom, var(--bg-color), transparent);
+            transition: background 0.3s ease;
+        }
+
+        .theme-switcher {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-switcher .icon {
+            font-size: 1.2em;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin: 0 2px;
+        }
+
+        .theme-switcher .icon.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            h1 { font-size: 3.8em; }
+            h2 { font-size: 2em; }
+            h3 { font-size: 1.5em; }
+            .section-content { max-width: 800px; }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.8em; }
+            h2 { font-size: 1.8em; }
+            h3 { font-size: 1.3em; }
+            h4 { font-size: 1.1em; }
+            p { font-size: 0.9em; }
+            .section-content { padding: 15px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .flow-step { font-size: 1.1em; padding: 15px 25px; }
+            .flow-arrow { font-size: 1.5em; }
+            #title-page h1 { font-size: 3.5em; }
+            #title-page p { font-size: 1.2em; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2.2em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.1em; }
+            h4 { font-size: 1em; }
+            p { font-size: 0.85em; }
+            .icon { font-size: 2.5em; }
+            #title-page h1 { font-size: 2.8em; }
+            #title-page p { font-size: 1em; }
+        }
+
+        /* Font Awesome CDN (for icons) */
+        @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+    </style>
+</head>
+<body>
+    <header>
+        <div class="theme-switcher" id="theme-switcher">
+            <span class="icon fas fa-sun" data-theme="light"></span>
+            <span class="icon fas fa-moon" data-theme="dark"></span>
+        </div>
+    </header>
+
+    <!-- 1. 타이틀 섹션 (1페이지) -->
+    <section id="title-page">
+        <div class="section-content">
+            <h1>구글 AI 생태계 완벽 정복!</h1>
+            <p>NotebookLM + Stitch + Gemini 실전 활용법 (무료)</p>
+            <p style="font-size: 1em; margin-top: 20px;">by 배움의 달인</p>
+            <div class="icon" style="font-size: 5em; margin-top: 30px;"><i class="fas fa-brain"></i></div>
+        </div>
+    </section>
+
+    <!-- 2. 개요 섹션 (1페이지) -->
+    <section id="overview-page">
+        <div class="section-content">
+            <h2>개요: 아이디어를 현실로, AI 워크플로우의 혁신</h2>
+            <p>전통적인 개발 프로세스의 한계를 극복하기 위한 <span class="highlight">구글 AI 생태계 연동 워크플로우</span>를 소개합니다.</p>
+            <p>리서치, 프로토타이핑, 결과물 생성의 3단계 유기적 흐름을 통해 <span class="highlight">전문 기술 없이도 고품질 결과물을 신속하게 생산</span>하는 강력한 패러다임을 제시합니다.</p>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-bullseye"></i> 타겟 대상</h4>
+                    <p>기획자, 스타트업 창업가, 1인 개발자, 신속한 PoC가 필요한 개발팀</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-heart"></i> 핵심 가치</h4>
+                    <p>AI 모델의 강점 연결을 통한 '가치 사슬' 구성 및 워크플로우 재설계 인사이트 제공</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 핵심 개념 소개 (2-3페이지) -->
+    <section id="problem-background">
+        <div class="section-content">
+            <h2>이 워크플로우가 필요한 이유</h2>
+            <h3><i class="fas fa-exclamation-triangle"></i> 아이디어를 현실로 만드는 과정의 병목 현상</h3>
+            <p>아이디어를 시각적 프로토타입이나 기능적 결과물로 변환하는 과정은 다음과 같은 문제점을 안고 있었습니다.</p>
+            <ul>
+                <li><i class="fas fa-code"></i> 높은 기술적 진입장벽</li>
+                <li><i class="fas fa-hourglass-half"></i> 많은 시간 소모</li>
+                <li><i class="fas fa-money-bill-wave"></i> 높은 비용 부담</li>
+            </ul>
+            <p>구글 AI 생태계는 이 병목 현상을 해결하고, <span class="highlight">아이디어 구체화 및 프로토타입 제작 속도를 혁신적으로 높입니다.</span></p>
+        </div>
+    </section>
+
+    <section id="key-concept-notebooklm">
+        <div class="section-content">
+            <h2>핵심 개념 1: NotebookLM</h2>
+            <h3><i class="fas fa-book"></i> 구조화된 데이터 생성 허브</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>의미</h4>
+                    <p>단순 요약 도구를 넘어, 웹 자료를 깊이 탐색하고 보고서, 마인드맵 등 <span class="highlight">체계적인 문서를 만들어내는 리서치 및 데이터 전처리 허브</span>.</p>
+                </div>
+                <div class="card">
+                    <h4>중요성</h4>
+                    <p>후속 AI 도구들이 고품질 결과물을 생성할 수 있도록 <span class="highlight">'정제된 구조화 데이터'라는 필수적인 원자재</span>를 제공합니다.</p>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-sitemap"></i></div>
+        </div>
+    </section>
+
+    <section id="key-concept-stitch">
+        <div class="section-content">
+            <h2>핵심 개념 2: Stitch</h2>
+            <h3><i class="fas fa-drafting-compass"></i> 텍스트-to-프로토타입 엔진</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>의미</h4>
+                    <p>텍스트로 기술된 기획 문서를 분석하여 <span class="highlight">인터랙티브한 웹/모바일 앱의 UI/UX 프로토타입을 자동으로 구현</span>해주는 AI 기반 시각화 엔진.</p>
+                </div>
+                <div class="card">
+                    <h4>중요성</h4>
+                    <p>추상적인 기획을 구체적인 시각적 결과물로 즉각 변환하여, <span class="highlight">아이디어와 구현 사이의 간극을 메우고 신속한 결정</span>을 돕습니다.</p>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-tablet-alt"></i></div>
+        </div>
+    </section>
+
+    <section id="key-concept-gemini">
+        <div class="section-content">
+            <h2>핵심 개념 3: Gemini</h2>
+            <h3><i class="fas fa-puzzle-piece"></i> 생태계 통합 및 동적 결과물 생성기</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>의미</h4>
+                    <p>구글 생태계 내 다른 서비스와 연동되며, 정적 데이터를 <span class="highlight">동적인 애플리케이션이나 외부 API 연동 결과물로 변환</span>하는 중앙 AI 모델.</p>
+                </div>
+                <div class="card">
+                    <h4>중요성</h4>
+                    <p>NotebookLM 데이터가 단순 문서에 머무르지 않고, <span class="highlight">실제 기능과 연동된 살아있는 서비스로 확장</span>되도록 하는 최종 변환 단계를 담당합니다.</p>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-robot"></i></div>
+        </div>
+    </section>
+
+    <section id="key-concept-workflow">
+        <div class="section-content">
+            <h2>핵심 개념 4: AI 워크플로우 연동</h2>
+            <h3><i class="fas fa-link"></i> AI Workflow Chaining</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h4>의미</h4>
+                    <p>각기 다른 특화 기능을 가진 AI 도구들의 출력을 다른 도구의 입력으로 연결하여, <span class="highlight">개별 도구의 합 이상의 시너지를 창출하는 프로세스 설계 방식</span>.</p>
+                </div>
+                <div class="card">
+                    <h4>중요성</h4>
+                    <p>AI 활용의 패러다임을 <span class="highlight">'단일 프롬프트 해결'에서 '다단계 가치 창출 파이프라인 구축'으로 전환</span>시키는 핵심 사고의 전환점입니다.</p>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-project-diagram"></i></div>
+        </div>
+    </section>
+
+    <!-- 4. 주요 내용 전개 (4-5페이지) -->
+    <section id="workflow-diagram">
+        <div class="section-content">
+            <h2>구글 AI 생태계 워크플로우: 한눈에 보기</h2>
+            <p>아이디어가 실제 결과물로 변환되는 3단계 프로세스를 시각적으로 확인하세요.</p>
+            <div class="flow-diagram">
+                <div class="flow-step"><i class="fas fa-laptop-code"></i> NotebookLM: 아이디어 구체화 & 데이터 구조화</div>
+                <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                <div class="flow-step"><i class="fas fa-paint-brush"></i> Stitch: 텍스트 → 인터랙티브 프로토타입</div>
+                <div class="flow-arrow"><i class="fas fa-arrow-down"></i></div>
+                <div class="flow-step"><i class="fas fa-globe"></i> Gemini: 최종 결과물 생성 & 외부 연동</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="case-study-intro">
+        <div class="section-content">
+            <h2>실전 활용 사례: 아이디어가 현실이 되는 과정</h2>
+            <p>세 가지 구체적인 시나리오를 통해 각 도구의 연동 방식과 그 강력한 효과를 경험해보세요.</p>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-mobile-alt"></i> 사례 1</h4>
+                    <p>수면 앱 '꿀잠' 프로토타입 제작</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-map-marked-alt"></i> 사례 2</h4>
+                    <p>푸꾸옥 여행 가이드 및 일정 관리</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-gamepad"></i> 사례 3</h4>
+                    <p>맞춤형 역사 학습 게임 제작</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="case-1-sleep-app">
+        <div class="section-content">
+            <h2>사례 1: 수면 앱 '꿀잠' 프로토타입</h2>
+            <h3><i class="fas fa-bed"></i> 목표: 수면 앱의 기능적, 시각적 프로토타입 신속 개발</h3>
+            <p class="text-left"><strong>워크플로우:</strong></p>
+            <ul class="text-left">
+                <li><i class="fas fa-search"></i> <strong>자료 조사 (NotebookLM):</strong> '수면 모니터링 앱' 딥 리서치로 50개 소스 확보.</li>
+                <li><i class="fas fa-file-alt"></i> <strong>기획 문서 작성 (NotebookLM):</strong> 수집 자료 기반 '사용자 경험 설계 보고서' 생성.</li>
+                <li><i class="fas fa-paint-roller"></i> <strong>프로토타입 생성 (Stitch):</strong> NotebookLM 보고서 입력 → 인터랙티브 웹앱 프로토타입 즉시 생성.</li>
+            </ul>
+            <p class="text-left"><strong>결과물 및 통찰:</strong></p>
+            <ul class="text-left">
+                <li>총 8개 화면의 대시보드형 웹앱 프로토타입 (수면 데이터 분석, 맞춤 코칭 등).</li>
+                <li>예측 히트맵 기능으로 UI/UX 개선 통찰 제공.</li>
+                <li><span class="highlight">개발 초기 시간/비용 획기적 절감, '바이브 코딩' 비효율성 보완.</span></li>
+            </ul>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-chart-line"></i></div>
+        </div>
+    </section>
+
+    <section id="case-2-travel-guide">
+        <div class="section-content">
+            <h2>사례 2: 푸꾸옥 여행 가이드 및 일정 관리</h2>
+            <h3><i class="fas fa-plane-departure"></i> 목표: 개인 맞춤형 가이드북 및 실행 가능한 경로 생성</h3>
+            <p class="text-left"><strong>워크플로우:</strong></p>
+            <ul class="text-left">
+                <li><i class="fas fa-calendar-alt"></i> <strong>자료 수집 & 일정 생성 (NotebookLM):</strong> '푸꾸옥 여행' 딥 리서치 → 상세 여행 일정표 보고서 생성.</li>
+                <li><i class="fas fa-exchange-alt"></i> <strong>자료 연동 (Gemini):</strong> Gemini에서 NotebookLM '푸꾸옥 가이드' 노트 직접 불러오기.</li>
+                <li><i class="fas fa-map-pin"></i> <strong>경로 생성 (Gemini & Google Maps):</strong> 텍스트 일정표 입력 → 구글 지도 경로 링크 생성.</li>
+                <li><i class="fas fa-image"></i> <strong>시각 자료 제작 (NotebookLM):</strong> '인포그래픽' 기능으로 음식 메뉴판 스타일 포스터 무료 제작.</li>
+            </ul>
+            <p class="text-left"><strong>결과물 및 통찰:</strong></p>
+            <ul class="text-left">
+                <li>텍스트 여행 계획이 실제 이동 경로가 포함된 구글 지도 링크로 변환.</li>
+                <li>고품질 인포그래픽으로 여행 정보 시각화.</li>
+                <li><span class="highlight">구글 생태계의 강력한 통합 시너지 입증.</span></li>
+            </ul>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-route"></i></div>
+        </div>
+    </section>
+
+    <section id="case-3-learning-game">
+        <div class="section-content">
+            <h2>사례 3: 맞춤형 역사 학습 게임 제작</h2>
+            <h3><i class="fas fa-graduation-cap"></i> 목표: 한국 근현대사 연구 자료 기반 인터랙티브 학습 플랫폼 구축</h3>
+            <p class="text-left"><strong>워크플로우:</strong></p>
+            <ul class="text-left">
+                <li><i class="fas fa-history"></i> <strong>학습 자료 생성 (NotebookLM):</strong> '한국 근현대사' 딥 리서치 → 마인드맵, 학습 가이드 생성.</li>
+                <li><i class="fas fa-upload"></i> <strong>자료 업로드 (Gemini):</strong> Gemini에 마인드맵 이미지, 학습 가이드(구글 독스) 업로드.</li>
+                <li><i class="fas fa-play"></i> <strong>게임 플랫폼 생성 (Gemini):</strong> 업로드된 자료 기반 '역사 수호자 게임 플랫폼' 생성 프롬프트 입력.</li>
+            </ul>
+            <p class="text-left"><strong>결과물 및 통찰:</strong></p>
+            <ul class="text-left">
+                <li>'배움의 달인 히스토리 키퍼' 웹 기반 학습 게임 생성.</li>
+                <li>역사적 사실 학습 및 '공략하기', '보상받기' 등 게임적 요소 포함.</li>
+                <li><span class="highlight">구조화된 지식 자산을 동적인 애플리케이션으로 신속하게 변환하는 가능성 제시.</span></li>
+            </ul>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-trophy"></i></div>
+        </div>
+    </section>
+
+    <!-- 5. 심층분석 파트 (4-8페이지) -->
+    <section id="feynman-easy">
+        <div class="section-content">
+            <h2>파인만 기법으로 이해하기: 쉬운 설명</h2>
+            <h3><i class="fas fa-child"></i> 레고 우주선 만들기 비유</h3>
+            <p>"우리가 멋진 레고 우주선을 만들고 싶다고 상상해봐."</p>
+            <ul class="text-left">
+                <li><i class="fas fa-book-reader"></i> <strong>NotebookLM:</strong> 우주전문가 도서관 사서. '최신 우주선 설계' 자료를 찾아 정리해서 <span class="highlight">멋진 설계 도면</span>을 만들어줘.</li>
+                <li><i class="fas fa-robot"></i> <strong>Stitch:</strong> 마법 레고 로봇. 사서에게 받은 설계 도면을 보고 <span class="highlight">실제로 만져볼 수 있는 우주선 모델</span>을 순식간에 만들어줘.</li>
+                <li><i class="fas fa-wrench"></i> <strong>Gemini:</strong> 만능 엔지니어. 만들어진 레고 모델에 <span class="highlight">불빛을 넣고, 진짜 로켓을 연결</span>하거나, 발사장 위치를 지도에 찍어주는 역할을 해.</li>
+            </ul>
+            <p>이 세 명이 팀을 이루면, 우리 머릿속 생각이 순식간에 멋진 실제 모델이 되는 거야!</p>
+        </div>
+    </section>
+
+    <section id="feynman-analogy">
+        <div class="section-content">
+            <h2>파인만 기법으로 이해하기: 실생활/개발 비유</h2>
+            <h3><i class="fas fa-utensils"></i> 고급 레스토랑 주방 시스템</h3>
+            <p>"이 워크플로우는 고급 레스토랑의 주방 시스템과 같다."</p>
+            <ul class="text-left">
+                <li><i class="fas fa-carrot"></i> <strong>NotebookLM:</strong> '조리 prep' 셰프. 손님이 주문한 메뉴에 맞춰 최고의 재료를 구하고, 손질하고, 소스를 미리 만들어 <span class="highlight">완벽하게 준비</span>해 놓는다. (정제된 데이터)</li>
+                <li><i class="fas fa-concierge-bell"></i> <strong>Stitch:</strong> '플레이팅' 셰프. 준비된 재료들을 바탕으로 <span class="highlight">예쁘고 정교하게 접시에 담아</span> 한 눈에 보기 좋게 만든다. (시각적 프로토타입)</li>
+                <li><i class="fas fa-hat-chef"></i> <strong>Gemini:</strong> '총괄 주방장' 또는 '서빙' 담당. 요리에 어울리는 와인을 추천하거나(외부 API 연동), 손님 요청에 맞춰 요리를 변형해준다.</li>
+            </ul>
+            <p><span class="highlight">중요한 점:</span> "Garbage In, Garbage Out" - NotebookLM이 만들어주는 설계도의 질이 낮으면, Stitch가 만드는 프로토타입도 엉망이 됩니다.</p>
+        </div>
+    </section>
+
+    <section id="insight-core-trend">
+        <div class="section-content">
+            <h2>심층 분석: 핵심 인사이트 & 트렌드</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-lightbulb"></i> 핵심 인사이트</h4>
+                    <p>개별 AI 도구 성능을 넘어, 각 도구의 강점을 직렬 연결하여 <span class="highlight">'데이터 가치 파이프라인'을 구축</span>하는 것이 AI 시대의 핵심 경쟁력.</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-chart-line"></i> 트렌드 이해</h4>
+                    <p>'모노리식 AI'에서 <span class="highlight">'컴포저블 AI' 또는 'AI 에이전트' 시대로 전환</span>되는 산업 트렌드를 반영. 구글은 자사 생태계 내에서 이를 구현한 선두 주자.</p>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-cogs"></i></div>
+        </div>
+    </section>
+
+    <section id="insight-tech-practical">
+        <div class="section-content">
+            <h2>심층 분석: 기술 & 실용적 적용</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-microchip"></i> 기술 심층 분석</h4>
+                    <p>기술적 핵심은 <span class="highlight">'정형화된 텍스트(Structured Text)'를 AI 모델 간의 범용적인 데이터 교환 프로토콜로 활용</span>하는 것. 모듈화된 시스템 설계 원칙과 일맥상통.</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-rocket"></i> 실용적 적용</h4>
+                    <ul class="text-left" style="list-style: none; padding-left: 0;">
+                        <li><i class="fas fa-check-circle"></i> <strong>즉시 적용:</strong> 사이드 프로젝트나 기획 발표에 워크플로우 적용.</li>
+                        <li><i class="fas fa-sync-alt"></i> <strong>중·장기적 활용:</strong> 팀의 표준 'Pre-Development' 프로세스로 도입, CI/CD 파이프라인 확장.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-terminal"></i></div>
+        </div>
+    </section>
+
+    <section id="insight-critical-alternatives">
+        <div class="section-content">
+            <h2>심층 분석: 비판적 검토 & 대안</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-balance-scale-right"></i> 비판적 검토</h4>
+                    <ul class="text-left" style="list-style: none; padding-left: 0;">
+                        <li><i class="fas fa-exclamation-circle"></i> AI 생성 결과물 품질/보안/저작권 문제.</li>
+                        <li><i class="fas fa-lock"></i> 구글 생태계 종속 (Vendor Lock-in) 위험.</li>
+                        <li><i class="fas fa-frown"></i> '프로토타입의 함정' (기술적 타당성 검증 없는 사업 결정).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-lightbulb"></i> 대안 기술</h4>
+                    <ul class="text-left" style="list-style: none; padding-left: 0;">
+                        <li><i class="fas fa-atom"></i> NotebookLM 대체: OpenAI의 GPT-4</li>
+                        <li><i class="fas fa-brush"></i> Stitch 대체: Vercel의 v0.dev</li>
+                        <li><i class="fas fa-code-branch"></i> 연동 프레임워크: LangChain, CrewAI (높은 유연성, 초기 설정 부담)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="icon" style="margin-top: 30px;"><i class="fas fa-shield-alt"></i></div>
+        </div>
+    </section>
+
+    <!-- 6. 종합 정리 및 시사점 (1페이지) -->
+    <section id="conclusion-summary">
+        <div class="section-content">
+            <h2>결론: AI 워크플로우의 새로운 표준</h2>
+            <p>구글 AI 도구들은 단순한 개별 솔루션이 아니라, <span class="highlight">리서치-기획-프로토타이핑-최종 결과물 생성으로 이어지는 강력한 가치 사슬</span>을 형성합니다.</p>
+            <div class="card-grid">
+                <div class="card">
+                    <h4><i class="fas fa-tachometer-alt"></i> 효율성 극대화</h4>
+                    <p>전문가 개입 없이 아이디어를 단시간 내에 시각적, 기능적 결과물로 전환하여 개발 초기 효율성 극대화.</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-unlock"></i> 진입 장벽 완화</h4>
+                    <p>무료 도구들을 통해 누구나 고품질 앱 프로토타입, 여행 계획, 학습 자료를 손쉽게 만들 수 있도록 지원.</p>
+                </div>
+                <div class="card">
+                    <h4><i class="fas fa-handshake"></i> 통합의 힘</h4>
+                    <p>구글 생태계 내 완벽한 데이터 연동성으로 NotebookLM의 텍스트가 Stitch의 UI가 되고, Gemini의 지도가 되는 유기적 흐름.</p>
+                </div>
+            </div>
+            <p style="margin-top: 30px; font-size: 1.2em;">이 세 가지 도구를 연동하여 활용하는 것은 <span class="highlight">AI 시대의 새로운 '워크플로우' 표준</span>이 될 잠재력을 지닙니다.</p>
+        </div>
+    </section>
+
+    <section id="review-checklist">
+        <div class="section-content">
+            <h2>복습 체크리스트: 핵심 개념 확인</h2>
+            <p>이 콘텐츠의 핵심 내용을 잘 이해했는지 스스로 확인해보세요!</p>
+            <ul class="text-left" style="list-style: none; padding-left: 0;">
+                <li><input type="checkbox"> NotebookLM, Stitch, Gemini의 역할을 각각 한 문장으로 설명할 수 있다.</li>
+                <li><input type="checkbox"> '수면 앱' 기획서를 Stitch 프로토타입으로 만드는 전체 흐름을 설명할 수 있다.</li>
+                <li><input type="checkbox"> NotebookLM 노트를 Gemini가 직접 불러오는 기능이 왜 편리한지 설명할 수 있다.</li>
+                <li><input type="checkbox"> 이 워크플로우의 가장 큰 장점이 '연동'을 통한 시너지에 있음을 이해하고 있다.</li>
+                <li><input type="checkbox"> 이 접근법의 Vendor Lock-in이라는 단점과 그에 대한 대안을 최소 하나 이상 말할 수 있다.</li>
+            </ul>
+            <p style="margin-top: 30px; font-size: 1.2em; color: var(--tertiary-color);">지금 바로 이 강력한 AI 워크플로우를 경험해보세요!</p>
+            <div class="icon" style="font-size: 4em; margin-top: 30px;"><i class="fas fa-check-double"></i></div>
+        </div>
+    </section>
+
+    <script>
+        // Intersection Observer for scroll animations
+        const sections = document.querySelectorAll('section');
+
+        const observerOptions = {
+            root: null, // viewport
+            rootMargin: '0px',
+            threshold: 0.3 // 30% of the section must be visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                } else {
+                    entry.target.classList.remove('active'); // Optional: remove active class when out of view
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Dark/Light Mode Toggle
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const htmlElement = document.documentElement;
+
+        // Load saved theme from localStorage or default to light
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        htmlElement.setAttribute('data-theme', savedTheme);
+        updateThemeSwitcherIcons(savedTheme);
+
+        themeSwitcher.addEventListener('click', () => {
+            let currentTheme = htmlElement.getAttribute('data-theme');
+            let newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeSwitcherIcons(newTheme);
+        });
+
+        function updateThemeSwitcherIcons(theme) {
+            const sunIcon = themeSwitcher.querySelector('.fa-sun');
+            const moonIcon = themeSwitcher.querySelector('.fa-moon');
+            if (theme === 'light') {
+                sunIcon.classList.add('active');
+                moonIcon.classList.remove('active');
+            } else {
+                moonIcon.classList.add('active');
+                sunIcon.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

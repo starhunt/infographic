@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 앱 개발: 데이터베이스 및 백엔드 구축 전략</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-accent: #e3f2fd;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent: #4285f4;
+            --accent-light: #669df6;
+            --border: #dee2e6;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-accent: #1e3a5f;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #669df6;
+            --accent-light: #8ab4f8;
+            --border: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--accent);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 80px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .slide.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .slide-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .slide-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 8px 32px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-box {
+            background: var(--bg-accent);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-box:hover {
+            transform: scale(1.05);
+            background: var(--accent);
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 8px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #ffd700 0%, #ffed4e 100%);
+            padding: 0 5px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 2rem 0;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-item:nth-child(even) {
+            transform: translateX(50px);
+        }
+
+        .timeline-item:nth-child(even).visible {
+            transform: translateX(0);
+        }
+
+        .timeline-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 45%;
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-accent);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient);
+            border-radius: 15px;
+            transition: width 1.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .floating-box {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .slide-title {
+                font-size: 2.5rem;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .timeline-content {
+                width: calc(100% - 60px);
+                margin-left: 60px !important;
+            }
+        }
+
+        .tech-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin: 0.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            transform: scale(1.1);
+            background: var(--accent-light);
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 3rem 0;
+            flex-wrap: wrap;
+        }
+
+        .flow-item {
+            text-align: center;
+            margin: 1rem;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--accent);
+            margin: 0 1rem;
+        }
+
+        .box {
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .box:hover {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <svg class="sun-icon" style="display: none;" viewBox="0 0 24 24">
+            <path d="M12 17.5C9.5 17.5 7.5 15.5 7.5 13S9.5 8.5 12 8.5 16.5 10.5 16.5 13 14.5 17.5 12 17.5M12 7C8.7 7 6 9.7 6 13S8.7 19 12 19 18 16.3 18 13 15.3 7 12 7M12 2L14.4 6.4L19 5.7L16.2 9.8L17.8 14L13 11.5L8.2 14L9.8 9.8L7 5.7L11.6 6.4L12 2Z"/>
+        </svg>
+        <svg class="moon-icon" viewBox="0 0 24 24">
+            <path d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.64 6.35,17.66C9.37,20.67 14.19,20.78 17.33,17.97Z"/>
+        </svg>
+    </button>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h1 class="slide-title floating-box">AI 앱 개발: 데이터베이스 및 백엔드 구축 전략</h1>
+            <p class="slide-subtitle">How To Build Your First App with AI - Lesson 7</p>
+            <div class="card">
+                <p style="font-size: 1.2rem; margin-bottom: 1rem;">
+                    <strong>Corbin Brown</strong>이 제안하는 현대적인 AI 애플리케이션 백엔드 아키텍처의 모든 것
+                </p>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <span class="tech-badge">TypeScript</span>
+                    <span class="tech-badge">Firebase</span>
+                    <span class="tech-badge">Firestore</span>
+                    <span class="tech-badge">Single Source of Truth</span>
+                    <span class="tech-badge">Hot/Cold Data</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">개요</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 class="card-title">📌 영상 정보</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li><strong>채널:</strong> Corbin Brown</li>
+                        <li><strong>재생시간:</strong> 33분 08초</li>
+                        <li><strong>카테고리:</strong> AI/개발</li>
+                        <li><strong>프로젝트:</strong> thumbm.io (AI 썸네일 에디터)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎯 핵심 메시지</h3>
+                    <p>초보자도 따라할 수 있는 Full-Stack TypeScript 아키텍처와 Firebase 기반 데이터베이스 설계 전략을 통해 안정적인 프로덕션 애플리케이션 구축 방법을 제시합니다.</p>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🚀 이 영상을 봐야 하는 이유</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="95%">실무 경험 기반</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="90%">구체적인 코드 예시</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="85%">디버깅 전략 공유</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">Full-Stack TypeScript 아키텍처</h2>
+            <div class="card">
+                <h3 class="card-title">왜 Python에서 TypeScript로?</h3>
+                <div class="flow-diagram">
+                    <div class="flow-item">
+                        <div class="box">Python 백엔드<br/>(LLM 직접 처리)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="box">TypeScript<br/>(외부 API 활용)</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-item">
+                        <div class="box">언어 통일성</div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="feature-box">
+                    <div class="feature-icon">🎯</div>
+                    <h4>학습 곡선 완화</h4>
+                    <p>초보자가 하나의 언어에 집중 가능</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">⚡</div>
+                    <h4>개발 환경 단순화</h4>
+                    <p>99% TypeScript로 구성된 깔끔한 코드베이스</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">🔄</div>
+                    <h4>컨텍스트 전환 감소</h4>
+                    <p>프론트엔드-백엔드 간 원활한 협업</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">Firebase 데이터 구조 설계</h2>
+            <div class="card">
+                <h3 class="card-title">Firestore vs Storage 역할 구분</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>Firestore</th>
+                            <th>Storage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>용도</strong></td>
+                            <td>텍스트 기반 구조화 데이터</td>
+                            <td>이미지, 동영상 등 미디어 파일</td>
+                        </tr>
+                        <tr>
+                            <td><strong>예시</strong></td>
+                            <td>사용자 정보, 메타데이터, URL</td>
+                            <td>썸네일, 프로필 사진, 비디오</td>
+                        </tr>
+                        <tr>
+                            <td><strong>쿼리</strong></td>
+                            <td>복잡한 쿼리 가능</td>
+                            <td>파일 접근 및 다운로드</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card">
+                <h3 class="card-title">확장 가능한 경로 설계</h3>
+                <div class="code-block">
+users/{UID}/studios/{studio_UID}/projects/{project_UID}
+                </div>
+                <p><span class="highlight">UID 기반 구조</span>는 Firebase에 네이티브하며, 백만 명의 사용자도 충돌 없이 관리 가능합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">Document vs Array 저장 전략</h2>
+            <div class="flow-diagram">
+                <div class="flow-item">
+                    <h4>데이터가 무한히<br/>늘어날 수 있는가?</h4>
+                </div>
+                <div class="flow-arrow">?</div>
+            </div>
+            <div class="grid">
+                <div class="card pulse">
+                    <h3 class="card-title">📄 Document 방식</h3>
+                    <p><strong>사용 사례:</strong> 채팅 메시지, 로그 기록</p>
+                    <ul>
+                        <li>무한 확장 가능</li>
+                        <li>개별 문서로 저장</li>
+                        <li>비용 효율적</li>
+                        <li>유연한 구조 변경</li>
+                    </ul>
+                    <div class="code-block">
+// 메시지 문서 예시
+{
+  timestamp: "2024-01-01T10:00:00Z",
+  sender: "user123",
+  content: "안녕하세요!",
+  type: "text"
+}
+                    </div>
+                </div>
+                <div class="card pulse">
+                    <h3 class="card-title">📋 Array 방식</h3>
+                    <p><strong>사용 사례:</strong> 구독 플랜, 설정 목록</p>
+                    <ul>
+                        <li>고정된 구조</li>
+                        <li>단일 문서 내 배열</li>
+                        <li>구조적 명확성</li>
+                        <li>간편한 관리</li>
+                    </ul>
+                    <div class="code-block">
+// 구독 플랜 배열 예시
+{
+  plans: [
+    { currency: "USD", status: "active" },
+    { currency: "KRW", status: "pending" }
+  ]
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">백엔드 중심 개발 철학</h2>
+            <div class="card">
+                <h3 class="card-title">🎯 Single Source of Truth (SSOT)</h3>
+                <p>애플리케이션의 모든 데이터 최종 기준은 <span class="highlight">항상 백엔드</span></p>
+                <div class="flow-diagram">
+                    <div class="flow-item">
+                        <div class="box">프론트엔드<br/>(UI 표현)</div>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-item">
+                        <div class="box">로컬 캐시<br/>(최적화)</div>
+                    </div>
+                    <div class="flow-arrow">↔</div>
+                    <div class="flow-item">
+                        <div class="box">백엔드<br/>(진실 공급원)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">⚠️ 보안 주의사항</h3>
+                <p>로컬 캐싱 시 반드시 <code>users/{UID}</code> 구조 사용!</p>
+                <p style="color: #e74c3c; font-weight: 600;">A 사용자 로그아웃 → B 사용자 로그인 시 A의 데이터 노출 방지</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">Hot Data vs Cold Data</h2>
+            <div class="chart-container">
+                <canvas id="dataChart"></canvas>
+            </div>
+            <div class="grid">
+                <div class="card">
+                    <h3 class="card-title">🔥 Hot Data</h3>
+                    <p><strong>정의:</strong> 실시간 정확성 필수 데이터</p>
+                    <p><strong>예시:</strong> 사용자 크레딧, 결제 정보</p>
+                    <p><strong>처리:</strong> 항상 백엔드에서 직접 조회</p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">❄️ Cold Data</h3>
+                    <p><strong>정의:</strong> 자주 변경되지 않는 데이터</p>
+                    <p><strong>예시:</strong> 썸네일 목록, 과거 기록</p>
+                    <p><strong>처리:</strong> 로컬 캐싱 적극 활용</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">데이터 경로 미러링 전략</h2>
+            <div class="card">
+                <h3 class="card-title">Firestore ↔ Storage 연동</h3>
+                <div class="code-block">
+// Firestore 경로
+users/{UID}/projects/{project_ID}
+
+// Storage 경로 (미러링)
+users/{UID}/projects/{project_ID}/image.jpg
+
+// Firestore 문서
+{
+  id: "project123",
+  title: "My Project",
+  thumbnailUrl: "users/{UID}/projects/{project_ID}/image.jpg"
+}
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">✅ 장점</h3>
+                <ul>
+                    <li>데이터 탐색 직관성</li>
+                    <li>보안 규칙 일관성</li>
+                    <li>삭제 및 관리 용이성</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">로컬 개발 환경 최적화</h2>
+            <div class="card">
+                <h3 class="card-title">Firebase Emulator 활용</h3>
+                <div class="code-block">
+# 에뮬레이터 시작
+firebase emulators:start
+
+# 데이터 초기화와 함께 시작
+firebase emulators:start --import=./emulator-data --export-on-exit
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🚀 npm scripts 자동화</h3>
+                <div class="code-block">
+{
+  "scripts": {
+    "kill": "pkill -f node && npm run build:functions && firebase emulators:start",
+    "init": "firebase functions:shell < scripts/init-data.js",
+    "emulators": "firebase emulators:start --import=./emulator-data --export-on-exit"
+  }
+}
+                </div>
+                <p>포트 충돌 해결, 초기 데이터 생성 등 반복 작업 자동화!</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">AI 활용 개발 워크플로우</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 class="card-title">🔫 프론트엔드: 머신건 방식</h3>
+                    <ul>
+                        <li>빠른 반복과 실험</li>
+                        <li>다수 AI 에이전트 활용</li>
+                        <li>실수 수정 용이</li>
+                        <li>공격적인 시도 가능</li>
+                    </ul>
+                    <div class="feature-box">
+                        <div class="feature-icon">⚡</div>
+                        <p>속도와 실험 중심</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎯 백엔드: 저격수 방식</h3>
+                    <ul>
+                        <li>신중하고 정밀한 접근</li>
+                        <li>단일 집중 에이전트</li>
+                        <li>초기 실수 = 높은 비용</li>
+                        <li>코드 리뷰 필수</li>
+                    </ul>
+                    <div class="feature-box">
+                        <div class="feature-icon">🎯</div>
+                        <p>정확성과 안정성 중심</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">디버깅 전략: 3단계 접근법</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>1단계: 제거</h3>
+                        <p>복잡한 버그 발생 시 IndexDB 및 localStorage 관련 로직 모두 제거</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>2단계: 검증</h3>
+                        <p>프론트엔드가 오직 백엔드와 직접 통신하는 상태에서 기능 완벽 확인</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>3단계: 재도입</h3>
+                        <p>백엔드 연동 안정화 후, 최적화를 위해 캐싱 로직 신중하게 재추가</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <p style="text-align: center; font-size: 1.2rem;">
+                    "복잡한 버그의 대부분은 캐싱과 백엔드 데이터의 불일치에서 발생합니다"
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">보안 규칙 관리</h2>
+            <div class="card">
+                <h3 class="card-title">📁 firestore.rules 예시</h3>
+                <div class="code-block">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 사용자 데이터 접근 규칙
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+      
+      // 스튜디오 데이터
+      match /studios/{studioId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+  }
+}
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">⚠️ 흔한 실수</h3>
+                <p>새로운 데이터 경로 추가 시 보안 규칙 업데이트 누락 → "권한 없음" 오류</p>
+                <p><span class="highlight">항상 경로 추가 시 규칙도 함께 업데이트!</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">기술 스택 비교 분석</h2>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>항목</th>
+                        <th>Firebase</th>
+                        <th>Supabase</th>
+                        <th>PlanetScale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>데이터 모델</td>
+                        <td>NoSQL</td>
+                        <td>SQL (PostgreSQL)</td>
+                        <td>SQL (MySQL)</td>
+                    </tr>
+                    <tr>
+                        <td>실시간 기능</td>
+                        <td>네이티브 지원</td>
+                        <td>네이티브 지원</td>
+                        <td>별도 구현 필요</td>
+                    </tr>
+                    <tr>
+                        <td>학습 곡선</td>
+                        <td>낮음</td>
+                        <td>중간</td>
+                        <td>높음</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">비용 최적화 전략</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 class="card-title">💰 Firebase 비용 구조</h3>
+                    <ul>
+                        <li>읽기/쓰기/삭제 횟수당 과금</li>
+                        <li>저장 용량별 과금</li>
+                        <li>네트워크 전송량별 과금</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎯 최적화 팁</h3>
+                    <ul>
+                        <li>Cold Data 적극적 캐싱</li>
+                        <li>배치 쓰기 사용</li>
+                        <li>불필요한 리스너 제거</li>
+                        <li>인덱스 최적화</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📊 예상 비용 절감 효과</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="70%">캐싱 전략: 70% 절감</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="50%">배치 처리: 50% 절감</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="40%">인덱스 최적화: 40% 절감</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">실전 프로젝트 아이디어</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 class="card-title">📄 AI 문서 요약 서비스</h3>
+                    <p>PDF 업로드 → Storage 저장 → Cloud Functions AI API 호출 → Firestore 결과 저장</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <span class="tech-badge">PDF.js</span>
+                        <span class="tech-badge">Gemini API</span>
+                        <span class="tech-badge">Firestore</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🎨 실시간 협업 화이트보드</h3>
+                    <p>Firestore 실시간 리스너 + Canvas API로 멀티유저 드로잉 앱</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <span class="tech-badge">Canvas API</span>
+                        <span class="tech-badge">WebSocket</span>
+                        <span class="tech-badge">Realtime DB</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">🖼️ AI 이미지 에디터</h3>
+                    <p>thumbm.io와 유사한 썸네일 생성/편집 서비스 구현</p>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <span class="tech-badge">Image Processing</span>
+                        <span class="tech-badge">DALL-E</span>
+                        <span class="tech-badge">Storage</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">학습 로드맵</h2>
+            <div class="card">
+                <h3 class="card-title">🌱 초급자 (4-8주)</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="25%">1-2주: TypeScript 기초</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="50%">3-4주: Firebase 기본</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="75%">5-6주: React + Firebase</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="100%">7-8주: Cloud Functions</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🚀 숙련자 (2-4주)</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="25%">1주: 고급 보안 규칙</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="50%">2주: 비용 최적화</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="75%">3주: CI/CD 통합</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%;" data-width="100%">4주: AI API 연동</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">핵심 인사이트 & 액션 아이템</h2>
+            <div class="card">
+                <h3 class="card-title">💡 주요 인사이트</h3>
+                <ol>
+                    <li>기술 선택은 컨텍스트 의존적 - 프로젝트 특성에 맞는 유연한 선택</li>
+                    <li>데이터 구조는 비즈니스 로직 반영 - 성장 패턴 예측 기반 설계</li>
+                    <li>복잡성 관리가 핵심 역량 - 캐싱, 보안, 확장성 체계적 분리</li>
+                    <li>AI 도구는 영역별 차별화 필요 - 프론트/백엔드 다른 전략</li>
+                </ol>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📋 실행 가능한 액션 아이템</h3>
+                <ul>
+                    <li>☑ 현재 프로젝트의 데이터 Hot/Cold 분류 및 캐싱 전략 재검토</li>
+                    <li>☑ Firebase 프로젝트에 Firestore-Storage 경로 미러링 적용</li>
+                    <li>☑ package.json에 개발 효율화 스크립트 추가</li>
+                    <li>☑ 백엔드 AI 에이전트 사용 원칙 수립</li>
+                    <li>☑ 로컬 캐싱 코드 보안 점검</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide">
+        <div class="slide-content">
+            <h2 class="slide-title">마무리</h2>
+            <div class="card">
+                <h3 class="card-title">🎯 핵심 키워드 3가지</h3>
+                <div class="grid">
+                    <div class="feature-box">
+                        <h4>Single Source of Truth</h4>
+                        <p>데이터의 최종 권위 출처를 백엔드로 지정</p>
+                    </div>
+                    <div class="feature-box">
+                        <h4>Document vs Array</h4>
+                        <p>"무한히 늘어날 수 있는가?"가 결정 기준</p>
+                    </div>
+                    <div class="feature-box">
+                        <h4>Hot/Cold Data</h4>
+                        <p>데이터 특성에 맞는 차별화된 처리 전략</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🚀 다음 단계</h3>
+                <p>이제 당신은 AI 애플리케이션의 백엔드를 설계하고 구축할 준비가 되었습니다.</p>
+                <p style="text-align: center; margin-top: 2rem; font-size: 1.5rem; font-weight: 700;">
+                    "백엔드는 초기 단계에서 실수를 하면 골치 아픈 문제가 됩니다"<br/>
+                    - Corbin Brown
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', newTheme);
+            
+            const sunIcon = document.querySelector('.sun-icon');
+            const moonIcon = document.querySelector('.moon-icon');
+            
+            if (newTheme === 'dark') {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') {
+            document.querySelector('.sun-icon').style.display = 'none';
+            document.querySelector('.moon-icon').style.display = 'block';
+        }
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    // Animate progress bars
+                    const progressFills = entry.target.querySelectorAll('.progress-fill');
+                    progressFills.forEach(fill => {
+                        const width = fill.getAttribute('data-width');
+                        setTimeout(() => {
+                            fill.style.width = width;
+                        }, 200);
+                    });
+                }
+            });
+        }, observerOptions);
+
+        // Observe all slides
+        document.querySelectorAll('.slide').forEach(slide => {
+            observer.observe(slide);
+        });
+
+        // Observe timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Data Chart
+        const dataCtx = document.getElementById('dataChart');
+        if (dataCtx) {
+            new Chart(dataCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hot Data (실시간 조회)', 'Cold Data (캐싱)'],
+                    datasets: [{
+                        data: [30, 70],
+                        backgroundColor: [
+                            '#e74c3c',
+                            '#3498db'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: '데이터 유형별 처리 비율',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Comparison Chart
+        const comparisonCtx = document.getElementById('comparisonChart');
+        if (comparisonCtx) {
+            new Chart(comparisonCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['학습 용이성', '확장성', '비용 효율성', '실시간 기능', '생산성'],
+                    datasets: [
+                        {
+                            label: 'Firebase',
+                            data: [90, 85, 70, 95, 90],
+                            backgroundColor: 'rgba(66, 133, 244, 0.2)',
+                            borderColor: 'rgba(66, 133, 244, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Supabase',
+                            data: [75, 90, 80, 90, 80],
+                            backgroundColor: 'rgba(52, 168, 83, 0.2)',
+                            borderColor: 'rgba(52, 168, 83, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'PlanetScale',
+                            data: [60, 95, 85, 50, 70],
+                            backgroundColor: 'rgba(234, 67, 53, 0.2)',
+                            borderColor: 'rgba(234, 67, 53, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: '백엔드 솔루션 비교',
+                            font: {
+                                size: 18
+                            }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

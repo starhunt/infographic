@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & Text to SQL: LLM과 스키마로 데이터 분석 혁신</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS Variables for Dark/Light Mode */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --header-bg: #e9ecef;
+            --primary-color: #007bff; /* IBM Blue-ish */
+            --secondary-color: #6c757d;
+            --accent-color: #28a745; /* Success Green */
+            --code-bg: #e9ecef;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --mermaid-bg: #f0f2f5; /* Light background for flowcharts */
+            --mermaid-text: #343a40;
+            --mermaid-border: #adb5bd;
+        }
+
+        body[data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #e9ecef;
+            --header-bg: #343a40;
+            --primary-color: #66b2ff; /* Lighter blue for dark mode */
+            --secondary-color: #adb5bd;
+            --accent-color: #20c997; /* Lighter green for dark mode */
+            --code-bg: #495057;
+            --card-bg: #343a40;
+            --border-color: #495057;
+            --shadow-color: rgba(0, 0, 0, 0.4);
+            --mermaid-bg: #343a40; /* Dark background for flowcharts */
+            --mermaid-text: #e9ecef;
+            --mermaid-border: #6c757d;
+        }
+
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: 3.5rem; }
+        h2 { font-size: 2.5rem; }
+        h3 { font-size: 2rem; }
+        p { margin-bottom: 1rem; }
+        ul, ol { margin-left: 20px; margin-bottom: 1rem; }
+        li { margin-bottom: 0.5rem; }
+
+        /* Header & Theme Toggle */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--header-bg);
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px var(--shadow-color);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .theme-toggle:hover {
+            background-color: var(--border-color);
+        }
+        .theme-toggle .icon {
+            margin-right: 5px;
+        }
+
+        /* Section Styles */
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 5% 40px; /* Adjust for fixed header */
+            text-align: center;
+            position: relative;
+            overflow: hidden; /* For animations */
+        }
+
+        section:nth-of-type(even) {
+            background-color: var(--header-bg); /* Slight variation */
+        }
+
+        .section-content {
+            max-width: 900px;
+            width: 100%;
+            padding: 2rem;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        /* Animation Classes */
+        .hidden {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        .section-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Specific Element Styles */
+        .title-section h1 {
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            text-shadow: 2px 2px 4px var(--shadow-color);
+        }
+        .title-section p {
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+        }
+        .title-section img {
+            max-width: 80%;
+            height: auto;
+            border-radius: 12px;
+            margin-top: 2rem;
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .overview-section .thumbnail {
+            max-width: 400px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .problem-section .gap-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .problem-section .gap-item {
+            background-color: var(--header-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            width: 45%;
+            min-width: 280px;
+            text-align: left;
+        }
+        .problem-section .gap-item h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        .problem-section .arrow {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin: 0 20px;
+        }
+        .problem-section pre {
+            background-color: var(--code-bg);
+            color: var(--text-color);
+            padding: 1.2rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            text-align: left;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px var(--shadow-color);
+        }
+        .problem-section code {
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+        }
+
+        /* Mermaid-like Flowchart (manual CSS implementation) */
+        .mermaid-flowchart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+        }
+        .mermaid-node {
+            background-color: var(--mermaid-bg);
+            border: 2px solid var(--mermaid-border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--mermaid-text);
+            box-shadow: 0 4px 10px var(--shadow-color);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+            width: fit-content;
+            min-width: 150px;
+            position: relative;
+        }
+        .mermaid-node.subgraph {
+            border-style: dashed;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        .mermaid-node.subgraph h4 {
+            color: var(--primary-color);
+            margin-top: -10px;
+            margin-bottom: 15px;
+        }
+        .mermaid-arrow {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .mermaid-node:last-child .mermaid-arrow { display: none; }
+        .mermaid-node.subgraph .mermaid-arrow { margin-top: 20px; } /* Arrow for subgraph to next node */
+
+        .mermaid-flowchart .horizontal-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .mermaid-flowchart .horizontal-group .mermaid-node {
+            margin-bottom: 0;
+        }
+        .mermaid-flowchart .horizontal-group .mermaid-node:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        .mermaid-flowchart .horizontal-group + .mermaid-arrow {
+            margin-top: 20px;
+        }
+
+        /* Specific node styles for flow chart */
+        .mermaid-node.llm-process { background-color: #e1f5fe; color: #343a40; border-color: #90caf9; }
+        body[data-theme="dark"] .mermaid-node.llm-process { background-color: #0d47a1; color: #e9ecef; border-color: #42a5f5; }
+
+        .mermaid-node.schema-understand { background-color: #fff3e0; color: #343a40; border-color: #ffcc80; }
+        body[data-theme="dark"] .mermaid-node.schema-understand { background-color: #e65100; color: #e9ecef; border-color: #ff9800; }
+
+        .mermaid-node.content-link { background-color: #f3e5f5; color: #343a40; border-color: #ce93d8; }
+        body[data-theme="dark"] .mermaid-node.content-link { background-color: #4a148c; color: #e9ecef; border-color: #ab47bc; }
+
+        .mermaid-node.sql-gen { background-color: #e8f5e9; color: #343a40; border-color: #a5d6a7; }
+        body[data-theme="dark"] .mermaid-node.sql-gen { background-color: #1b5e20; color: #e9ecef; border-color: #4caf50; }
+
+        .mermaid-node.db { background-color: #e0f7fa; color: #343a40; border-color: #80deea; border-radius: 50%; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+        body[data-theme="dark"] .mermaid-node.db { background-color: #006064; color: #e9ecef; border-color: #26c6da; }
+        .mermaid-node.db span { display: block; }
+        .mermaid-node.db:not(:last-child)::after { display: none; } /* Hide arrow for DB node */
+        .mermaid-node.db + .mermaid-arrow { margin-top: 0px; }
+
+
+        .core-principles-intro .principle-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 30px;
+        }
+        .core-principles-intro .principle-item {
+            background-color: var(--header-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            width: 80%;
+            max-width: 600px;
+            text-align: left;
+        }
+        .core-principles-intro .principle-item h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .core-principles-intro .principle-item p {
+            margin-bottom: 0.5rem;
+        }
+
+        .schema-understanding-section .layers-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 15px;
+            width: 100%;
+        }
+        .schema-understanding-section .layer {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            width: 80%;
+            max-width: 500px;
+            text-align: left;
+            position: relative;
+        }
+        .schema-understanding-section .layer h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+        .schema-understanding-section .layer:not(:last-child)::after {
+            content: '↓';
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .content-linking-section .vector-visual {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 20px;
+        }
+        .content-linking-section .vector-group {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+        }
+        .content-linking-section .vector-group h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.8rem;
+        }
+        .content-linking-section .vector-group .name-variations {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        .content-linking-section .vector-group .name-variations span {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .content-linking-section .vector-representation {
+            margin-top: 1rem;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+
+        .challenges-section .challenge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 2rem;
+            width: 100%;
+        }
+        .challenges-section .challenge-card {
+            background-color: var(--header-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: left;
+        }
+        .challenges-section .challenge-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+        }
+        .challenges-section .benchmark-note {
+            margin-top: 1.5rem;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+        .challenges-section .chart-container {
+            width: 80%;
+            max-width: 500px;
+            margin: 2rem auto 0;
+        }
+
+        .practical-applications-section .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 2rem;
+            width: 100%;
+        }
+        .practical-applications-section .app-card {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: left;
+        }
+        .practical-applications-section .app-card h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.8rem;
+        }
+
+        .technical-hurdles-section .hurdle-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 700px;
+        }
+        .technical-hurdles-section .hurdle-list li {
+            background-color: var(--code-bg);
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+        }
+        .technical-hurdles-section .hurdle-list li strong {
+            color: var(--primary-color);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .solution-comparison-section table {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 2rem;
+            border-collapse: collapse;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .solution-comparison-section th, .solution-comparison-section td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .solution-comparison-section th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        .solution-comparison-section tr:nth-child(even) {
+            background-color: var(--header-bg);
+        }
+        .solution-comparison-section tr:hover {
+            background-color: var(--code-bg);
+        }
+
+        .roadmap-section .roadmap-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 800px;
+        }
+        .roadmap-section .roadmap-level {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            text-align: left;
+        }
+        .roadmap-section .roadmap-level h3 {
+            color: var(--accent-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .roadmap-section .roadmap-level table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .roadmap-section .roadmap-level th, .roadmap-section .roadmap-level td {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+        .roadmap-section .roadmap-level th {
+            background-color: var(--header-bg);
+            font-weight: bold;
+        }
+        .roadmap-section .roadmap-level tr:nth-child(even) {
+            background-color: var(--code-bg);
+        }
+        .roadmap-section .milestone {
+            margin-top: 1.5rem;
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+
+        .critical-review-section .review-item {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .critical-review-section .review-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+        }
+        .critical-review-section .review-item ul {
+            list-style: disc;
+            margin-left: 20px;
+        }
+        .critical-review-section .callout {
+            margin-top: 2rem;
+        }
+
+        .conclusion-section .outlook-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 700px;
+        }
+        .conclusion-section .outlook-list li {
+            background-color: var(--code-bg);
+            padding: 1.2rem;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+        }
+        .conclusion-section .outlook-list li strong {
+            color: var(--primary-color);
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .key-keywords-section .keyword-card {
+            background-color: var(--header-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            margin-bottom: 2rem;
+            text-align: left;
+            width: 90%;
+            max-width: 700px;
+        }
+        .key-keywords-section .keyword-card h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .key-keywords-section .keyword-card strong {
+            color: var(--primary-color);
+        }
+
+        .resources-section .resource-table {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 2rem;
+            border-collapse: collapse;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .resources-section .resource-table th, .resources-section .resource-table td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            text-align: left;
+        }
+        .resources-section .resource-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+        }
+        .resources-section .resource-table tr:nth-child(even) {
+            background-color: var(--header-bg);
+        }
+        .resources-section .resource-table tr:hover {
+            background-color: var(--code-bg);
+        }
+        .resources-section .recommendation {
+            margin-top: 2rem;
+            text-align: left;
+            max-width: 900px;
+            width: 100%;
+        }
+
+
+        /* Callout Styles */
+        .callout {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem auto;
+            max-width: 700px;
+            text-align: left;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+        }
+        .callout.warning {
+            background-color: #dc3545;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        .callout.info {
+            background-color: #17a2b8;
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+        }
+        .callout.tip {
+            background-color: #ffc107;
+            color: #343a40;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+        .callout.roi {
+            background-color: #6f42c1;
+            box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+        }
+
+        .callout .icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .callout p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            h1 { font-size: 3rem; }
+            h2 { font-size: 2rem; }
+            h3 { font-size: 1.7rem; }
+            .title-section h1 { font-size: 3.5rem; }
+            .title-section p { font-size: 1.5rem; }
+            .section-content { padding: 1.5rem; }
+            .problem-section .gap-item { width: 90%; }
+            .mermaid-flowchart .horizontal-group { flex-direction: column; align-items: center; }
+            .mermaid-flowchart .horizontal-group .mermaid-node:not(:last-child)::after { display: none; }
+            .mermaid-flowchart .horizontal-group .mermaid-node { margin-bottom: 20px; }
+            .mermaid-flowchart .horizontal-group .mermaid-node:not(:last-child) { position: relative; }
+            .mermaid-flowchart .horizontal-group .mermaid-node:not(:last-child)::after {
+                content: '↓';
+                position: absolute;
+                bottom: -30px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 2rem;
+                color: var(--primary-color);
+                display: block; /* Show vertical arrow */
+            }
+            .core-principles-intro .principle-item { width: 90%; }
+            .schema-understanding-section .layer { width: 90%; }
+            .content-linking-section .vector-group { width: 90%; }
+            
+            /* Responsive tables for small screens */
+            .solution-comparison-section table,
+            .resources-section .resource-table {
+                font-size: 0.9rem;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap; /* Prevent wrapping in cells */
+            }
+            .solution-comparison-section table thead, .solution-comparison-section table tbody, .solution-comparison-section table th, .solution-comparison-section table td, .solution-comparison-section table tr,
+            .resources-section .resource-table thead, .resources-section .resource-table tbody, .resources-section .resource-table th, .resources-section .resource-table td, .resources-section .resource-table tr {
+                display: block;
+            }
+            .solution-comparison-section table th, .solution-comparison-section table td,
+            .resources-section .resource-table th, .resources-section .resource-table td {
+                width: 100%;
+                text-align: right;
+                padding-left: 50%; /* Space for data-label */
+                position: relative;
+            }
+            .solution-comparison-section table td::before,
+            .resources-section .resource-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 15px;
+                font-weight: bold;
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.5rem; }
+            .title-section h1 { font-size: 2.8rem; }
+            .title-section p { font-size: 1.2rem; }
+            .theme-toggle { padding: 6px 10px; font-size: 0.9rem; }
+            .section-content { padding: 1rem; }
+            .problem-section .gap-visual { flex-direction: column; }
+            .problem-section .arrow { transform: rotate(90deg); margin: 10px 0; }
+            .core-principles-intro .principle-item { width: 100%; }
+            .schema-understanding-section .layer { width: 100%; }
+            .content-linking-section .vector-group { width: 100%; }
+            .challenges-section .challenge-grid,
+            .practical-applications-section .app-grid { grid-template-columns: 1fr; }
+            .technical-hurdles-section .hurdle-list li { flex-direction: column; align-items: flex-start; }
+            .technical-hurdles-section .hurdle-list li strong { margin-bottom: 5px; }
+            .callout { padding: 1rem; font-size: 1rem; }
+            .callout .icon { font-size: 1.5rem; }
+            .roadmap-section .roadmap-level table { font-size: 0.85rem; }
+        }
+
+        @media (max-width: 480px) {
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+            .title-section h1 { font-size: 2.2rem; }
+            .title-section p { font-size: 1rem; }
+            section { padding: 60px 3% 20px; }
+        }
+
+        /* Star rating for difficulty */
+        .difficulty {
+            color: #ffc107; /* Gold color */
+            font-size: 1.1em;
+            letter-spacing: 2px;
+        }
+
+    </style>
+</head>
+<body data-theme="light">
+    <header>
+        <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">Text-to-SQL 혁신</div>
+        <button class="theme-toggle" id="theme-toggle">
+            <span class="icon">☀️</span> 다크 모드
+        </button>
+    </header>
+
+    <main>
+        <!-- 1. 타이틀 섹션 (1페이지) -->
+        <section id="title-section" class="title-section">
+            <div class="section-content hidden">
+                <h1>AI & Text to SQL</h1>
+                <p>LLM과 스키마로 데이터 분석 혁신</p>
+                <img src="https://i.ytimg.com/vi/S5ezVVJhQmE/mqdefault.jpg" alt="AI & Text to SQL Thumbnail">
+                <p style="margin-top: 1.5rem; font-size: 1.1rem; color: var(--secondary-color);">
+                    IBM Technology | 9분 | AI Education
+                </p>
+            </div>
+        </section>
+
+        <!-- 2. 개요 섹션 (1페이지) -->
+        <section id="overview-section" class="overview-section">
+            <div class="section-content hidden">
+                <h2>📊 영상 개요: 데이터 접근성의 민주화</h2>
+                <img src="https://drive.google.com/thumbnail?id=1EH-e-aNqaAdvw64NlPoUS2W-Vjgv8EhI&sz=w1000" alt="Knowledge Poster" class="thumbnail">
+                <p>본 영상은 대규모 언어 모델(LLM)을 활용한 <strong>Text-to-SQL</strong> 기술이 비즈니스 사용자와 데이터베이스 간의 근본적인 격차를 어떻게 해소하는지 설명합니다.</p>
+                <p>자연어 질문을 SQL 쿼리로 자동 변환하여 기술적 전문성이 없는 사용자도 데이터에 직접 접근할 수 있게 하며, <strong>스키마 이해(Schema Understanding)</strong>와 <strong>콘텐츠 연결(Content Linking)</strong>이라는 두 가지 핵심 원리를 통해 복잡한 실제 데이터 환경에서도 정확한 쿼리 생성이 가능함을 보여줍니다.</p>
+                <div style="margin-top: 1.5rem; text-align: left;">
+                    <h4>🎯 핵심 가치</h4>
+                    <ul>
+                        <li>데이터 접근성 민주화의 기술적 구현 방법론 이해</li>
+                        <li>Text-to-SQL 솔루션 도입 시 고려할 스키마 이해와 콘텐츠 연결 메커니즘 심층 지식 제공</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 핵심 개념 소개 1/3: 데이터 분석의 근본적 격차 -->
+        <section id="data-gap-section" class="problem-section">
+            <div class="section-content hidden">
+                <h2>📉 데이터 분석의 근본적인 격차</h2>
+                <p>데이터 기반 의사결정이 중요해지면서, 비즈니스 질문을 가장 잘 이해하는 사람들은 SQL 전문성이 부족하고, SQL 전문가는 비즈니스 컨텍스트 이해에 한계가 있습니다.</p>
+                <div class="gap-visual">
+                    <div class="gap-item">
+                        <h4>비즈니스 전문가</h4>
+                        <p>"올해 초부터 500달러 이상을 지출한 고객을 지출액 순으로 정렬하여 보여줘"</p>
+                        <ul>
+                            <li>비즈니스 질문 이해 💯</li>
+                            <li>SQL 작성 능력 ❌</li>
+                        </ul>
+                    </div>
+                    <span class="arrow">↔️</span>
+                    <div class="gap-item">
+                        <h4>SQL 전문가</h4>
+                        <p>복잡한 SQL 쿼리 작성 가능</p>
+                        <ul>
+                            <li>SQL 작성 능력 💯</li>
+                            <li>비즈니스 컨텍스트 즉시 이해 ⚠️</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="margin-top: 1.5rem;"><strong>SQL의 정밀성 요구:</strong> 'show me' 같은 자연어 표현은 허용되지 않으며, 모든 구문이 정확해야 합니다.</p>
+                <pre><code>SELECT name, total_spent
+FROM customers
+WHERE date > '2025-01-01' AND total_spent > 500
+ORDER BY total_spent DESC;</code></pre>
+            </div>
+        </section>
+
+        <!-- 3. 핵심 개념 소개 2/3: LLM 기반 Text-to-SQL 솔루션 개요 -->
+        <section id="llm-solution-section">
+            <div class="section-content hidden">
+                <h2>💡 LLM 기반 Text-to-SQL: 솔루션의 부상</h2>
+                <p>대규모 언어 모델(LLM)의 등장은 데이터 접근성 문제를 해결할 새로운 가능성을 열었습니다. 사용자의 자연어 질문을 LLM을 통해 분석하여 자동으로 SQL 쿼리를 생성합니다.</p>
+                <div class="mermaid-flowchart">
+                    <div class="mermaid-node" id="step-A">👤 비즈니스 사용자</div>
+                    <div class="mermaid-arrow"></div>
+                    <div class="mermaid-node" id="step-B">💬 자연어 질문<br/>'올해 매출 Top 10 고객'</div>
+                    <div class="mermaid-arrow"></div>
+                    <div class="mermaid-node subgraph" id="subgraph-engine">
+                        <h4>Text-to-SQL 엔진</h4>
+                        <div class="mermaid-node llm-process" id="step-C">🧠 LLM 처리</div>
+                        <div class="horizontal-group">
+                            <div class="mermaid-node schema-understand" id="step-D">📋 스키마 이해<br/>테이블 구조 + 비즈니스 용어</div>
+                            <div class="mermaid-node content-link" id="step-E">🔗 콘텐츠 연결<br/>벡터 임베딩 매칭</div>
+                        </div>
+                        <div class="mermaid-arrow"></div>
+                        <div class="mermaid-node sql-gen" id="step-F">⚙️ SQL 생성<br/>SELECT name, revenue...</div>
+                    </div>
+                    <div class="mermaid-arrow"></div>
+                    <div class="mermaid-node db" id="step-G"><span>🗄️<br/>데이터베이스</span></div>
+                    <div class="mermaid-arrow"></div>
+                    <div class="mermaid-node" id="step-H">📊 쿼리 결과</div>
+                    <div class="mermaid-arrow"></div>
+                    <div class="mermaid-node">👤 비즈니스 사용자</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 핵심 개념 소개 3/3: AI 시스템의 작동 원리 -->
+        <section id="ai-principles-section" class="core-principles-intro">
+            <div class="section-content hidden">
+                <h2>✨ AI 시스템의 핵심 작동 원리</h2>
+                <p>최신 Text-to-SQL 시스템의 성공은 데이터베이스의 구조적 특성과 비정형적인 실제 데이터를 모두 처리하는 능력에 달려 있습니다. 핵심 원리는 다음 두 가지입니다.</p>
+                <div class="principle-card">
+                    <div class="principle-item">
+                        <h3>1. 스키마 이해 (Schema Understanding)</h3>
+                        <p>AI가 데이터베이스의 테이블과 컬럼 구조를 파악하고, '최신', '최고 평점'과 같은 비즈니스 용어의 맥락을 학습하는 과정입니다.</p>
+                    </div>
+                    <div class="principle-item">
+                        <h3>2. 콘텐츠 연결 (Content Linking)</h3>
+                        <p>'크리스 놀란', 'C. 놀란'과 같이 비표준화되고 일관성 없는 데이터를 의미적으로 매칭하여 정확한 결과를 도출하는 기능입니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 주요 내용 전개 1/2: 스키마 이해 (Schema Understanding) 상세 설명 -->
+        <section id="schema-understanding-detail-section" class="schema-understanding-section">
+            <div class="section-content hidden">
+                <h2>📋 스키마 이해 (Schema Understanding)</h2>
+                <p>AI가 정확한 쿼리를 생성하기 위해서는 먼저 대상 데이터베이스의 구조와 비즈니스 컨텍스트를 이해해야 합니다.</p>
+                <div class="layers-diagram">
+                    <div class="layer">
+                        <h4>1. 기본 스키마 분석</h4>
+                        <p><code>director_name</code>, <code>rating</code>, <code>box_office</code>와 같은 기술적 구조 학습</p>
+                    </div>
+                    <div class="layer">
+                        <h4>2. 비즈니스 컨텍스트 학습</h4>
+                        <p>'최신 영화' = '최근 2년 내 개봉', '최고 평점' = 'IMDb 평점 8점 이상'과 같은 규칙 이해</p>
+                    </div>
+                    <div class="layer">
+                        <h4>3. 과거 쿼리 패턴 학습</h4>
+                        <p>성공적으로 실행된 과거 쿼리 패턴을 기억하고 유사한 질문에 적용</p>
+                    </div>
+                </div>
+                <p style="margin-top: 2rem; font-style: italic; color: var(--secondary-color);">
+                    이 세 가지 요소를 결합하여 LLM은 사용자가 데이터를 어떻게 생각하고 구성하는지에 대한 깊은 이해를 갖춥니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 4. 주요 내용 전개 2/2: 콘텐츠 연결 (Content Linking) 상세 설명 -->
+        <section id="content-linking-detail-section" class="content-linking-section">
+            <div class="section-content hidden">
+                <h2>🔗 콘텐츠 연결 (Content Linking)</h2>
+                <p>실제 데이터베이스는 지저분하고 비일관적인 경우가 많습니다. 동일한 대상을 지칭하는 데이터가 여러 형태로 저장될 수 있습니다.</p>
+                <div class="vector-visual">
+                    <div class="vector-group">
+                        <h4>1. 의미적 매칭 (Semantic Matching)</h4>
+                        <p>단순 문자열 일치를 넘어 의미적 유사성 파악. 예: "Christopher Nolan", "Chris Nolan", "C. Nolan"을 동일 인물로 인식.</p>
+                        <div class="name-variations">
+                            <span>Christopher Nolan</span>
+                            <span>Chris Nolan</span>
+                            <span>C. Nolan</span>
+                            <span>Nolan, Chris</span>
+                        </div>
+                        <p class="vector-representation">→ 모두 유사한 '수학적 지문(Vector Representation)'으로 변환</p>
+                    </div>
+                    <div class="vector-group">
+                        <h4>2. 벡터 표현 (Vector Representation)</h4>
+                        <p>각 데이터 조각에 대해 '수학적 지문'인 벡터 표현을 생성. 유사한 의미는 유사한 벡터 값을 가집니다.</p>
+                        <p style="font-style: italic; margin-top: 1rem;">
+                            이 원리는 감독 이름뿐만 아니라 제품명, 고객 카테고리 등 모든 비표준화된 필드에 적용됩니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 1/8: 현재의 과제와 한계 -->
+        <section id="challenges-section" class="challenges-section">
+            <div class="section-content hidden">
+                <h2>🚧 현재의 과제와 한계</h2>
+                <p>Text-to-SQL 기술은 인상적인 발전을 이루었지만, 아직 현실적인 한계가 존재합니다. BIRD 벤치마크는 실제 환경의 복잡성을 드러냅니다.</p>
+                <div class="challenge-grid">
+                    <div class="challenge-card">
+                        <h4>규모 및 성능 (Scale and Performance)</h4>
+                        <p>수천 개의 테이블과 수백만 개의 행을 가진 방대한 실제 데이터셋에서 빠르고 효율적인 SQL 생성은 고도의 최적화 기술을 요구합니다.</p>
+                    </div>
+                    <div class="challenge-card">
+                        <h4>엣지 케이스 및 특이한 데이터 패턴</h4>
+                        <p>예측하지 못한 데이터 관계, 오래된 레거시 구조, 조직 고유의 비즈니스 시나리오에서 부정확한 쿼리를 생성할 수 있습니다.</p>
+                    </div>
+                </div>
+                <p class="benchmark-note">
+                    <strong>BIRD Benchmark:</strong> 학술용 데이터셋이 아닌 실제 환경에 가까운 복잡한 데이터베이스로 Text-to-SQL 시스템을 평가하는 벤치마크.
+                </p>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 2/8: Text-to-SQL 정확도 영향 요인 (Chart.js) -->
+        <section id="accuracy-factors-section">
+            <div class="section-content hidden">
+                <h2>📈 Text-to-SQL 정확도 결정 요인</h2>
+                <p>시스템의 정확도를 높이기 위한 주요 요소들을 파이 차트로 시각화했습니다.</p>
+                <div class="chart-container">
+                    <canvas id="accuracyPieChart"></canvas>
+                </div>
+                <div style="margin-top: 2rem; text-align: left;">
+                    <ul>
+                        <li><strong>스키마 이해 품질 (35%):</strong> 데이터베이스 구조 및 비즈니스 용어 학습의 깊이</li>
+                        <li><strong>콘텐츠 연결 성능 (25%):</strong> 비표준 데이터의 의미적 매칭 능력</li>
+                        <li><strong>LLM 기본 능력 (20%):</strong> 언어 이해 및 코드 생성 모델의 성능</li>
+                        <li><strong>쿼리 최적화 (10%):</strong> 효율적인 SQL 쿼리 생성 능력</li>
+                        <li><strong>도메인 파인튜닝 (10%):</strong> 특정 데이터셋에 대한 추가 학습</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 3/8: 실무 적용 전략: 효과적인 문제 해결 영역 -->
+        <section id="practical-applications-section" class="practical-applications-section">
+            <div class="section-content hidden">
+                <h2>🚀 실무 적용 전략: 효과적인 문제 해결 영역</h2>
+                <p>Text-to-SQL 기술이 즉시 적용 가능한 실질적인 영역들입니다.</p>
+                <div class="app-grid">
+                    <div class="app-card">
+                        <h4>BI 대시보드 보완</h4>
+                        <p>사전 정의된 대시보드로 커버되지 않는 애드혹(ad-hoc) 분석 요청 처리. 예: "지난 분기 대비 이번 분기 신규 가입자 중 유료 전환율 비교"</p>
+                    </div>
+                    <div class="app-card">
+                        <h4>데이터 카탈로그 검색</h4>
+                        <p>메타데이터 기반으로 스키마 탐색 질의 지원. 예: "고객 이탈 관련 테이블이 뭐가 있지?"</p>
+                    </div>
+                    <div class="app-card">
+                        <h4>내부 슬랙봇/챗봇</h4>
+                        <p>영업팀이 CRM 데이터를 직접 조회하는 인터페이스. 예: "내 담당 고객 중 이번 달 계약 만료 예정인 곳"</p>
+                    </div>
+                </div>
+                <div class="callout roi">
+                    <span class="icon">📈</span>
+                    <p><strong>ROI 계산 예시:</strong> 데이터 분석가가 월 100건의 애드혹 SQL 요청을 처리하고, 건당 평균 30분이 소요된다면, 월 50시간의 업무 시간이 Text-to-SQL 도입으로 절감될 수 있습니다. 시간당 인건비 5만원 기준 월 250만원의 비용 절감 효과가 예상됩니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 4/8: 실무 적용 전략: 기술적 난제 및 고려사항 -->
+        <section id="technical-hurdles-section" class="technical-hurdles-section">
+            <div class="section-content hidden">
+                <h2>⚠️ 기술적 난제 및 고려사항</h2>
+                <p>Text-to-SQL 도입 시 예상되는 주요 기술적 도전 과제들입니다.</p>
+                <ul class="hurdle-list">
+                    <li><strong>컨텍스트 윈도우 제한:</strong> 대규모 스키마를 LLM 컨텍스트에 담기 어려움. RAG 기반 스키마 검색 전략 필요.</li>
+                    <li><strong>쿼리 성능 최적화:</strong> LLM 생성 SQL이 비효율적이거나 인덱스를 활용하지 못할 수 있음. 쿼리 플래너 연동 필수.</li>
+                    <li><strong>보안 및 권한 관리:</strong> 사용자별 접근 가능한 테이블/컬럼 제한, SQL Injection 방지 등 강력한 보안 계층 요구.</li>
+                </ul>
+                <div class="callout warning">
+                    <span class="icon">🚨</span>
+                    <p><strong>프로덕션 도입 시 주의사항:</strong> Text-to-SQL 시스템은 잠재적으로 민감한 데이터에 접근할 수 있습니다. SQL Injection 공격 방지, 사용자별 권한 관리, 쿼리 로깅 및 감사 체계 구축이 필수적으로 선행되어야 합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 5/8: 다른 기술 또는 도구 비교 분석 -->
+        <section id="solution-comparison-section" class="solution-comparison-section">
+            <div class="section-content hidden">
+                <h2>🛠️ Text-to-SQL 솔루션 비교 분석</h2>
+                <p>다양한 Text-to-SQL 시스템 구축 접근 방식과 그 장단점입니다.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>접근 방식</th>
+                            <th>초기 비용</th>
+                            <th>운영 비용</th>
+                            <th>정확도</th>
+                            <th>커스터마이징</th>
+                            <th>적합 대상</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="접근 방식">클라우드 API (AWS Bedrock SQL)</td>
+                            <td data-label="초기 비용">낮음</td>
+                            <td data-label="운영 비용">중간</td>
+                            <td data-label="정확도">75-80%</td>
+                            <td data-label="커스터마이징">낮음</td>
+                            <td data-label="적합 대상">빠른 PoC, 소규모</td>
+                        </tr>
+                        <tr>
+                            <td data-label="접근 방식">오픈소스 프레임워크 (LangChain SQL Agent)</td>
+                            <td data-label="초기 비용">중간</td>
+                            <td data-label="운영 비용">낮음</td>
+                            <td data-label="정확도">70-85%*</td>
+                            <td data-label="커스터마이징">높음</td>
+                            <td data-label="적합 대상">개발 역량 보유 조직</td>
+                        </tr>
+                        <tr>
+                            <td data-label="접근 방식">전문 SaaS (Defog, AI2SQL)</td>
+                            <td data-label="초기 비용">중간</td>
+                            <td data-label="운영 비용">높음</td>
+                            <td data-label="정확도">70-80%</td>
+                            <td data-label="커스터마이징">중간</td>
+                            <td data-label="적합 대상">빠른 도입, 중규모</td>
+                        </tr>
+                        <tr>
+                            <td data-label="접근 방식">직접 모델 파인튜닝</td>
+                            <td data-label="초기 비용">높음</td>
+                            <td data-label="운영 비용">중간</td>
+                            <td data-label="정확도">80-90%*</td>
+                            <td data-label="커스터마이징">최고</td>
+                            <td data-label="적합 대상">대규모, 특수 요구사항</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 1rem; font-size: 0.9em; color: var(--secondary-color);">*튜닝 수준에 따라 변동</p>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 6/8: 학습 로드맵 (초급) -->
+        <section id="roadmap-beginner-section" class="roadmap-section">
+            <div class="section-content hidden">
+                <h2>🌱 학습 로드맵: 초급자</h2>
+                <p>SQL 기초부터 Text-to-SQL 활용까지, 입문자를 위한 학습 경로입니다.</p>
+                <div class="roadmap-container">
+                    <div class="roadmap-level">
+                        <h3>초급자 로드맵 (SQL 기초 ~ Text-to-SQL 활용)</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>단계</th>
+                                    <th>학습 내용</th>
+                                    <th>기간</th>
+                                    <th>난이도</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>SQL 기초: SELECT, WHERE, JOIN, GROUP BY</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>데이터베이스 설계 기초: ERD 읽기, 정규화 이해</td>
+                                    <td>1주</td>
+                                    <td class="difficulty">⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>LLM 기초: 프롬프트 엔지니어링, API 사용법</td>
+                                    <td>1주</td>
+                                    <td class="difficulty">⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>LangChain 입문: 기본 체인, 에이전트 개념</td>
+                                    <td>1주</td>
+                                    <td class="difficulty">⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Text-to-SQL 실습: LangChain SQL Agent 구축</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐⭐⭐</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="milestone"><strong>총 7주 학습 기준:</strong> SQLite 로컬 DB에서 자연어 질의 → SQL 변환 데모 구현</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 7/8: 학습 로드맵 (숙련자) -->
+        <section id="roadmap-advanced-section" class="roadmap-section">
+            <div class="section-content hidden">
+                <h2>🚀 학습 로드맵: 숙련자</h2>
+                <p>Text-to-SQL 시스템 설계부터 프로덕션 배포까지, 심화 학습 경로입니다.</p>
+                <div class="roadmap-container">
+                    <div class="roadmap-level">
+                        <h3>숙련자 로드맵 (Text-to-SQL 시스템 설계 ~ 프로덕션 배포)</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>단계</th>
+                                    <th>학습 내용</th>
+                                    <th>기간</th>
+                                    <th>난이도</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>고급 SQL: 윈도우 함수, CTE, 성능 튜닝</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>벡터 임베딩 심화: Content Linking 구현</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>스키마 메타데이터 설계: 비즈니스 용어 사전 구축</td>
+                                    <td>1주</td>
+                                    <td class="difficulty">⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>보안 구현: SQL Injection 방지, 권한 관리</td>
+                                    <td>1주</td>
+                                    <td class="difficulty">⭐⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>성능 최적화: 쿼리 플래너 연동, 캐싱 전략</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐⭐⭐⭐</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>프로덕션 배포: 모니터링, 로깅, 에러 핸들링</td>
+                                    <td>2주</td>
+                                    <td class="difficulty">⭐⭐⭐⭐</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="milestone"><strong>총 10주 학습 기준:</strong> 프로덕션 환경에서 일 1,000건 이상 처리, 자동 쿼리 검증 및 성능 모니터링 운영</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 심층분석 파트 8/8: 비판적 검토 및 대안 -->
+        <section id="critical-review-section" class="critical-review-section">
+            <div class="section-content hidden">
+                <h2>🔎 비판적 검토 및 대안</h2>
+                <p>Text-to-SQL 기술의 잠재력만큼이나 그 한계와 고려되지 않은 측면을 이해하는 것이 중요합니다.</p>
+                <div class="review-item">
+                    <h4>기술의 한계점과 약점</h4>
+                    <ul>
+                        <li><strong>환각 문제:</strong> LLM이 존재하지 않는 테이블/컬럼 참조 SQL 생성 가능성.</li>
+                        <li><strong>복잡한 쿼리 한계:</strong> 다중 조인, 서브쿼리 등 복잡한 쿼리에서 정확도 급락.</li>
+                        <li><strong>성능 무지:</strong> 생성 쿼리가 비효율적이거나 인덱스를 무시할 수 있음.</li>
+                        <li><strong>보안 취약점:</strong> 프롬프트 인젝션으로 의도치 않은 쿼리 실행 위험.</li>
+                    </ul>
+                </div>
+                <div class="review-item">
+                    <h4>고려되지 않은 대안 기술</h4>
+                    <ul>
+                        <li><strong>Semantic Layer:</strong> 비즈니스 메트릭 사전 정의, Text-to-SQL보다 정확하지만 유연성 낮음.</li>
+                        <li><strong>Low-Code BI 도구:</strong> 클릭 기반 쿼리 빌더로 SQL 없이 데이터 탐색.</li>
+                        <li><strong>데이터 가상화:</strong> 여러 데이터 소스를 통합 뷰로 제공하여 스키마 복잡성 감소.</li>
+                    </ul>
+                </div>
+                <div class="callout tip">
+                    <span class="icon">💡</span>
+                    <p><strong>팁:</strong> 비즈니스 용어 사전을 먼저 구축하세요. '최신', '활성', 'VIP' 등 조직 내에서 사용하는 용어의 정확한 정의(예: '최신 = 30일 이내')가 문서화되어 있어야 Text-to-SQL 시스템이 정확한 쿼리를 생성할 수 있습니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 종합 정리 및 시사점 1/3: 결론 및 전망 -->
+        <section id="conclusion-section" class="conclusion-section">
+            <div class="section-content hidden">
+                <h2>✅ 결론 및 미래 전망</h2>
+                <p>LLM 기반 Text-to-SQL 기술은 데이터 접근성을 민주화하여 조직이 데이터를 활용하는 방식을 근본적으로 바꾸는 중요한 기술적 전환을 대표합니다.</p>
+                <ul class="outlook-list">
+                    <li><strong>패러다임 전환:</strong> SQL 전문 지식 요구 → 자연어 기반 데이터 탐색 가능.</li>
+                    <li><strong>통합의 중요성:</strong> 스키마 이해 + 콘텐츠 연결 + 최적화 + 도메인 훈련 결합이 성공 열쇠.</li>
+                    <li><strong>실용적 수준 도달:</strong> 이미 일반적인 비즈니스 질문에 대해서는 매우 실용적인 수준에 도달.</li>
+                </ul>
+                <p style="margin-top: 2rem; font-size: 1.2rem; font-weight: bold; color: var(--primary-color);">
+                    질문을 던지는 것과 데이터베이스로부터 답을 얻는 것 사이의 장벽이 마침내 허물어지기 시작했습니다.
+                </p>
+            </div>
+        </section>
+
+        <!-- 6. 종합 정리 및 시사점 2/3: 핵심 키워드 3가지 -->
+        <section id="key-keywords-section" class="key-keywords-section">
+            <div class="section-content hidden">
+                <h2>🔑 핵심 키워드 3가지</h2>
+                <div class="keyword-card">
+                    <h3>1️⃣ Text-to-SQL</h3>
+                    <p><strong>의미:</strong> 자연어 질문을 구조화된 SQL 쿼리로 자동 변환하는 NLP 기술로, LLM의 언어 이해 능력과 데이터베이스 스키마 지식을 결합하여 구현된다.</p>
+                    <p><strong>중요한 이유:</strong> 기술적 장벽을 제거하여 비개발자도 데이터에 직접 질의할 수 있게 함으로써, 데이터 기반 의사결정의 민주화를 실현하는 핵심 기술이다.</p>
+                </div>
+                <div class="keyword-card">
+                    <h3>2️⃣ Schema Understanding (스키마 이해)</h3>
+                    <p><strong>의미:</strong> AI 시스템이 데이터베이스의 물리적 구조뿐 아니라 조직 고유의 비즈니스 용어와 과거 쿼리 패턴까지 학습하여 사용자 의도를 정확히 파악하는 능력.</p>
+                    <p><strong>중요한 이유:</strong> 동일한 단어가 조직마다 다른 의미를 가질 수 있어, 도메인 특화 학습이 Text-to-SQL 정확도의 핵심 차별화 요소다.</p>
+                </div>
+                <div class="keyword-card">
+                    <h3>3️⃣ Content Linking (콘텐츠 연결)</h3>
+                    <p><strong>의미:</strong> 벡터 임베딩을 활용하여 데이터베이스 내 비표준화된 데이터(이름 변형, 약어, 오타 등)를 의미적으로 매칭하는 기술.</p>
+                    <p><strong>중요한 이유:</strong> 실제 프로덕션 데이터베이스의 데이터 품질 문제를 우회하여 실용적인 쿼리 생성을 가능하게 한다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 종합 정리 및 시사점 3/3: 후속 학습 자료 큐레이션 -->
+        <section id="resources-section" class="resources-section">
+            <div class="section-content hidden">
+                <h2>📚 후속 학습 자료 큐레이션</h2>
+                <p>Text-to-SQL 기술에 대한 더 깊이 있는 학습을 위한 추천 자료입니다.</p>
+                <table class="resource-table">
+                    <thead>
+                        <tr>
+                            <th>구분</th>
+                            <th>자료명</th>
+                            <th>설명</th>
+                            <th>링크</th>
+                            <th>난이도</th>
+                            <th>예상 소요시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td data-label="구분">공식 문서</td>
+                            <td data-label="자료명">LangChain SQL Agent Documentation</td>
+                            <td data-label="설명">LangChain의 SQL 에이전트 공식 가이드, 설정부터 고급 기능까지</td>
+                            <td data-label="링크"><a href="https://python.langchain.com/docs/tutorials/sql_qa/" target="_blank">langchain.com/docs</a></td>
+                            <td data-label="난이도" class="difficulty">⭐⭐</td>
+                            <td data-label="예상 소요시간">3시간</td>
+                        </tr>
+                        <tr>
+                            <td data-label="구분">공식 문서</td>
+                            <td data-label="자료명">BIRD Benchmark Official Site</td>
+                            <td data-label="설명">Text-to-SQL 실제 환경 벤치마크, 데이터셋 및 리더보드 제공</td>
+                            <td data-label="링크"><a href="https://bird-bench.github.io/" target="_blank">bird-bench.github.io</a></td>
+                            <td data-label="난이도" class="difficulty">⭐⭐⭐</td>
+                            <td data-label="예상 소요시간">2시간</td>
+                        </tr>
+                        <tr>
+                            <td data-label="구분">심화 이론</td>
+                            <td data-label="자료명">"A Survey on Text-to-SQL Parsing" (2023)</td>
+                            <td data-label="설명">Text-to-SQL 기술의 학술적 서베이 논문, 최신 연구 동향 정리</td>
+                            <td data-label="링크"><a href="https://arxiv.org/abs/2208.13629" target="_blank">arXiv:2208.13629</a></td>
+                            <td data-label="난이도" class="difficulty">⭐⭐⭐⭐</td>
+                            <td data-label="예상 소요시간">5시간</td>
+                        </tr>
+                        <tr>
+                            <td data-label="구분">실습 예제</td>
+                            <td data-label="자료명">"Build a SQL Agent with LangChain"</td>
+                            <td data-label="설명">LangChain 공식 튜토리얼, PostgreSQL 연동 실습</td>
+                            <td data-label="링크"><a href="https://python.langchain.com/docs/tutorials/sql_qa/" target="_blank">LangChain Cookbook</a></td>
+                            <td data-label="난이도" class="difficulty">⭐⭐</td>
+                            <td data-label="예상 소요시간">4시간</td>
+                        </tr>
+                        <tr>
+                            <td data-label="구분">도구</td>
+                            <td data-label="자료명">Vanna.AI</td>
+                            <td data-label="설명">오픈소스 Text-to-SQL 프레임워크, RAG 기반 스키마 검색</td>
+                            <td data-label="링크"><a href="https://vanna.ai/" target="_blank">vanna.ai</a></td>
+                            <td data-label="난이도" class="difficulty">⭐⭐</td>
+                            <td data-label="예상 소요시간">3시간</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="recommendation">
+                    <h3>추천 학습 순서</h3>
+                    <ol>
+                        <li><strong>(초급)</strong> LangChain SQL Agent Documentation → "Build a SQL Agent" 튜토리얼</li>
+                        <li><strong>(중급)</strong> BIRD Benchmark 분석 → Defog SQLCoder 파인튜닝 실습 (Defog blog 검색)</li>
+                        <li><strong>(고급)</strong> "A Survey on Text-to-SQL" 논문 → 프로덕션 SQL 에이전트 영상 (YouTube 검색) → 자체 시스템 설계</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Intersection Observer for animations
+            const sections = document.querySelectorAll('section .section-content');
+
+            const observerOptions = {
+                root: null, // viewport
+                rootMargin: '0px',
+                threshold: 0.2 // Trigger when 20% of the item is visible
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Optional: stop observing once it's visible if animation only happens once
+                        // observer.unobserve(entry.target);
+                    } else {
+                        // Optional: remove visible class when out of view to re-animate on scroll back
+                        entry.target.classList.remove('visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                section.classList.add('hidden'); // Add hidden class initially
+                observer.observe(section);
+            });
+
+            // Dark/Light Mode Toggle
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            // Load theme from localStorage or default to light
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            body.setAttribute('data-theme', savedTheme);
+            updateThemeToggleIcon(savedTheme);
+
+            themeToggleBtn.addEventListener('click', () => {
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateThemeToggleIcon(newTheme);
+                updateChartColors(); // Update Chart.js colors on theme change
+            });
+
+            function updateThemeToggleIcon(theme) {
+                if (theme === 'dark') {
+                    themeToggleBtn.innerHTML = '<span class="icon">🌙</span> 라이트 모드';
+                } else {
+                    themeToggleBtn.innerHTML = '<span class="icon">☀️</span> 다크 모드';
+                }
+            }
+
+            // Chart.js initialization
+            let accuracyPieChart; // Declare chart variable globally to update it
+
+            function initializeChart() {
+                const ctx = document.getElementById('accuracyPieChart');
+                if (!ctx) return;
+
+                const currentTheme = body.getAttribute('data-theme');
+                const isDark = currentTheme === 'dark';
+
+                const textColor = isDark ? '#e9ecef' : '#212529';
+                const borderColor = isDark ? '#495057' : '#dee2e6';
+
+                const data = {
+                    labels: ['스키마 이해 품질', '콘텐츠 연결 성능', 'LLM 기본 능력', '쿼리 최적화', '도메인 파인튜닝'],
+                    datasets: [{
+                        data: [35, 25, 20, 10, 10],
+                        backgroundColor: [
+                            'rgba(0, 123, 255, 0.8)', /* Primary blue */
+                            'rgba(255, 193, 7, 0.8)',  /* Warning yellow */
+                            'rgba(40, 167, 69, 0.8)',  /* Success green */
+                            'rgba(108, 117, 125, 0.8)',/* Secondary grey */
+                            'rgba(23, 162, 184, 0.8)'  /* Info cyan */
+                        ],
+                        borderColor: borderColor,
+                        borderWidth: 1
+                    }]
+                };
+
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor // Legend text color
+                            }
+                        },
+                        title: {
+                            display: false, // Title handled by H2 tag
+                        }
+                    }
+                };
+                
+                if (accuracyPieChart) {
+                    accuracyPieChart.destroy(); // Destroy existing chart before creating a new one
+                }
+                accuracyPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: data,
+                    options: options
+                });
+            }
+
+            function updateChartColors() {
+                if (accuracyPieChart) {
+                    const currentTheme = body.getAttribute('data-theme');
+                    const isDark = currentTheme === 'dark';
+                    const textColor = isDark ? '#e9ecef' : '#212529';
+                    const borderColor = isDark ? '#495057' : '#dee2e6';
+
+                    accuracyPieChart.options.plugins.legend.labels.color = textColor;
+                    accuracyPieChart.data.datasets[0].borderColor = borderColor;
+                    accuracyPieChart.update();
+                }
+            }
+
+            // Initialize chart when the DOM is ready
+            initializeChart();
+        });
+    </script>
+</body>
+</html>
