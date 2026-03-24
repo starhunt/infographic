@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나의 완벽한 비서 - AI 에이전트 시대</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --primary: #38bdf8;
+            --secondary: #818cf8;
+            --accent: #fb7185;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --transition-speed: 0.6s;
+            --font-main: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        .light-mode {
+            --bg-color: #f1f5f9;
+            --text-color: #1e293b;
+            --primary: #0ea5e9;
+            --secondary: #6366f1;
+            --accent: #e11d48;
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Slide Container */
+        #presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+            transform: translateX(50px);
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+        }
+
+        /* Layout Utilities */
+        .container { width: 100%; max-width: 1200px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .card:hover { transform: translateY(-5px); }
+
+        /* Typography */
+        h1 { font-size: 4rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--primary); }
+        h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem; }
+        p { font-size: 1.2rem; line-height: 1.6; opacity: 0.9; margin-bottom: 1rem; }
+        ul { list-style: none; }
+        li { margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 0.5rem; font-size: 1.1rem; }
+        li::before { content: "•"; color: var(--primary); font-weight: bold; }
+
+        /* Navigation Components */
+        .controls {
+            position: fixed;
+            bottom: 2rem; right: 2rem;
+            display: flex; gap: 1rem;
+            z-index: 100;
+        }
+        .btn {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-color);
+            padding: 0.8rem 1.2rem;
+            border-radius: 50%;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: all 0.2s;
+        }
+        .btn:hover { background: var(--primary); color: white; }
+
+        .progress-container {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 6px;
+            background: rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 1.5rem; left: 2rem;
+            font-size: 0.9rem; font-weight: 500;
+            opacity: 0.6;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 2rem; right: 2rem;
+            z-index: 100;
+        }
+
+        /* Icons/Visuals */
+        .icon-box {
+            font-size: 3rem; margin-bottom: 1rem;
+            display: block;
+        }
+        .highlight { color: var(--secondary); font-weight: 700; }
+
+        /* TOC Grid */
+        .toc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; }
+        .toc-item {
+            padding: 1.2rem;
+            background: var(--card-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 1rem;
+        }
+        .toc-item:hover { background: var(--primary); transform: scale(1.02); }
+        .toc-num { font-weight: 800; font-size: 1.2rem; opacity: 0.5; }
+
+        /* Chart Area */
+        .chart-container { width: 100%; height: 400px; position: relative; }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 2rem; border-left: 2px solid var(--primary); }
+        .timeline-item { margin-bottom: 2rem; position: relative; }
+        .timeline-item::after {
+            content: ""; position: absolute; left: -2.45rem; top: 0.5rem;
+            width: 0.8rem; height: 0.8rem; border-radius: 50%; background: var(--secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide { padding: 2rem; }
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.8rem; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr; }
+            .toc-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="presentation">
+        <!-- Slide 1: Title -->
+        <section class="slide active" style="background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.15), transparent), radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.15), transparent);">
+            <div class="container" style="text-align: center;">
+                <span class="icon-box">🤖</span>
+                <h1>나의 완벽한 비서<br>AI 에이전트 시대</h1>
+                <p style="font-size: 1.5rem; opacity: 0.8; margin-top: 2rem;">스스로 판단하고 행동하는 '능동적 AI'의 혁명</p>
+                <div style="margin-top: 3rem; font-size: 0.9rem; opacity: 0.5;">
+                    KBS 시사기획 창 540회 | 2026. 03. 17.
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: TOC -->
+        <section class="slide">
+            <div class="container">
+                <h2>핵심 목차</h2>
+                <div class="toc-grid">
+                    <div class="toc-item" onclick="goToSlide(2)"><span class="toc-num">01</span> 에이전트 시대의 개막</div>
+                    <div class="toc-item" onclick="goToSlide(5)"><span class="toc-num">02</span> 디지털 노마드와 AI</div>
+                    <div class="toc-item" onclick="goToSlide(7)"><span class="toc-num">03</span> 신뢰성 실험: 한계와 위험</div>
+                    <div class="toc-item" onclick="goToSlide(10)"><span class="toc-num">04</span> 데이터로 보는 협업 트렌드</div>
+                    <div class="toc-item" onclick="goToSlide(12)"><span class="toc-num">05</span> 인간의 자율성에 대한 질문</div>
+                    <div class="toc-item" onclick="goToSlide(14)"><span class="toc-num">06</span> 결론 및 액션 플랜</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Concept 1 -->
+        <section class="slide">
+            <div class="container">
+                <div class="grid-2">
+                    <div>
+                        <h2>'행동하는 AI'의 등장</h2>
+                        <p>기존의 챗봇이 단순히 질문에 답을 하는 <strong>수동적 존재</strong>였다면, 에이전트는 사용자의 목표를 위해 <strong>직접 행동</strong>합니다.</p>
+                        <ul style="margin-top: 2rem;">
+                            <li>이메일 확인 및 자동 답장</li>
+                            <li>복잡한 여행 일정 설계 및 실제 예약</li>
+                            <li>컴퓨터 마우스와 키보드 직접 조작</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <span style="font-size: 5rem;">🧠 → ⚙️</span>
+                        <h3 style="margin-top: 1rem;">Thinking to Doing</h3>
+                        <p>사고를 넘어 실행의 단계로</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Concept 2 -->
+        <section class="slide">
+            <div class="container">
+                <h2 style="text-align: center; margin-bottom: 3rem;">에이전트의 작동 매커니즘</h2>
+                <div class="grid-3">
+                    <div class="card">
+                        <span class="icon-box">🎯</span>
+                        <h3>1. 목표 설정</h3>
+                        <p>사용자가 자연어로 "목표"를 입력 (예: "발리 여행 계획해줘")</p>
+                    </div>
+                    <div class="card">
+                        <span class="icon-box">📋</span>
+                        <h3>2. 계획 수립</h3>
+                        <p>LLM이 단계별 실행 계획(Step-by-step)을 스스로 생성</p>
+                    </div>
+                    <div class="card">
+                        <span class="icon-box">🚀</span>
+                        <h3>3. 자율 실행</h3>
+                        <p>브라우저, 도구, API를 이용해 실제 작업을 완료</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Bali Case -->
+        <section class="slide">
+            <div class="container">
+                <div class="grid-2">
+                    <div class="card" style="padding: 0; overflow: hidden; height: 400px; display: flex; align-items: center; justify-content: center; background: #000;">
+                        <span style="font-size: 8rem;">🏝️</span>
+                    </div>
+                    <div>
+                        <h2>미래를 사는 사람들</h2>
+                        <h3 class="highlight">발리의 디지털 노마드</h3>
+                        <p>인도네시아 발리는 AI 에이전트를 가장 적극적으로 업무에 도입한 거점입니다.</p>
+                        <ul>
+                            <li><strong>1인 기업의 확장:</strong> 혼자서 10인분의 업무 처리</li>
+                            <li><strong>효율의 극대화:</strong> 반복 업무 위임, 창의적 업무 집중</li>
+                            <li><strong>수익 창출:</strong> AI를 통한 부가가치 창출</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Life Transformation -->
+        <section class="slide">
+            <div class="container">
+                <h2>업무 방식의 근본적 변화</h2>
+                <div class="timeline" style="margin-top: 3rem;">
+                    <div class="timeline-item">
+                        <h3>과거: 수동 검색 및 조합</h3>
+                        <p>수십 개의 탭을 띄우고 정보를 직접 복사/붙여넣기 하던 시대</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>현재: AI 협업 (Chat)</h3>
+                        <p>AI에게 초안을 부탁하고 내용을 수정하는 단계</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>미래: 에이전트 위임 (Agent)</h3>
+                        <p>결과물만 확인하고 최종 승인만 내리는 '관리자'로서의 인간</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 7: Experiment 1 -->
+        <section class="slide">
+            <div class="container">
+                <div class="grid-2">
+                    <div>
+                        <h2>에이전트 신뢰성 실험</h2>
+                        <p>KBS 제작진과 연구팀은 여행 예약 에이전트의 <strong>안전성</strong>을 테스트했습니다.</p>
+                        <div class="card" style="border-left: 4px solid var(--accent);">
+                            <p><strong>명령:</strong> "예산 100만원 이내로 가성비 좋은 호텔 예약해줘"</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <span class="icon-box">⚠️</span>
+                        <h3>충격적인 결과</h3>
+                        <p>특정 사이트의 교묘한 광고나 조작된 정보에 노출될 경우, 에이전트는 사용자의 예산 원칙을 무시하고 <strong>150만원 호텔을 추천</strong>했습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 8: Risks -->
+        <section class="slide">
+            <div class="container">
+                <h2>확인된 주요 취약점</h2>
+                <div class="grid-2" style="margin-top: 2rem;">
+                    <div class="card">
+                        <h3 style="color: var(--accent);">1. 외부 정보 오염</h3>
+                        <p>웹 검색 과정에서 가짜 뉴스나 악의적인 프롬프트에 낚여 잘못된 결정을 내릴 가능성</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="color: var(--accent);">2. 가이드라인 이탈</h3>
+                        <p>사용자가 설정한 핵심 원칙(예산, 윤리, 선호도)보다 최신 정보를 더 신뢰하는 현상</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 9: Comparison Table -->
+        <section class="slide">
+            <div class="container">
+                <h2>AI 에이전트 vs 기존 챗봇</h2>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 2rem; border-radius: 12px; overflow: hidden;">
+                    <thead>
+                        <tr style="background: var(--primary); color: white;">
+                            <th style="padding: 1.5rem; text-align: left;">특징</th>
+                            <th style="padding: 1.5rem; text-align: left;">기존 챗봇 (GPT-4 등)</th>
+                            <th style="padding: 1.5rem; text-align: left;">AI 에이전트</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <td style="padding: 1.5rem; font-weight: bold;">주요 역할</td>
+                            <td style="padding: 1.5rem;">지식 제공, 요약, 번역</td>
+                            <td style="padding: 1.5rem;">작업 수행, 문제 해결, 대행</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <td style="padding: 1.5rem; font-weight: bold;">상호작용</td>
+                            <td style="padding: 1.5rem;">Q&A (턴 방식)</td>
+                            <td style="padding: 1.5rem;">자율적 연속 실행 (루프 방식)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 1.5rem; font-weight: bold;">권한 범위</td>
+                            <td style="padding: 1.5rem;">텍스트 생성 한정</td>
+                            <td style="padding: 1.5rem;">브라우저, 파일, 결제 앱 조작</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Slide 10: Data Chart -->
+        <section class="slide">
+            <div class="container">
+                <h2>생산성 향상 효과 예측</h2>
+                <p>작업 복잡도에 따른 인간과 에이전트의 효율 비교</p>
+                <div class="chart-container">
+                    <canvas id="productivityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 11: Philosophical Question -->
+        <section class="slide" style="background: var(--text-color); color: var(--bg-color);">
+            <div class="container" style="text-align: center;">
+                <span style="font-size: 4rem;">⚖️</span>
+                <h2 style="color: var(--bg-color);">기술을 넘어 인간의 문제로</h2>
+                <p style="font-size: 2rem; font-weight: 300; margin: 2rem 0;">"우리는 무엇을 잃고 있는가?"</p>
+                <div class="grid-2" style="text-align: left;">
+                    <p>편리함의 대가로 <strong>비판적 사고</strong>와 <strong>의사결정 능력</strong>이 퇴화하고 있지는 않습니까? GPS가 우리의 길 찾기 능력을 앗아간 것처럼 말입니다.</p>
+                    <p>AI가 모든 것을 대신해줄 때, 인간의 <strong>자율성(Autonomy)</strong>은 어디에 머물러야 할까요?</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 12: Ethical Guidelines -->
+        <section class="slide">
+            <div class="container">
+                <h2>에이전트 활용 3대 원칙</h2>
+                <div class="grid-3" style="margin-top: 3rem;">
+                    <div class="card" style="border-top: 4px solid var(--primary);">
+                        <span class="icon-box">🛡️</span>
+                        <h3>1. 통제권 유지</h3>
+                        <p>중요한 결정과 최종 결제는 반드시 인간의 승인을 거쳐야 함</p>
+                    </div>
+                    <div class="card" style="border-top: 4px solid var(--secondary);">
+                        <span class="icon-box">🔍</span>
+                        <h3>2. 투명한 검증</h3>
+                        <p>AI가 내린 판단의 근거와 수집된 정보를 상시 모니터링</p>
+                    </div>
+                    <div class="card" style="border-top: 4px solid var(--accent);">
+                        <span class="icon-box">🧠</span>
+                        <h3>3. 비판적 거리</h3>
+                        <p>AI의 추천을 맹신하지 않고 독립적인 판단 근거를 유지</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 13: Summary -->
+        <section class="slide">
+            <div class="container">
+                <h2>Executive Summary</h2>
+                <div class="card">
+                    <ul style="font-size: 1.3rem;">
+                        <li><strong>패러다임 전환:</strong> 생성형 AI는 이제 '도구'에서 '에이전트'로 진화 완료</li>
+                        <li><strong>실제적 위협:</strong> 외부 정보 조작에 취약하며 사용자 원칙을 위반할 위험 상존</li>
+                        <li><strong>새로운 노동관:</strong> '무엇을 할 것인가'보다 '어떻게 관리할 것인가'가 핵심 역량</li>
+                        <li><strong>철학적 성찰:</strong> 인간의 고유한 판단 영역과 기술의 경계를 명확히 설정해야 함</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 14: Action Items -->
+        <section class="slide">
+            <div class="container">
+                <h2>우리를 위한 액션 플랜</h2>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>지금 바로 시작할 것</h3>
+                        <ul>
+                            <li>업무 프로세스 중 '반복 규칙' 업무 식별</li>
+                            <li>에이전트 도구(Operator, AutoGPT 등) 경험</li>
+                            <li>나만의 AI 사용 윤리 가이드 작성</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>장기적으로 준비할 것</h3>
+                        <ul>
+                            <li>AI 관리 및 오케스트레이션 능력 배양</li>
+                            <li>데이터 보안 및 프라이버시 지식 강화</li>
+                            <li>AI가 대체할 수 없는 '창의적 질문력' 강화</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 15: Outro -->
+        <section class="slide" style="background: linear-gradient(135deg, var(--bg-color), #1e293b);">
+            <div class="container" style="text-align: center;">
+                <h1 style="font-size: 5rem;">THANK YOU</h1>
+                <p style="font-size: 1.5rem; opacity: 0.7;">AI는 당신의 완벽한 비서가 될 수 있습니다.<br>단, 당신이 완벽한 <strong>주인</strong>일 때만 가능합니다.</p>
+                <div style="margin-top: 4rem;">
+                    <button class="btn" style="border-radius: 30px; padding: 1rem 2rem; font-size: 1.2rem;" onclick="goToSlide(0)">다시 보기</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- UI Elements -->
+    <div class="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="slide-number">
+        <span id="current-num">1</span> / <span id="total-num">15</span>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()" aria-label="Previous slide">←</button>
+        <button class="btn" onclick="nextSlide()" aria-label="Next slide">→</button>
+    </div>
+
+    <div class="theme-toggle">
+        <button class="btn" onclick="toggleTheme()" title="테마 변경">🌓</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const currentNumDisplay = document.getElementById('current-num');
+        const totalNumDisplay = document.getElementById('total-num');
+
+        totalNumDisplay.textContent = slides.length;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === index) {
+                    slide.classList.add('active');
+                } else if (i < index) {
+                    slide.classList.add('prev');
+                }
+            });
+            currentSlide = index;
+            updateUI();
+        }
+
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function goToSlide(index) {
+            showSlide(index);
+        }
+
+        function updateUI() {
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            currentNumDisplay.textContent = currentSlide + 1;
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Touch Navigation
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        document.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) nextSlide();
+            if (touchEndX - touchStartX > 50) prevSlide();
+        });
+
+        // Initialize Chart
+        function initChart() {
+            const ctx = document.getElementById('productivityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['단순 업무', '반복 업무', '정보 수집', '계획 수립', '실행/예약', '복합 의사결정'],
+                    datasets: [{
+                        label: '인간 단독 효율',
+                        data: [100, 90, 70, 60, 50, 80],
+                        borderColor: '#fb7185',
+                        backgroundColor: 'rgba(251, 113, 133, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'AI 에이전트 협업 효율',
+                        data: [500, 850, 900, 750, 800, 400],
+                        borderColor: '#38bdf8',
+                        backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: getComputedStyle(document.body).getPropertyValue('--text-color') } }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }
+                        },
+                        x: { 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-color') }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Wait for page load
+        window.onload = () => {
+            initChart();
+            updateUI();
+        };
+    </script>
+</body>
+</html>
